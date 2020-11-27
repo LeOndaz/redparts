@@ -1,0 +1,22 @@
+{
+    "name": "Untitled GraphQL Schema",
+    "schemaPath": "schema.graphql",
+    "extensions": {
+        "endpoints": {
+            "Default GraphQL Endpoint": {
+                "url": "http://localhost:8000/graphql/",
+                "headers": {
+                    "user-agent": "JS GraphQL"
+                },
+                "introspect": true
+            },
+            "Reviews Endpoint": {
+                "url": "http://localhost:8000/plugins/reviews/",
+                "headers": {
+                    "user-agent": "JS GraphQL"
+                },
+                "introspect": true
+            }
+        }
+    }
+}

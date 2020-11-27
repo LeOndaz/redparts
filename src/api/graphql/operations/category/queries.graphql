@@ -1,0 +1,55 @@
+query getProductsByCategoryId($id: ID!, $first: Int, $last: Int, $after: String, $before: String) {
+    category(id: $id){
+        ...categoryDetailFragment
+        ...categoryChildrenFragment
+        products(first: $first, last: $last, after: $after, before: $before) {
+            edges {
+                node {
+                    ...productDetailFragment
+                }
+                cursor
+            }
+            ...productPageInfoFragment
+        }
+    }
+}
+
+
+query getCategoryById($id: ID!){
+    category(id: $id){
+        ...categoryDetailFragment
+        ...categoryChildrenFragment
+    }
+}
+
+query getCategoryBySlug($slug: String!){
+    category(slug: $slug){
+        ...categoryDetailFragment
+        ...categoryChildrenFragment
+    }
+}
+
+query GetCategoryList($first: Int, $last: Int, $after: String, $before: String, $filter: CategoryFilterInput, $sortBy: CategorySortingInput, $level: Int) {
+    categories(first: $first, last: $last, after: $after, before: $before, level: $level, filter: $filter, sortBy: $sortBy){
+        edges {
+            node{
+                ...categoryDetailFragment
+                ...categoryChildrenFragment
+            }
+            cursor
+        }
+        ...categoryPageInfoFragment
+    }
+}
+
+query getCategoryChildrenById($id: ID!){
+    category(id: $id){
+        ...categoryChildrenFragment
+    }
+}
+
+query getCategoryChildrenBySlug($slug: String!){
+    category(slug: $slug){
+        ...categoryChildrenFragment
+    }
+}

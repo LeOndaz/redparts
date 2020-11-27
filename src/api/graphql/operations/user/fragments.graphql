@@ -1,0 +1,14 @@
+fragment userPrivateDetailsFragment on User {
+    id
+    email
+    avatar {
+        alt
+        url
+    }
+    firstName
+    lastName
+    lastLogin
+    dateJoined
+    isActive
+    isStaff
+}

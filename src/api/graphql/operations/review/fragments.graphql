@@ -1,0 +1,6 @@
+fragment reviewPageInfoFragment on ReviewCountableConnection {
+    pageInfo{
+        ...pageInfoFragment
+    }
+    totalCount
+}

@@ -1,0 +1,15 @@
+overwrite: true
+schema:
+    - "http://localhost:8000/graphql/"
+    - "http://localhost:8000/plugins/reviews/"
+documents: "src/api/graphql/**/*.graphql"
+generates:
+  src/api/graphql/types.tsx:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+    config:
+      useIndexSignature: true
+#      avoidOptionals: true
+

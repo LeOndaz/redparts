@@ -1,0 +1,34 @@
+# for pagination
+fragment categoryPageInfoFragment on CategoryCountableConnection {
+    pageInfo {
+        ...pageInfoFragment
+    }
+    totalCount
+}
+
+fragment categoryDetailFragment on Category {
+    id
+    name
+    slug
+    level
+    description
+    seoTitle
+    seoDescription
+}
+
+fragment categoryChildrenFragment on Category{
+    children (first: 100){
+        edges {
+            node {
+                ...categoryDetailFragment
+                children(first: 100){
+                    edges {
+                        node {
+                            ...categoryDetailFragment
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

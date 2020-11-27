@@ -1,0 +1,106 @@
+fragment productPageInfoFragment on ProductCountableConnection {
+    pageInfo {
+        ...pageInfoFragment
+    }
+    totalCount
+}
+
+fragment productDetailFragment on Product {
+    id
+    name
+    slug
+    descriptionJson
+    seoTitle
+    seoDescription
+    pricing {
+        discount {
+            gross {
+                amount
+            }
+        }
+        priceRange {
+            start {
+                net {
+                    amount
+                }
+            }
+        }
+    }
+    images {
+        id
+        alt
+        url
+    }
+    isAvailable
+    isAvailableForPurchase
+    weight {
+        unit
+        value
+    }
+    pricing{
+        discount {
+            gross {
+                amount
+            }
+        }
+        onSale
+    }
+    attributes {
+        attribute {
+            id
+            slug
+            name
+        }
+        values {
+            id
+            slug
+            name
+        }
+    }
+    variants {
+        ...productVariantDetails
+    }
+    defaultVariant {
+        sku
+        attributes {
+            attribute {
+                name
+                id
+            }
+            values {
+                name
+                id
+            }
+        }
+    }
+    productType {
+        slug
+        name
+    }
+    category {
+        ...categoryDetailFragment
+    }
+}
+
+fragment productVariantDetails on ProductVariant {
+    id
+    sku
+    name
+    pricing {
+        price {
+            net {
+                amount
+            }
+        }
+    }
+    attributes {
+        attribute {
+            id
+            name
+        }
+        values {
+            id
+            name
+        }
+    }
+}

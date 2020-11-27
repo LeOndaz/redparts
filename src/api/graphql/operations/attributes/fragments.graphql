@@ -1,0 +1,9 @@
+fragment attributeDetailsFragment on Attribute {
+    id
+    name
+    values{
+        id
+        slug
+        name
+    }
+}

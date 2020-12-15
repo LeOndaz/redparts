@@ -37,10 +37,6 @@ export class RangeFilterBuilder extends AbstractFilterBuilder {
             this.value = this.parseValue(value);
         }
 
-        if (!this.min && !this.max) {
-            this.min = 0;
-            this.max = 10000;
-        }
     }
 
     calc(products: IProduct[], filterBuilders: AbstractFilterBuilder[]): void {

@@ -10,8 +10,7 @@ import ReviewsView from '~/components/shop/ReviewsView';
 import Specification from '~/components/shop/Specification';
 import { IProduct, IProductAttributeGroup } from '~/interfaces/product';
 import { IProductPageLayout } from '~/interfaces/pages';
-import {parseRawHTMLFromJson} from "~/components/utils";
-import { convertToRaw, convertFromRaw } from "draft-js"
+import {customEditorjsParser} from "~/components/utils"
 
 
 export interface ITab {
@@ -53,7 +52,7 @@ function ProductTabs(props: Props) {
             content: (
                 <div
                     className="typography"
-                    dangerouslySetInnerHTML={{ __html: product.description && parseRawHTMLFromJson(JSON.parse(product.description))}}
+                    dangerouslySetInnerHTML={{__html: product.description}}
                 />
             ),
         },

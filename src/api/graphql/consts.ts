@@ -7,7 +7,7 @@ export const API_URL = 'http://localhost:8000/graphql/';
 export const REVIEWS_PLUGIN_API_URL = 'http://localhost:8000/plugins/reviews/';
 
 /** */
-export const DEFAULT_CHANNEL = 'default-channel';
+export const DEFAULT_CHANNEL = 'default';
 
 /** AUTH */
 export const jwtRenewalInterval = 5 * 60 * 1000; // 5 min
@@ -24,7 +24,10 @@ const SERVER_ERRORS: any = {
 }
 
 
-const MAIN_ATTR_SLUGS = {
+export const DEFAULT_ATTR_SLUGS = {
     BRAND: "brand",
     BADGES: "badges",
+    TAGS: "tags",
 }
+
+export const MAX_BADGES = 3

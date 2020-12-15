@@ -4,9 +4,9 @@ query getAttributeById($id: ID!){
   }
 }
 
-query getAttributeBySlug($slug: String!){
-  attribute(slug: $slug){
-      ...attributeDetailsFragment
-  }
-}
+#query getAttributeBySlug($slug: String!){
+#  attribute(slug: $slug){
+#      ...attributeDetailsFragment
+#  }
+#}
 

@@ -13,15 +13,28 @@ fragment productDetailFragment on Product {
     seoTitle
     seoDescription
     pricing {
-        discount {
-            gross {
-                amount
-            }
-        }
+        onSale
         priceRange {
             start {
+                gross {
+                    amount
+                    currency
+                }
                 net {
                     amount
+                    currency
+                }
+            }
+        }
+        priceRangeUndiscounted {
+            start {
+                gross {
+                    amount
+                    currency
+                }
+                net {
+                    amount
+                    currency
                 }
             }
         }
@@ -37,25 +50,8 @@ fragment productDetailFragment on Product {
         unit
         value
     }
-    pricing{
-        discount {
-            gross {
-                amount
-            }
-        }
-        onSale
-    }
     attributes {
-        attribute {
-            id
-            slug
-            name
-        }
-        values {
-            id
-            slug
-            name
-        }
+        ...attributeValuesDetailFragment
     }
     variants {
         ...productVariantDetails
@@ -63,14 +59,7 @@ fragment productDetailFragment on Product {
     defaultVariant {
         sku
         attributes {
-            attribute {
-                name
-                id
-            }
-            values {
-                name
-                id
-            }
+            ...attributeValuesDetailFragment
         }
     }
     productType {
@@ -94,13 +83,6 @@ fragment productVariantDetails on ProductVariant {
         }
     }
     attributes {
-        attribute {
-            id
-            name
-        }
-        values {
-            id
-            name
-        }
+        ...attributeValuesDetailFragment
     }
 }

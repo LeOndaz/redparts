@@ -1,22 +1,16 @@
-import {SelectedAttribute} from "~/api/graphql/types";
+import {GetAttributeByIdDocument, SelectedAttribute} from "~/api/graphql/types";
 import {client} from "~/api";
-
-
+import _ from "lodash";
 
 
 class AttributeUtils {
     getSelectedAttr(slug: string, selectedAttrs: SelectedAttribute[]) {
-        return selectedAttrs.filter(selectedAttr => selectedAttr.attribute.slug === slug)[0]
+        return selectedAttrs.find(selectedAttr => selectedAttr.attribute.slug === slug)
     }
 
     getAttributeValues(slug: string, selectedAttrs: SelectedAttribute[]) {
         /** return attr values */
-        return this.getSelectedAttr(slug, selectedAttrs) ?? []
-    }
-
-    mapAttrToValues(badgeSelectedAttr: SelectedAttribute): string[] {
-        /** attribute name: Badges (lower-cased) */
-        return badgeSelectedAttr.values.map(val => val?.name ?? '').filter(x => x)
+        return this.getSelectedAttr(slug, selectedAttrs)?.values || []
     }
 
 }
@@ -24,12 +18,23 @@ class AttributeUtils {
 export class AttributeService {
     utils = new AttributeUtils();
 
-    getAttributeBySlug(slug: string) {
+    getById(id: string) {
         return client.query({
-            query: '',
+            query: GetAttributeByIdDocument,
             variables: {
-                slug
+                id,
             }
         })
     }
+
+    getBySlug(slug: string) {
+        return client.query({
+            query: GetAttributeByIdDocument,
+            variables: {
+                slug,
+            }
+        })
+    }
+
+
 }

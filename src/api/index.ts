@@ -1,4 +1,4 @@
-import {ApolloClient, InMemoryCache, NormalizedCacheObject} from '@apollo/client';
+import {ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client';
 import {FakeAccountApi} from './fake-api/fake-account.api';
 import {FakeBlogApi} from './fake-api/fake-blog.api';
 import {FakeCountriesApi} from './fake-api/fake-countries.api';
@@ -27,9 +27,10 @@ export const cache = new InMemoryCache();
 
 // shared client across all resolvers
 export const client = new ApolloClient<NormalizedCacheObject>({
-    link: new BatchHttpLink({
-        uri: API_URL,
-    }),
+    // link: new BatchHttpLink({
+    //     uri: API_URL,
+    // }),
+    link: new HttpLink({uri: API_URL}),
     cache,
 });
 

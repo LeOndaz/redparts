@@ -118,6 +118,8 @@ export type Query = {
   order?: Maybe<Order>;
   /** Look up an order by token. */
   orderByToken?: Maybe<Order>;
+  /** Order related settings from site settings. */
+  orderSettings?: Maybe<OrderSettings>;
   /** List of orders. */
   orders?: Maybe<OrderCountableConnection>;
   /** Return the total sales amount from a specific period. */
@@ -234,7 +236,8 @@ export type QueryAppsArgs = {
 
 
 export type QueryAttributeArgs = {
-  id: Scalars['ID'];
+  id?: Maybe<Scalars['ID']>;
+  slug?: Maybe<Scalars['String']>;
 };
 
 
@@ -753,6 +756,7 @@ export type WebhookEvent = {
 export enum WebhookEventTypeEnum {
   AnyEvents = 'ANY_EVENTS',
   OrderCreated = 'ORDER_CREATED',
+  OrderConfirmed = 'ORDER_CONFIRMED',
   OrderFullyPaid = 'ORDER_FULLY_PAID',
   OrderUpdated = 'ORDER_UPDATED',
   OrderCancelled = 'ORDER_CANCELLED',
@@ -879,6 +883,7 @@ export enum AppTypeEnum {
 /** An enumeration. */
 export enum WebhookSampleEventTypeEnum {
   OrderCreated = 'ORDER_CREATED',
+  OrderConfirmed = 'ORDER_CONFIRMED',
   OrderFullyPaid = 'ORDER_FULLY_PAID',
   OrderUpdated = 'ORDER_UPDATED',
   OrderCancelled = 'ORDER_CANCELLED',
@@ -1055,13 +1060,17 @@ export type ShippingMethod = Node & ObjectWithMetadata & {
   __typename?: 'ShippingMethod';
   /** List of channels available for the method. */
   channelListings?: Maybe<Array<ShippingMethodChannelListing>>;
+  /** List of excluded products for the shipping method. */
+  excludedProducts?: Maybe<ProductCountableConnection>;
   /** The ID of the object. */
   id: Scalars['ID'];
+  maximumDeliveryDays?: Maybe<Scalars['Int']>;
   /** The price of the cheapest variant (including discounts). */
   maximumOrderPrice?: Maybe<Money>;
   maximumOrderWeight?: Maybe<Weight>;
   /** List of public metadata items. Can be accessed without permissions. */
   metadata: Array<Maybe<MetadataItem>>;
+  minimumDeliveryDays?: Maybe<Scalars['Int']>;
   /** The price of the cheapest variant (including discounts). */
   minimumOrderPrice?: Maybe<Money>;
   minimumOrderWeight?: Maybe<Weight>;
@@ -1074,6 +1083,17 @@ export type ShippingMethod = Node & ObjectWithMetadata & {
   translation?: Maybe<ShippingMethodTranslation>;
   /** Type of the shipping method. */
   type?: Maybe<ShippingMethodTypeEnum>;
+  /** Zip code exclude range of the shipping method. */
+  zipCodeRules?: Maybe<Array<Maybe<ShippingMethodZipCodeRule>>>;
+};
+
+
+/** Shipping method are the methods you'll use to get customer's orders to them. They are directly exposed to the customers. */
+export type ShippingMethodExcludedProductsArgs = {
+  after?: Maybe<Scalars['String']>;
+  before?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
 };
 
 
@@ -1190,6 +1210,8 @@ export type ShippingMethodChannelListing = Node & {
 export type Channel = Node & {
   __typename?: 'Channel';
   currencyCode: Scalars['String'];
+  /** Whether a channel has associated orders. */
+  hasOrders: Scalars['Boolean'];
   /** The ID of the object. */
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
@@ -1197,120 +1219,32 @@ export type Channel = Node & {
   slug: Scalars['String'];
 };
 
-/** Represents user address data. */
-export type Address = Node & {
-  __typename?: 'Address';
-  city: Scalars['String'];
-  cityArea: Scalars['String'];
-  companyName: Scalars['String'];
-  /** Shop's default country. */
-  country: CountryDisplay;
-  countryArea: Scalars['String'];
-  firstName: Scalars['String'];
+/** Represents shipping method zip code. */
+export type ShippingMethodZipCodeRule = Node & {
+  __typename?: 'ShippingMethodZipCodeRule';
+  /** End address range. */
+  end?: Maybe<Scalars['String']>;
   /** The ID of the object. */
   id: Scalars['ID'];
-  /** Address is user's default billing address. */
-  isDefaultBillingAddress?: Maybe<Scalars['Boolean']>;
-  /** Address is user's default shipping address. */
-  isDefaultShippingAddress?: Maybe<Scalars['Boolean']>;
-  lastName: Scalars['String'];
-  phone?: Maybe<Scalars['String']>;
-  postalCode: Scalars['String'];
-  streetAddress1: Scalars['String'];
-  streetAddress2: Scalars['String'];
+  /** Start address range. */
+  start?: Maybe<Scalars['String']>;
 };
 
-export type WarehouseCountableConnection = {
-  __typename?: 'WarehouseCountableConnection';
+export type ProductCountableConnection = {
+  __typename?: 'ProductCountableConnection';
+  edges: Array<ProductCountableEdge>;
   /** Pagination data for this connection. */
   pageInfo: PageInfo;
-  edges: Array<WarehouseCountableEdge>;
   /** A total count of items in the collection. */
   totalCount?: Maybe<Scalars['Int']>;
 };
 
-export type WarehouseCountableEdge = {
-  __typename?: 'WarehouseCountableEdge';
-  /** The item at the end of the edge. */
-  node: Warehouse;
+export type ProductCountableEdge = {
+  __typename?: 'ProductCountableEdge';
   /** A cursor for use in pagination. */
   cursor: Scalars['String'];
-};
-
-export type WarehouseFilterInput = {
-  search?: Maybe<Scalars['String']>;
-  ids?: Maybe<Array<Maybe<Scalars['ID']>>>;
-};
-
-export type WarehouseSortingInput = {
-  /** Specifies the direction in which to sort products. */
-  direction: OrderDirection;
-  /** Sort warehouses by the selected field. */
-  field: WarehouseSortField;
-};
-
-export enum OrderDirection {
-  /** Specifies an ascending sort order. */
-  Asc = 'ASC',
-  /** Specifies a descending sort order. */
-  Desc = 'DESC'
-}
-
-export enum WarehouseSortField {
-  /** Sort warehouses by name. */
-  Name = 'NAME'
-}
-
-export type TranslatableItemConnection = {
-  __typename?: 'TranslatableItemConnection';
-  /** Pagination data for this connection. */
-  pageInfo: PageInfo;
-  edges: Array<TranslatableItemEdge>;
-  /** A total count of items in the collection. */
-  totalCount?: Maybe<Scalars['Int']>;
-};
-
-export type TranslatableItemEdge = {
-  __typename?: 'TranslatableItemEdge';
   /** The item at the end of the edge. */
-  node: TranslatableItem;
-  /** A cursor for use in pagination. */
-  cursor: Scalars['String'];
-};
-
-export type TranslatableItem = ProductTranslatableContent | CollectionTranslatableContent | CategoryTranslatableContent | AttributeTranslatableContent | AttributeValueTranslatableContent | ProductVariantTranslatableContent | PageTranslatableContent | ShippingMethodTranslatableContent | SaleTranslatableContent | VoucherTranslatableContent | MenuItemTranslatableContent;
-
-export type ProductTranslatableContent = Node & {
-  __typename?: 'ProductTranslatableContent';
-  /** The ID of the object. */
-  id: Scalars['ID'];
-  seoTitle?: Maybe<Scalars['String']>;
-  seoDescription?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
-  /** Returns translated product fields for the given language code. */
-  translation?: Maybe<ProductTranslation>;
-  /** Represents an individual item for sale in the storefront. */
-  product?: Maybe<Product>;
-};
-
-
-export type ProductTranslatableContentTranslationArgs = {
-  languageCode: LanguageCodeEnum;
-};
-
-export type ProductTranslation = Node & {
-  __typename?: 'ProductTranslation';
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
-  /** The ID of the object. */
-  id: Scalars['ID'];
-  /** Translation language. */
-  language: LanguageDisplay;
-  name: Scalars['String'];
-  seoDescription?: Maybe<Scalars['String']>;
-  seoTitle?: Maybe<Scalars['String']>;
+  node: Product;
 };
 
 /** Represents an individual item for sale in the storefront. */
@@ -1435,23 +1369,6 @@ export type ProductTypeProductsArgs = {
   channel?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   last?: Maybe<Scalars['Int']>;
-};
-
-export type ProductCountableConnection = {
-  __typename?: 'ProductCountableConnection';
-  edges: Array<ProductCountableEdge>;
-  /** Pagination data for this connection. */
-  pageInfo: PageInfo;
-  /** A total count of items in the collection. */
-  totalCount?: Maybe<Scalars['Int']>;
-};
-
-export type ProductCountableEdge = {
-  __typename?: 'ProductCountableEdge';
-  /** A cursor for use in pagination. */
-  cursor: Scalars['String'];
-  /** The item at the end of the edge. */
-  node: Product;
 };
 
 /** Representation of tax types fetched from tax gateway. */
@@ -2382,6 +2299,13 @@ export type ProductOrder = {
   field?: Maybe<ProductOrderField>;
 };
 
+export enum OrderDirection {
+  /** Specifies an ascending sort order. */
+  Asc = 'ASC',
+  /** Specifies a descending sort order. */
+  Desc = 'DESC'
+}
+
 export enum ProductOrderField {
   /** Sort products by collection. Note: This option is available only for the `Collection.products` query. */
   Collection = 'COLLECTION',
@@ -2424,6 +2348,115 @@ export type CollectionChannelListing = Node & {
   id: Scalars['ID'];
   isPublished: Scalars['Boolean'];
   publicationDate?: Maybe<Scalars['Date']>;
+};
+
+export type ProductTranslation = Node & {
+  __typename?: 'ProductTranslation';
+  description: Scalars['String'];
+  descriptionJson: Scalars['JSONString'];
+  /** The ID of the object. */
+  id: Scalars['ID'];
+  /** Translation language. */
+  language: LanguageDisplay;
+  name: Scalars['String'];
+  seoDescription?: Maybe<Scalars['String']>;
+  seoTitle?: Maybe<Scalars['String']>;
+};
+
+/** Represents user address data. */
+export type Address = Node & {
+  __typename?: 'Address';
+  city: Scalars['String'];
+  cityArea: Scalars['String'];
+  companyName: Scalars['String'];
+  /** Shop's default country. */
+  country: CountryDisplay;
+  countryArea: Scalars['String'];
+  firstName: Scalars['String'];
+  /** The ID of the object. */
+  id: Scalars['ID'];
+  /** Address is user's default billing address. */
+  isDefaultBillingAddress?: Maybe<Scalars['Boolean']>;
+  /** Address is user's default shipping address. */
+  isDefaultShippingAddress?: Maybe<Scalars['Boolean']>;
+  lastName: Scalars['String'];
+  phone?: Maybe<Scalars['String']>;
+  postalCode: Scalars['String'];
+  streetAddress1: Scalars['String'];
+  streetAddress2: Scalars['String'];
+};
+
+export type WarehouseCountableConnection = {
+  __typename?: 'WarehouseCountableConnection';
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  edges: Array<WarehouseCountableEdge>;
+  /** A total count of items in the collection. */
+  totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type WarehouseCountableEdge = {
+  __typename?: 'WarehouseCountableEdge';
+  /** The item at the end of the edge. */
+  node: Warehouse;
+  /** A cursor for use in pagination. */
+  cursor: Scalars['String'];
+};
+
+export type WarehouseFilterInput = {
+  search?: Maybe<Scalars['String']>;
+  ids?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
+export type WarehouseSortingInput = {
+  /** Specifies the direction in which to sort products. */
+  direction: OrderDirection;
+  /** Sort warehouses by the selected field. */
+  field: WarehouseSortField;
+};
+
+export enum WarehouseSortField {
+  /** Sort warehouses by name. */
+  Name = 'NAME'
+}
+
+export type TranslatableItemConnection = {
+  __typename?: 'TranslatableItemConnection';
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  edges: Array<TranslatableItemEdge>;
+  /** A total count of items in the collection. */
+  totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type TranslatableItemEdge = {
+  __typename?: 'TranslatableItemEdge';
+  /** The item at the end of the edge. */
+  node: TranslatableItem;
+  /** A cursor for use in pagination. */
+  cursor: Scalars['String'];
+};
+
+export type TranslatableItem = ProductTranslatableContent | CollectionTranslatableContent | CategoryTranslatableContent | AttributeTranslatableContent | AttributeValueTranslatableContent | ProductVariantTranslatableContent | PageTranslatableContent | ShippingMethodTranslatableContent | SaleTranslatableContent | VoucherTranslatableContent | MenuItemTranslatableContent;
+
+export type ProductTranslatableContent = Node & {
+  __typename?: 'ProductTranslatableContent';
+  /** The ID of the object. */
+  id: Scalars['ID'];
+  seoTitle?: Maybe<Scalars['String']>;
+  seoDescription?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  description: Scalars['String'];
+  descriptionJson: Scalars['JSONString'];
+  /** Returns translated product fields for the given language code. */
+  translation?: Maybe<ProductTranslation>;
+  /** Represents an individual item for sale in the storefront. */
+  product?: Maybe<Product>;
+};
+
+
+export type ProductTranslatableContentTranslationArgs = {
+  languageCode: LanguageCodeEnum;
 };
 
 export type CollectionTranslatableContent = Node & {
@@ -2960,6 +2993,8 @@ export type Shop = {
   __typename?: 'Shop';
   /** List of available payment gateways. */
   availablePaymentGateways: Array<PaymentGateway>;
+  /** Shipping methods that are available for the shop. */
+  availableShippingMethods?: Maybe<Array<Maybe<ShippingMethod>>>;
   /** Customer's geolocalization data. */
   geolocalization?: Maybe<Geolocalization>;
   /** List of configured authorization keys. Authorization keys are used to enable third-party OAuth authorization (currently Facebook or Google). */
@@ -3025,6 +3060,13 @@ export type ShopAvailablePaymentGatewaysArgs = {
 
 
 /** Represents a shop resource containing general shop data and configuration. */
+export type ShopAvailableShippingMethodsArgs = {
+  channel: Scalars['String'];
+  address?: Maybe<AddressInput>;
+};
+
+
+/** Represents a shop resource containing general shop data and configuration. */
 export type ShopCountriesArgs = {
   languageCode?: Maybe<LanguageCodeEnum>;
 };
@@ -3055,6 +3097,31 @@ export type GatewayConfigLine = {
   field: Scalars['String'];
   /** Gateway config value for key. */
   value?: Maybe<Scalars['String']>;
+};
+
+export type AddressInput = {
+  /** Given name. */
+  firstName?: Maybe<Scalars['String']>;
+  /** Family name. */
+  lastName?: Maybe<Scalars['String']>;
+  /** Company or organization. */
+  companyName?: Maybe<Scalars['String']>;
+  /** Address. */
+  streetAddress1?: Maybe<Scalars['String']>;
+  /** Address. */
+  streetAddress2?: Maybe<Scalars['String']>;
+  /** City. */
+  city?: Maybe<Scalars['String']>;
+  /** District. */
+  cityArea?: Maybe<Scalars['String']>;
+  /** Postal code. */
+  postalCode?: Maybe<Scalars['String']>;
+  /** Country. */
+  country?: Maybe<CountryCode>;
+  /** State or province. */
+  countryArea?: Maybe<Scalars['String']>;
+  /** Phone number. */
+  phone?: Maybe<Scalars['String']>;
 };
 
 /** Represents customers's geolocalization data. */
@@ -3398,6 +3465,8 @@ export enum OrderStatus {
   Fulfilled = 'FULFILLED',
   /** Partially fulfilled */
   PartiallyFulfilled = 'PARTIALLY_FULFILLED',
+  /** Unconfirmed */
+  Unconfirmed = 'UNCONFIRMED',
   /** Unfulfilled */
   Unfulfilled = 'UNFULFILLED'
 }
@@ -3428,7 +3497,9 @@ export enum FulfillmentStatus {
   /** Canceled */
   Canceled = 'CANCELED',
   /** Fulfilled */
-  Fulfilled = 'FULFILLED'
+  Fulfilled = 'FULFILLED',
+  /** Refunded */
+  Refunded = 'REFUNDED'
 }
 
 /** Represents line of the fulfillment. */
@@ -3609,6 +3680,8 @@ export enum TransactionKind {
   Capture = 'CAPTURE',
   /** Confirm */
   Confirm = 'CONFIRM',
+  /** External reference */
+  External = 'EXTERNAL',
   /** Pending */
   Pending = 'PENDING',
   /** Refund */
@@ -3690,6 +3763,10 @@ export type OrderEvent = Node & {
   paymentId?: Maybe<Scalars['String']>;
   /** Number of items. */
   quantity?: Maybe<Scalars['Int']>;
+  /** Define if shipping costs were included to the refund. */
+  shippingCostsIncluded?: Maybe<Scalars['Boolean']>;
+  /** The transaction reference of captured payment. */
+  transactionReference?: Maybe<Scalars['String']>;
   /** Order event type. */
   type?: Maybe<OrderEventsEnum>;
   /** User who performed the action. */
@@ -3701,6 +3778,7 @@ export type OrderEvent = Node & {
 /** An enumeration. */
 export enum OrderEventsEnum {
   Canceled = 'CANCELED',
+  Confirmed = 'CONFIRMED',
   DraftAddedProducts = 'DRAFT_ADDED_PRODUCTS',
   DraftCreated = 'DRAFT_CREATED',
   DraftRemovedProducts = 'DRAFT_REMOVED_PRODUCTS',
@@ -3708,6 +3786,7 @@ export enum OrderEventsEnum {
   ExternalServiceNotification = 'EXTERNAL_SERVICE_NOTIFICATION',
   FulfillmentCanceled = 'FULFILLMENT_CANCELED',
   FulfillmentFulfilledItems = 'FULFILLMENT_FULFILLED_ITEMS',
+  FulfillmentRefunded = 'FULFILLMENT_REFUNDED',
   FulfillmentRestockedItems = 'FULFILLMENT_RESTOCKED_ITEMS',
   InvoiceGenerated = 'INVOICE_GENERATED',
   InvoiceRequested = 'INVOICE_REQUESTED',
@@ -3731,6 +3810,7 @@ export enum OrderEventsEnum {
 
 /** An enumeration. */
 export enum OrderEventsEmailsEnum {
+  Confirmed = 'CONFIRMED',
   DigitalLinks = 'DIGITAL_LINKS',
   FulfillmentConfirmation = 'FULFILLMENT_CONFIRMATION',
   OrderCancel = 'ORDER_CANCEL',
@@ -3825,6 +3905,12 @@ export type PaymentSource = {
   creditCardInfo?: Maybe<CreditCard>;
   /** Payment gateway name. */
   gateway: Scalars['String'];
+};
+
+/** Order related settings from site settings. */
+export type OrderSettings = {
+  __typename?: 'OrderSettings';
+  automaticallyConfirmAllNewOrders: Scalars['Boolean'];
 };
 
 export type DigitalContentCountableConnection = {
@@ -4097,6 +4183,7 @@ export enum OrderStatusFilter {
   ReadyToFulfill = 'READY_TO_FULFILL',
   ReadyToCapture = 'READY_TO_CAPTURE',
   Unfulfilled = 'UNFULFILLED',
+  Unconfirmed = 'UNCONFIRMED',
   PartiallyFulfilled = 'PARTIALLY_FULFILLED',
   Fulfilled = 'FULFILLED',
   Canceled = 'CANCELED'
@@ -4937,16 +5024,22 @@ export type Mutation = {
   orderCancel?: Maybe<OrderCancel>;
   /** Capture an order. */
   orderCapture?: Maybe<OrderCapture>;
+  /** Confirms an unconfirmed order by changing status to unfulfilled. */
+  orderConfirm?: Maybe<OrderConfirm>;
   /** Creates new fulfillments for an order. */
   orderFulfill?: Maybe<OrderFulfill>;
   /** Cancels existing fulfillment and optionally restocks items. */
   orderFulfillmentCancel?: Maybe<FulfillmentCancel>;
+  /** Refund products. */
+  orderFulfillmentRefundProducts?: Maybe<FulfillmentRefundProducts>;
   /** Updates a fulfillment for an order. */
   orderFulfillmentUpdateTracking?: Maybe<FulfillmentUpdateTracking>;
   /** Mark order as manually paid. */
   orderMarkAsPaid?: Maybe<OrderMarkAsPaid>;
   /** Refund an order. */
   orderRefund?: Maybe<OrderRefund>;
+  /** Update shop order settings. */
+  orderSettingsUpdate?: Maybe<OrderSettingsUpdate>;
   /** Updates an order. */
   orderUpdate?: Maybe<OrderUpdate>;
   /** Updates a shipping method of the order. */
@@ -5085,12 +5178,20 @@ export type Mutation = {
   setPassword?: Maybe<SetPassword>;
   /** Manage shipping method's availability in channels. */
   shippingMethodChannelListingUpdate?: Maybe<ShippingMethodChannelListingUpdate>;
+  /** Create a new zip code exclusion range for shipping method. */
+  shippingMethodZipCodeRulesCreate?: Maybe<ShippingZipCodeRulesCreate>;
+  /** Deletes a shipping method zip code. */
+  shippingMethodZipCodeRulesDelete?: Maybe<ShippingZipCodeRulesDelete>;
   /** Deletes shipping prices. */
   shippingPriceBulkDelete?: Maybe<ShippingPriceBulkDelete>;
   /** Creates a new shipping price. */
   shippingPriceCreate?: Maybe<ShippingPriceCreate>;
   /** Deletes a shipping price. */
   shippingPriceDelete?: Maybe<ShippingPriceDelete>;
+  /** Exclude products from shipping price. */
+  shippingPriceExcludeProducts?: Maybe<ShippingPriceExcludeProducts>;
+  /** Remove product from excluded list for shipping price. */
+  shippingPriceRemoveProductFromExclude?: Maybe<ShippingPriceRemoveProductFromExclude>;
   /** Creates/Updates translations for shipping method. */
   shippingPriceTranslate?: Maybe<ShippingPriceTranslate>;
   /** Updates a new shipping price. */
@@ -5439,7 +5540,7 @@ export type MutationChannelDeactivateArgs = {
 
 export type MutationChannelDeleteArgs = {
   id: Scalars['ID'];
-  input: ChannelDeleteInput;
+  input?: Maybe<ChannelDeleteInput>;
 };
 
 
@@ -5850,6 +5951,11 @@ export type MutationOrderCaptureArgs = {
 };
 
 
+export type MutationOrderConfirmArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type MutationOrderFulfillArgs = {
   input: OrderFulfillInput;
   order?: Maybe<Scalars['ID']>;
@@ -5862,6 +5968,12 @@ export type MutationOrderFulfillmentCancelArgs = {
 };
 
 
+export type MutationOrderFulfillmentRefundProductsArgs = {
+  input: OrderRefundProductsInput;
+  order: Scalars['ID'];
+};
+
+
 export type MutationOrderFulfillmentUpdateTrackingArgs = {
   id: Scalars['ID'];
   input: FulfillmentUpdateTrackingInput;
@@ -5870,12 +5982,18 @@ export type MutationOrderFulfillmentUpdateTrackingArgs = {
 
 export type MutationOrderMarkAsPaidArgs = {
   id: Scalars['ID'];
+  transactionReference?: Maybe<Scalars['String']>;
 };
 
 
 export type MutationOrderRefundArgs = {
   amount: Scalars['PositiveDecimal'];
   id: Scalars['ID'];
+};
+
+
+export type MutationOrderSettingsUpdateArgs = {
+  input: OrderSettingsUpdateInput;
 };
 
 
@@ -6273,6 +6391,17 @@ export type MutationShippingMethodChannelListingUpdateArgs = {
 };
 
 
+export type MutationShippingMethodZipCodeRulesCreateArgs = {
+  input: ShippingZipCodeRulesCreateInput;
+  shippingMethodId: Scalars['ID'];
+};
+
+
+export type MutationShippingMethodZipCodeRulesDeleteArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type MutationShippingPriceBulkDeleteArgs = {
   ids: Array<Maybe<Scalars['ID']>>;
 };
@@ -6285,6 +6414,18 @@ export type MutationShippingPriceCreateArgs = {
 
 export type MutationShippingPriceDeleteArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationShippingPriceExcludeProductsArgs = {
+  id: Scalars['ID'];
+  input: ShippingPriceExcludeProductsInput;
+};
+
+
+export type MutationShippingPriceRemoveProductFromExcludeArgs = {
+  id: Scalars['ID'];
+  products: Array<Maybe<Scalars['ID']>>;
 };
 
 
@@ -6952,29 +7093,37 @@ export type ShopAddressUpdate = {
   shopErrors: Array<ShopError>;
 };
 
-export type AddressInput = {
-  /** Given name. */
-  firstName?: Maybe<Scalars['String']>;
-  /** Family name. */
-  lastName?: Maybe<Scalars['String']>;
-  /** Company or organization. */
-  companyName?: Maybe<Scalars['String']>;
-  /** Address. */
-  streetAddress1?: Maybe<Scalars['String']>;
-  /** Address. */
-  streetAddress2?: Maybe<Scalars['String']>;
-  /** City. */
-  city?: Maybe<Scalars['String']>;
-  /** District. */
-  cityArea?: Maybe<Scalars['String']>;
-  /** Postal code. */
-  postalCode?: Maybe<Scalars['String']>;
-  /** Country. */
-  country?: Maybe<CountryCode>;
-  /** State or province. */
-  countryArea?: Maybe<Scalars['String']>;
-  /** Phone number. */
-  phone?: Maybe<Scalars['String']>;
+/** Update shop order settings. */
+export type OrderSettingsUpdate = {
+  __typename?: 'OrderSettingsUpdate';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** Order settings. */
+  orderSettings?: Maybe<OrderSettings>;
+  orderSettingsErrors: Array<OrderSettingsError>;
+};
+
+export type OrderSettingsError = {
+  __typename?: 'OrderSettingsError';
+  /** Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field. */
+  field?: Maybe<Scalars['String']>;
+  /** The error message. */
+  message?: Maybe<Scalars['String']>;
+  /** The error code. */
+  code: OrderSettingsErrorCode;
+};
+
+/** An enumeration. */
+export enum OrderSettingsErrorCode {
+  Invalid = 'INVALID'
+}
+
+export type OrderSettingsUpdateInput = {
+  /** When disabled, all new orders from checkout will be marked as unconfirmed. When enabled orders from checkout will become unfulfilled immediately. */
+  automaticallyConfirmAllNewOrders: Scalars['Boolean'];
 };
 
 /** Manage shipping method's availability in channels. */
@@ -7035,6 +7184,47 @@ export type ShippingMethodChannelListingAddInput = {
 };
 
 
+/** Create a new zip code exclusion range for shipping method. */
+export type ShippingZipCodeRulesCreate = {
+  __typename?: 'ShippingZipCodeRulesCreate';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** A shipping method zip code range. */
+  zipCodeRules?: Maybe<Array<Maybe<ShippingMethodZipCodeRule>>>;
+  /** Related shipping method. */
+  shippingMethod?: Maybe<ShippingMethod>;
+  shippingErrors: Array<ShippingError>;
+};
+
+export type ShippingZipCodeRulesCreateInput = {
+  /** Zip code rules for shipping method. */
+  zipCodeRules: Array<Maybe<ShippingZipCodeRulesCreateInputRange>>;
+};
+
+export type ShippingZipCodeRulesCreateInputRange = {
+  /** Start range of the zip code. */
+  start: Scalars['String'];
+  /** End range of the zip code. */
+  end?: Maybe<Scalars['String']>;
+};
+
+/** Deletes a shipping method zip code. */
+export type ShippingZipCodeRulesDelete = {
+  __typename?: 'ShippingZipCodeRulesDelete';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** Shipping method of deleted zip code rule. */
+  shippingMethod?: Maybe<ShippingMethod>;
+  shippingErrors: Array<ShippingError>;
+  shippingMethodZipCodeRule?: Maybe<ShippingMethodZipCodeRule>;
+};
+
 /** Creates a new shipping price. */
 export type ShippingPriceCreate = {
   __typename?: 'ShippingPriceCreate';
@@ -7056,6 +7246,10 @@ export type ShippingPriceInput = {
   minimumOrderWeight?: Maybe<Scalars['WeightScalar']>;
   /** Maximum order weight to use this shipping method. */
   maximumOrderWeight?: Maybe<Scalars['WeightScalar']>;
+  /** Maximum number of days for delivery. */
+  maximumDeliveryDays?: Maybe<Scalars['Int']>;
+  /** Minimal number of days for delivery. */
+  minimumDeliveryDays?: Maybe<Scalars['Int']>;
   /** Shipping type: price or weight based. */
   type?: Maybe<ShippingMethodTypeEnum>;
   /** Shipping zone this method belongs to. */
@@ -7119,6 +7313,37 @@ export type ShippingPriceTranslate = {
 
 export type NameTranslationInput = {
   name?: Maybe<Scalars['String']>;
+};
+
+/** Exclude products from shipping price. */
+export type ShippingPriceExcludeProducts = {
+  __typename?: 'ShippingPriceExcludeProducts';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** A shipping method with new list of excluded products. */
+  shippingMethod?: Maybe<ShippingMethod>;
+  shippingErrors: Array<ShippingError>;
+};
+
+export type ShippingPriceExcludeProductsInput = {
+  /** List of products which will be excluded. */
+  products: Array<Maybe<Scalars['ID']>>;
+};
+
+/** Remove product from excluded list for shipping price. */
+export type ShippingPriceRemoveProductFromExclude = {
+  __typename?: 'ShippingPriceRemoveProductFromExclude';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** A shipping method with new list of excluded products. */
+  shippingMethod?: Maybe<ShippingMethod>;
+  shippingErrors: Array<ShippingError>;
 };
 
 /** Creates a new shipping zone. */
@@ -8678,6 +8903,8 @@ export enum OrderErrorCode {
   Unique = 'UNIQUE',
   VoidInactivePayment = 'VOID_INACTIVE_PAYMENT',
   ZeroQuantity = 'ZERO_QUANTITY',
+  InvalidRefundQuantity = 'INVALID_REFUND_QUANTITY',
+  CannotRefundFulfillmentLine = 'CANNOT_REFUND_FULFILLMENT_LINE',
   InsufficientStock = 'INSUFFICIENT_STOCK',
   DuplicatedInputItem = 'DUPLICATED_INPUT_ITEM',
   NotAvailableInChannel = 'NOT_AVAILABLE_IN_CHANNEL',
@@ -8894,6 +9121,18 @@ export type OrderCapture = {
   orderErrors: Array<OrderError>;
 };
 
+/** Confirms an unconfirmed order by changing status to unfulfilled. */
+export type OrderConfirm = {
+  __typename?: 'OrderConfirm';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  order?: Maybe<Order>;
+  orderErrors: Array<OrderError>;
+};
+
 /** Creates new fulfillments for an order. */
 export type OrderFulfill = {
   __typename?: 'OrderFulfill';
@@ -8970,6 +9209,46 @@ export type FulfillmentUpdateTrackingInput = {
   trackingNumber?: Maybe<Scalars['String']>;
   /** If true, send an email notification to the customer. */
   notifyCustomer?: Maybe<Scalars['Boolean']>;
+};
+
+/** Refund products. */
+export type FulfillmentRefundProducts = {
+  __typename?: 'FulfillmentRefundProducts';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** A refunded fulfillment. */
+  fulfillment?: Maybe<Fulfillment>;
+  /** Order which fulfillment was refunded. */
+  order?: Maybe<Order>;
+  orderErrors: Array<OrderError>;
+};
+
+export type OrderRefundProductsInput = {
+  /** List of unfulfilled lines to refund. */
+  orderLines?: Maybe<Array<OrderRefundLineInput>>;
+  /** List of fulfilled lines to refund. */
+  fulfillmentLines?: Maybe<Array<OrderRefundFulfillmentLineInput>>;
+  /** The total amount of refund when the value is provided manually. */
+  amountToRefund?: Maybe<Scalars['PositiveDecimal']>;
+  /** If true, Saleor will refund shipping costs. If amountToRefund is providedincludeShippingCosts will be ignored. */
+  includeShippingCosts?: Maybe<Scalars['Boolean']>;
+};
+
+export type OrderRefundLineInput = {
+  /** The ID of the order line to refund. */
+  orderLineId: Scalars['ID'];
+  /** The number of items to be refunded. */
+  quantity: Scalars['Int'];
+};
+
+export type OrderRefundFulfillmentLineInput = {
+  /** The ID of the fulfillment line to refund. */
+  fulfillmentLineId: Scalars['ID'];
+  /** The number of items to be refunded. */
+  quantity: Scalars['Int'];
 };
 
 /** Mark order as manually paid. */
@@ -10331,7 +10610,8 @@ export enum ChannelErrorCode {
   Required = 'REQUIRED',
   Unique = 'UNIQUE',
   ChannelTargetIdMustBeDifferent = 'CHANNEL_TARGET_ID_MUST_BE_DIFFERENT',
-  ChannelsCurrencyMustBeTheSame = 'CHANNELS_CURRENCY_MUST_BE_THE_SAME'
+  ChannelsCurrencyMustBeTheSame = 'CHANNELS_CURRENCY_MUST_BE_THE_SAME',
+  ChannelWithOrders = 'CHANNEL_WITH_ORDERS'
 }
 
 export type ChannelCreateInput = {
@@ -10890,6 +11170,7 @@ export enum AccountErrorCode {
   DeleteStaffAccount = 'DELETE_STAFF_ACCOUNT',
   DeleteSuperuserAccount = 'DELETE_SUPERUSER_ACCOUNT',
   GraphqlError = 'GRAPHQL_ERROR',
+  Inactive = 'INACTIVE',
   Invalid = 'INVALID',
   InvalidPassword = 'INVALID_PASSWORD',
   LeftNotManageablePermission = 'LEFT_NOT_MANAGEABLE_PERMISSION',
@@ -11633,6 +11914,31 @@ export type ReviewUpdateInput = {
   rating?: Maybe<Scalars['Int']>;
 };
 
+export type AttributeDetailsFragmentFragment = (
+  { __typename?: 'Attribute' }
+  & Pick<Attribute, 'id' | 'slug' | 'name'>
+  & { values?: Maybe<Array<Maybe<(
+    { __typename?: 'AttributeValue' }
+    & Pick<AttributeValue, 'id' | 'slug' | 'name'>
+  )>>> }
+);
+
+export type AttributeValuesFragmentFragment = (
+  { __typename?: 'AttributeValue' }
+  & Pick<AttributeValue, 'id' | 'name' | 'slug'>
+);
+
+export type AttributeValuesDetailFragmentFragment = (
+  { __typename?: 'SelectedAttribute' }
+  & { attribute: (
+    { __typename?: 'Attribute' }
+    & AttributeDetailsFragmentFragment
+  ), values: Array<Maybe<(
+    { __typename?: 'AttributeValue' }
+    & AttributeValuesFragmentFragment
+  )>> }
+);
+
 export type GetAttributeByIdQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
@@ -11642,11 +11948,7 @@ export type GetAttributeByIdQuery = (
   { __typename?: 'Query' }
   & { attribute?: Maybe<(
     { __typename?: 'Attribute' }
-    & Pick<Attribute, 'id' | 'name'>
-    & { values?: Maybe<Array<Maybe<(
-      { __typename?: 'AttributeValue' }
-      & Pick<AttributeValue, 'id' | 'slug' | 'name'>
-    )>>> }
+    & AttributeDetailsFragmentFragment
   )> }
 );
 
@@ -11836,19 +12138,28 @@ export type ProductDetailFragmentFragment = (
   & { pricing?: Maybe<(
     { __typename?: 'ProductPricingInfo' }
     & Pick<ProductPricingInfo, 'onSale'>
-    & { discount?: Maybe<(
-      { __typename?: 'TaxedMoney' }
-      & { gross: (
-        { __typename?: 'Money' }
-        & Pick<Money, 'amount'>
-      ) }
-    )>, priceRange?: Maybe<(
+    & { priceRange?: Maybe<(
       { __typename?: 'TaxedMoneyRange' }
       & { start?: Maybe<(
         { __typename?: 'TaxedMoney' }
-        & { net: (
+        & { gross: (
           { __typename?: 'Money' }
-          & Pick<Money, 'amount'>
+          & Pick<Money, 'amount' | 'currency'>
+        ), net: (
+          { __typename?: 'Money' }
+          & Pick<Money, 'amount' | 'currency'>
+        ) }
+      )> }
+    )>, priceRangeUndiscounted?: Maybe<(
+      { __typename?: 'TaxedMoneyRange' }
+      & { start?: Maybe<(
+        { __typename?: 'TaxedMoney' }
+        & { gross: (
+          { __typename?: 'Money' }
+          & Pick<Money, 'amount' | 'currency'>
+        ), net: (
+          { __typename?: 'Money' }
+          & Pick<Money, 'amount' | 'currency'>
         ) }
       )> }
     )> }
@@ -11860,13 +12171,7 @@ export type ProductDetailFragmentFragment = (
     & Pick<Weight, 'unit' | 'value'>
   )>, attributes: Array<(
     { __typename?: 'SelectedAttribute' }
-    & { attribute: (
-      { __typename?: 'Attribute' }
-      & Pick<Attribute, 'id' | 'name'>
-    ), values: Array<Maybe<(
-      { __typename?: 'AttributeValue' }
-      & Pick<AttributeValue, 'id' | 'name'>
-    )>> }
+    & AttributeValuesDetailFragmentFragment
   )>, variants?: Maybe<Array<Maybe<(
     { __typename?: 'ProductVariant' }
     & ProductVariantDetailsFragment
@@ -11875,13 +12180,7 @@ export type ProductDetailFragmentFragment = (
     & Pick<ProductVariant, 'sku'>
     & { attributes: Array<(
       { __typename?: 'SelectedAttribute' }
-      & { attribute: (
-        { __typename?: 'Attribute' }
-        & Pick<Attribute, 'name' | 'id'>
-      ), values: Array<Maybe<(
-        { __typename?: 'AttributeValue' }
-        & Pick<AttributeValue, 'name' | 'id'>
-      )>> }
+      & AttributeValuesDetailFragmentFragment
     )> }
   )>, productType: (
     { __typename?: 'ProductType' }
@@ -11906,13 +12205,7 @@ export type ProductVariantDetailsFragment = (
     )> }
   )>, attributes: Array<(
     { __typename?: 'SelectedAttribute' }
-    & { attribute: (
-      { __typename?: 'Attribute' }
-      & Pick<Attribute, 'id' | 'name'>
-    ), values: Array<Maybe<(
-      { __typename?: 'AttributeValue' }
-      & Pick<AttributeValue, 'id' | 'name'>
-    )>> }
+    & AttributeValuesDetailFragmentFragment
   )> }
 );
 
@@ -12070,7 +12363,7 @@ export type GetReviewsListQuery = (
 
 export type UserPrivateDetailsFragmentFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'email' | 'firstName' | 'lastName' | 'lastLogin' | 'isActive' | 'isStaff'>
+  & Pick<User, 'id' | 'email' | 'firstName' | 'lastName' | 'lastLogin' | 'dateJoined' | 'isActive' | 'isStaff'>
   & { avatar?: Maybe<(
     { __typename?: 'Image' }
     & Pick<Image, 'alt' | 'url'>
@@ -12109,14 +12402,10 @@ export type AccountRegisterMutation = (
     & Pick<AccountRegister, 'requiresConfirmation'>
     & { accountErrors: Array<(
       { __typename?: 'AccountError' }
-      & Pick<AccountError, 'field' | 'message' | 'code'>
+      & Pick<AccountError, 'field' | 'code'>
     )>, user?: Maybe<(
       { __typename?: 'User' }
-      & Pick<User, 'id' | 'isActive' | 'lastLogin' | 'dateJoined' | 'email' | 'firstName' | 'lastName'>
-      & { avatar?: Maybe<(
-        { __typename?: 'Image' }
-        & Pick<Image, 'url' | 'alt'>
-      )> }
+      & UserPrivateDetailsFragmentFragment
     )> }
   )> }
 );
@@ -12190,6 +12479,17 @@ export type UpdateCustomerMutation = (
   )> }
 );
 
+export type GetCurrentAuthUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCurrentAuthUserQuery = (
+  { __typename?: 'Query' }
+  & { me?: Maybe<(
+    { __typename?: 'User' }
+    & UserPrivateDetailsFragmentFragment
+  )> }
+);
+
 export const PageInfoFragmentFragmentDoc = gql`
     fragment pageInfoFragment on PageInfo {
   hasNextPage
@@ -12243,6 +12543,36 @@ export const ProductPageInfoFragmentFragmentDoc = gql`
   totalCount
 }
     ${PageInfoFragmentFragmentDoc}`;
+export const AttributeDetailsFragmentFragmentDoc = gql`
+    fragment attributeDetailsFragment on Attribute {
+  id
+  slug
+  name
+  values {
+    id
+    slug
+    name
+  }
+}
+    `;
+export const AttributeValuesFragmentFragmentDoc = gql`
+    fragment attributeValuesFragment on AttributeValue {
+  id
+  name
+  slug
+}
+    `;
+export const AttributeValuesDetailFragmentFragmentDoc = gql`
+    fragment attributeValuesDetailFragment on SelectedAttribute {
+  attribute {
+    ...attributeDetailsFragment
+  }
+  values {
+    ...attributeValuesFragment
+  }
+}
+    ${AttributeDetailsFragmentFragmentDoc}
+${AttributeValuesFragmentFragmentDoc}`;
 export const ProductVariantDetailsFragmentDoc = gql`
     fragment productVariantDetails on ProductVariant {
   id
@@ -12256,17 +12586,10 @@ export const ProductVariantDetailsFragmentDoc = gql`
     }
   }
   attributes {
-    attribute {
-      id
-      name
-    }
-    values {
-      id
-      name
-    }
+    ...attributeValuesDetailFragment
   }
 }
-    `;
+    ${AttributeValuesDetailFragmentFragmentDoc}`;
 export const ProductDetailFragmentFragmentDoc = gql`
     fragment productDetailFragment on Product {
   id
@@ -12276,19 +12599,31 @@ export const ProductDetailFragmentFragmentDoc = gql`
   seoTitle
   seoDescription
   pricing {
-    discount {
-      gross {
-        amount
-      }
-    }
+    onSale
     priceRange {
       start {
+        gross {
+          amount
+          currency
+        }
         net {
           amount
+          currency
         }
       }
     }
-    onSale
+    priceRangeUndiscounted {
+      start {
+        gross {
+          amount
+          currency
+        }
+        net {
+          amount
+          currency
+        }
+      }
+    }
   }
   images {
     id
@@ -12301,23 +12636,8 @@ export const ProductDetailFragmentFragmentDoc = gql`
     unit
     value
   }
-  pricing {
-    discount {
-      gross {
-        amount
-      }
-    }
-    onSale
-  }
   attributes {
-    attribute {
-      id
-      name
-    }
-    values {
-      id
-      name
-    }
+    ...attributeValuesDetailFragment
   }
   variants {
     ...productVariantDetails
@@ -12325,14 +12645,7 @@ export const ProductDetailFragmentFragmentDoc = gql`
   defaultVariant {
     sku
     attributes {
-      attribute {
-        name
-        id
-      }
-      values {
-        name
-        id
-      }
+      ...attributeValuesDetailFragment
     }
   }
   productType {
@@ -12343,7 +12656,8 @@ export const ProductDetailFragmentFragmentDoc = gql`
     ...categoryDetailFragment
   }
 }
-    ${ProductVariantDetailsFragmentDoc}
+    ${AttributeValuesDetailFragmentFragmentDoc}
+${ProductVariantDetailsFragmentDoc}
 ${CategoryDetailFragmentFragmentDoc}`;
 export const ReviewPageInfoFragmentFragmentDoc = gql`
     fragment reviewPageInfoFragment on ReviewCountableConnection {
@@ -12364,6 +12678,7 @@ export const UserPrivateDetailsFragmentFragmentDoc = gql`
   firstName
   lastName
   lastLogin
+  dateJoined
   isActive
   isStaff
 }
@@ -12371,16 +12686,10 @@ export const UserPrivateDetailsFragmentFragmentDoc = gql`
 export const GetAttributeByIdDocument = gql`
     query getAttributeById($id: ID!) {
   attribute(id: $id) {
-    id
-    name
-    values {
-      id
-      slug
-      name
-    }
+    ...attributeDetailsFragment
   }
 }
-    `;
+    ${AttributeDetailsFragmentFragmentDoc}`;
 
 /**
  * __useGetAttributeByIdQuery__
@@ -12988,25 +13297,14 @@ export const AccountRegisterDocument = gql`
     requiresConfirmation
     accountErrors {
       field
-      message
       code
     }
     user {
-      id
-      isActive
-      lastLogin
-      dateJoined
-      email
-      firstName
-      lastName
-      avatar {
-        url
-        alt
-      }
+      ...userPrivateDetailsFragment
     }
   }
 }
-    `;
+    ${UserPrivateDetailsFragmentFragmentDoc}`;
 export type AccountRegisterMutationFn = Apollo.MutationFunction<AccountRegisterMutation, AccountRegisterMutationVariables>;
 
 /**
@@ -13180,3 +13478,35 @@ export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
 export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
 export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+export const GetCurrentAuthUserDocument = gql`
+    query getCurrentAuthUser {
+  me {
+    ...userPrivateDetailsFragment
+  }
+}
+    ${UserPrivateDetailsFragmentFragmentDoc}`;
+
+/**
+ * __useGetCurrentAuthUserQuery__
+ *
+ * To run a query within a React component, call `useGetCurrentAuthUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCurrentAuthUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCurrentAuthUserQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCurrentAuthUserQuery(baseOptions?: Apollo.QueryHookOptions<GetCurrentAuthUserQuery, GetCurrentAuthUserQueryVariables>) {
+        return Apollo.useQuery<GetCurrentAuthUserQuery, GetCurrentAuthUserQueryVariables>(GetCurrentAuthUserDocument, baseOptions);
+      }
+export function useGetCurrentAuthUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentAuthUserQuery, GetCurrentAuthUserQueryVariables>) {
+          return Apollo.useLazyQuery<GetCurrentAuthUserQuery, GetCurrentAuthUserQueryVariables>(GetCurrentAuthUserDocument, baseOptions);
+        }
+export type GetCurrentAuthUserQueryHookResult = ReturnType<typeof useGetCurrentAuthUserQuery>;
+export type GetCurrentAuthUserLazyQueryHookResult = ReturnType<typeof useGetCurrentAuthUserLazyQuery>;
+export type GetCurrentAuthUserQueryResult = Apollo.QueryResult<GetCurrentAuthUserQuery, GetCurrentAuthUserQueryVariables>;

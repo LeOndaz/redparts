@@ -1,7 +1,6 @@
 /* eslint-disable import/prefer-default-export,class-methods-use-this */
 
 // application
-import {getBrands} from '~/fake-server/endpoints/brands';
 import {IBrand} from '~/interfaces/brand';
 import {IFilterValues, IListOptions, IReviewsList} from '~/interfaces/list';
 import {IOrder} from '~/interfaces/order';
@@ -38,9 +37,34 @@ import {
     reviewsResolver,
     shopCategoryMapper
 } from '~/api';
-import {CategoryCountableEdge, ProductCountableEdge, ReviewCountableEdge} from '~/api/graphql/types';
+import {
+    CategoryCountableEdge,
+    ProductCountableConnection,
+    ProductCountableEdge,
+    ReviewCountableEdge
+} from '~/api/graphql/types';
 import {CategoryFilterBuilder, RadioFilterBuilder, RangeFilterBuilder, RatingFilterBuilder,} from "~/api/filters"
 import {getOrNull} from "~/api/graphql/utils";
+import {getBrands, utils} from "~/api/services"
+import _ from "lodash"
+import * as util from "util";
+
+
+const emptyProductList: IProductsList = {
+    navigation: {
+        total: 0,
+        limit: 0,
+        type: 'cursor',
+        endCursor: null,
+        startCursor: null,
+        hasPreviousPage: false,
+        hasNextPage: false,
+    },
+    sort: '',
+    items: [],
+    filters: [],
+}
+
 
 export class FakeShopApi implements ShopApi {
     getCategoryBySlug(slug: string, options?: IGetCategoryBySlugOptions): Promise<ICategory> {
@@ -73,7 +97,7 @@ export class FakeShopApi implements ShopApi {
     }
 
     getBrands(options?: IGetBrandsOptions): Promise<IBrand[]> {
-        return getBrands(options);
+        return getBrands().then(r => (r.data.attribute.values || []).slice(0, options?.limit))
     }
 
     getProductsList(options: IListOptions = {}, filterValues: IFilterValues = {}): Promise<IProductsList> {
@@ -86,12 +110,19 @@ export class FakeShopApi implements ShopApi {
             first: options.limit,
             after: options.after,
             before: options.before,
-        }).then(({data: {products}}) => products)
+        })
 
         return Promise.all([
             categoriesPromise,
             productsPromise
-        ]).then(([categories, productCountableConnection]) => {
+        ]).then(([categories, productsData]) => {
+            // console.log(util.inspect(productsData))
+            const productCountableConnection = productsData.data.products;
+
+            if (_.isEmpty(productCountableConnection.edges)){
+                return emptyProductList;
+            }
+
             let products = productCountableConnection.edges.map((e: ProductCountableEdge) => productMapper.toInternal(e.node))
 
             const navigation = cursorNavigationMapper.toInternal(productCountableConnection.pageInfo, options.limit, productCountableConnection.totalCount)
@@ -132,6 +163,7 @@ export class FakeShopApi implements ShopApi {
                 product: productId,
             },
         }))
+
         return reviewsResolver.all(queryOptions).then(({data: {reviews}}) => ({
                 items: reviews.edges.map((edge: ReviewCountableEdge) => reviewsMapper.toInternal(edge.node)),
                 sort: 'default',

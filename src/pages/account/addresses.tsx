@@ -16,7 +16,7 @@ function Page() {
     const intl = useIntl();
     const [addresses, setAddresses] = useState<IAddress[]>([]);
 
-    const delAddress = async (addressId: number) => {
+    const delAddress = async (addressId: string) => {
         await accountApi.delAddress(addressId);
         await accountApi.getAddresses().then(setAddresses);
     };

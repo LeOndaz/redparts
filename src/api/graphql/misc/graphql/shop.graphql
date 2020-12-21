@@ -1,0 +1,14 @@
+query getCountries ($languageCode: LanguageCodeEnum){
+    shop {
+        countries(languageCode: $languageCode){
+            country
+            code
+        }
+    }
+}
+
+#query testError {
+#  user(id: "VXNlcjox" ){
+#    id
+#  }
+#}

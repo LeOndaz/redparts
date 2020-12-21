@@ -7,3 +7,4 @@ export * from './orders';
 export * from './posts';
 export * from './products';
 export * from './vehicles';
+export * from "./brands"

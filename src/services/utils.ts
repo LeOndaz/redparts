@@ -1,6 +1,8 @@
 // application
 import { IBaseCategory, ICategory } from '~/interfaces/category';
 import { INavigation } from '~/interfaces/list';
+import {GetServerSidePropsContext} from "next";
+import {getDefaultLocale, getLanguageByLocale, getLanguageByPath} from "~/services/i18n/utils";
 
 export function baseUrl(url: string): string {
     if (/^\/([^/]|$)/.test(url)) {
@@ -43,14 +45,24 @@ export function isEmptyList(navigation: INavigation): boolean {
     );
 }
 
-export function saveToLocalStorage(key: string, value: any): void {
-    localStorage.setItem(key, JSON.stringify(value))
+
+const getServerSideLocale = (ctx: GetServerSidePropsContext) => {
+    const {req, query} = ctx;
+    let language = null;
+
+    if (typeof query.lang === 'string') {
+        language = getLanguageByLocale(query.lang);
+    } else if (req.url) {
+        language = getLanguageByPath(req.url);
+    }
+
+    return language ? language.locale : getDefaultLocale();
 }
 
-export function loadFromLocalStorage(key: string): any {
-    return JSON.parse(localStorage.getItem(key) || null)
+export interface clientContext {
+    locale: string
 }
 
-export function deleteFromLocalStorage(key: string): void {
-    localStorage.removeItem(key)
-}
+export const getClientContext = (ctx: GetServerSidePropsContext) => ({
+    locale: getServerSideLocale(ctx)
+})

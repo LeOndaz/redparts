@@ -30,12 +30,6 @@ import '../scss/style.header-classic-variant-five.scss';
 import '../scss/style.mobile-header-variant-one.scss';
 import '../scss/style.mobile-header-variant-two.scss';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import {deleteFromLocalStorage, loadFromLocalStorage, saveToLocalStorage} from "~/services/utils";
-import {auth} from "~/api";
-import {IUser} from "~/interfaces/user";
-import {useAppRouter} from "~/services/router";
-import {useUser} from "~/store/user/userHooks";
-import {userSetCurrent} from "~/store/user/userAction";
 import AuthFlow from "~/components/auth/AuthProvider";
 
 interface Props extends AppProps {

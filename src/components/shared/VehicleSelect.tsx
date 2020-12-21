@@ -7,8 +7,6 @@ import useVehicleForm from '~/services/forms/vehicle';
 import { IVehicle } from '~/interfaces/vehicle';
 import { useGetCategoryListQuery } from '~/api/graphql/types';
 import {ApolloClient, ApolloProvider, InMemoryCache} from '@apollo/client';
-import {categoryResolver} from '~/api';
-import {SALEOR_URL} from '~/api/graphql/consts';
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
     onVehicleChange?: (event: IVehicle | null) => void;

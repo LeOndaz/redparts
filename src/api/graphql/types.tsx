@@ -160,7 +160,7 @@ export type Query = {
   reportProductSales?: Maybe<ProductVariantCountableConnection>;
   /** The ID of the object */
   review?: Maybe<Review>;
-  /** List of reviews */
+  /** List of reviews. */
   reviews?: Maybe<ReviewCountableConnection>;
   /** Look up a sale by ID. */
   sale?: Maybe<Sale>;
@@ -1371,6 +1371,12 @@ export type ProductTypeProductsArgs = {
   last?: Maybe<Scalars['Int']>;
 };
 
+
+/** Represents a type of product. It defines what attributes are available to products of this type. */
+export type ProductTypeVariantAttributesArgs = {
+  variantSelection?: Maybe<VariantAttributeScope>;
+};
+
 /** Representation of tax types fetched from tax gateway. */
 export type TaxType = {
   __typename?: 'TaxType';
@@ -1461,6 +1467,7 @@ export type ProductTypeCountableEdge = {
 /** An enumeration. */
 export enum AttributeInputTypeEnum {
   Dropdown = 'DROPDOWN',
+  File = 'FILE',
   Multiselect = 'MULTISELECT'
 }
 
@@ -1473,6 +1480,8 @@ export enum AttributeTypeEnum {
 /** Represents a value of an attribute. */
 export type AttributeValue = Node & {
   __typename?: 'AttributeValue';
+  /** Represents file URL and content type (if attribute value is a file). */
+  file?: Maybe<File>;
   /** The ID of the object. */
   id: Scalars['ID'];
   /** The input type to use for entering attribute values in the dashboard. */
@@ -1512,6 +1521,14 @@ export type AttributeValueTranslation = Node & {
   name: Scalars['String'];
 };
 
+export type File = {
+  __typename?: 'File';
+  /** Content type of the file. */
+  contentType?: Maybe<Scalars['String']>;
+  /** The URL of the file. */
+  url: Scalars['String'];
+};
+
 export type AttributeTranslation = Node & {
   __typename?: 'AttributeTranslation';
   /** The ID of the object. */
@@ -1520,6 +1537,12 @@ export type AttributeTranslation = Node & {
   language: LanguageDisplay;
   name: Scalars['String'];
 };
+
+export enum VariantAttributeScope {
+  All = 'ALL',
+  NotVariantSelection = 'NOT_VARIANT_SELECTION',
+  VariantSelection = 'VARIANT_SELECTION'
+}
 
 export type AttributeCountableConnection = {
   __typename?: 'AttributeCountableConnection';
@@ -1724,6 +1747,12 @@ export type ProductVariant = Node & ObjectWithMetadata & {
   /** Returns translated product variant fields for the given language code. */
   translation?: Maybe<ProductVariantTranslation>;
   weight?: Maybe<Weight>;
+};
+
+
+/** Represents a version of a product such as different size or color. */
+export type ProductVariantAttributesArgs = {
+  variantSelection?: Maybe<VariantAttributeScope>;
 };
 
 
@@ -7845,7 +7874,11 @@ export type AttributeValueInput = {
   /** ID of the selected attribute. */
   id?: Maybe<Scalars['ID']>;
   /** The value or slug of an attribute to resolve. If the passed value is non-existent, it will be created. */
-  values: Array<Maybe<Scalars['String']>>;
+  values?: Maybe<Array<Maybe<Scalars['String']>>>;
+  /** URL of the file attribute. Every time, a new value is created. */
+  file?: Maybe<Scalars['String']>;
+  /** File content type. */
+  contentType?: Maybe<Scalars['String']>;
 };
 
 /** Deletes a product. */
@@ -8314,7 +8347,7 @@ export type BulkProductError = {
 
 export type ProductVariantBulkCreateInput = {
   /** List of attributes specific to this variant. */
-  attributes: Array<Maybe<AttributeValueInput>>;
+  attributes: Array<Maybe<BulkAttributeValueInput>>;
   /** Stock keeping unit. */
   sku: Scalars['String'];
   /** Determines if the inventory of this variant should be tracked. If false, the quantity won't change when customers buy this item. */
@@ -8325,6 +8358,13 @@ export type ProductVariantBulkCreateInput = {
   stocks?: Maybe<Array<StockInput>>;
   /** List of prices assigned to channels. */
   channelListings?: Maybe<Array<ProductVariantChannelListingAddInput>>;
+};
+
+export type BulkAttributeValueInput = {
+  /** ID of the selected attribute. */
+  id?: Maybe<Scalars['ID']>;
+  /** The value or slug of an attribute to resolve. If the passed value is non-existent, it will be created. */
+  values: Array<Maybe<Scalars['String']>>;
 };
 
 export type ProductVariantChannelListingAddInput = {
@@ -10292,16 +10332,8 @@ export type FileUpload = {
    * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
    */
   errors: Array<Error>;
-  uploadedFile?: Maybe<UploadedFile>;
+  uploadedFile?: Maybe<File>;
   uploadErrors: Array<UploadError>;
-};
-
-export type UploadedFile = {
-  __typename?: 'UploadedFile';
-  /** The URL of the uploaded file. */
-  url: Scalars['String'];
-  /** Content type of uploaded file. */
-  contentType: Scalars['String'];
 };
 
 export type UploadError = {
@@ -11914,13 +11946,54 @@ export type ReviewUpdateInput = {
   rating?: Maybe<Scalars['Int']>;
 };
 
+export type DeleteAddressMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type DeleteAddressMutation = (
+  { __typename?: 'Mutation' }
+  & { addressDelete?: Maybe<(
+    { __typename?: 'AddressDelete' }
+    & { accountErrors: Array<(
+      { __typename?: 'AccountError' }
+      & Pick<AccountError, 'field' | 'code'>
+    )> }
+  )> }
+);
+
+export type AddressDetailsFragmentFragment = (
+  { __typename?: 'Address' }
+  & Pick<Address, 'id' | 'firstName' | 'lastName' | 'streetAddress1' | 'streetAddress2' | 'city' | 'cityArea' | 'postalCode' | 'phone' | 'isDefaultBillingAddress' | 'isDefaultShippingAddress' | 'companyName'>
+  & { country: (
+    { __typename?: 'CountryDisplay' }
+    & Pick<CountryDisplay, 'code' | 'country'>
+  ) }
+);
+
+export type GetAddressByIdQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetAddressByIdQuery = (
+  { __typename?: 'Query' }
+  & { address?: Maybe<(
+    { __typename?: 'Address' }
+    & AddressDetailsFragmentFragment
+  )> }
+);
+
 export type AttributeDetailsFragmentFragment = (
   { __typename?: 'Attribute' }
   & Pick<Attribute, 'id' | 'slug' | 'name'>
   & { values?: Maybe<Array<Maybe<(
     { __typename?: 'AttributeValue' }
-    & Pick<AttributeValue, 'id' | 'slug' | 'name'>
-  )>>> }
+    & AttributeValuesFragmentFragment
+  )>>>, metadata: Array<Maybe<(
+    { __typename?: 'MetadataItem' }
+    & Pick<MetadataItem, 'key' | 'value'>
+  )>> }
 );
 
 export type AttributeValuesFragmentFragment = (
@@ -11945,6 +12018,19 @@ export type GetAttributeByIdQueryVariables = Exact<{
 
 
 export type GetAttributeByIdQuery = (
+  { __typename?: 'Query' }
+  & { attribute?: Maybe<(
+    { __typename?: 'Attribute' }
+    & AttributeDetailsFragmentFragment
+  )> }
+);
+
+export type GetAttributeBySlugQueryVariables = Exact<{
+  slug: Scalars['String'];
+}>;
+
+
+export type GetAttributeBySlugQuery = (
   { __typename?: 'Query' }
   & { attribute?: Maybe<(
     { __typename?: 'Attribute' }
@@ -12475,6 +12561,9 @@ export type UpdateCustomerMutation = (
     & { accountErrors: Array<(
       { __typename?: 'AccountError' }
       & Pick<AccountError, 'code' | 'field'>
+    )>, user?: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, 'firstName' | 'lastName' | 'isActive' | 'email' | 'note'>
     )> }
   )> }
 );
@@ -12490,6 +12579,26 @@ export type GetCurrentAuthUserQuery = (
   )> }
 );
 
+export const AddressDetailsFragmentFragmentDoc = gql`
+    fragment addressDetailsFragment on Address {
+  id
+  firstName
+  lastName
+  streetAddress1
+  streetAddress2
+  city
+  cityArea
+  postalCode
+  country {
+    code
+    country
+  }
+  phone
+  isDefaultBillingAddress
+  isDefaultShippingAddress
+  companyName
+}
+    `;
 export const PageInfoFragmentFragmentDoc = gql`
     fragment pageInfoFragment on PageInfo {
   hasNextPage
@@ -12543,18 +12652,6 @@ export const ProductPageInfoFragmentFragmentDoc = gql`
   totalCount
 }
     ${PageInfoFragmentFragmentDoc}`;
-export const AttributeDetailsFragmentFragmentDoc = gql`
-    fragment attributeDetailsFragment on Attribute {
-  id
-  slug
-  name
-  values {
-    id
-    slug
-    name
-  }
-}
-    `;
 export const AttributeValuesFragmentFragmentDoc = gql`
     fragment attributeValuesFragment on AttributeValue {
   id
@@ -12562,6 +12659,20 @@ export const AttributeValuesFragmentFragmentDoc = gql`
   slug
 }
     `;
+export const AttributeDetailsFragmentFragmentDoc = gql`
+    fragment attributeDetailsFragment on Attribute {
+  id
+  slug
+  name
+  values {
+    ...attributeValuesFragment
+  }
+  metadata {
+    key
+    value
+  }
+}
+    ${AttributeValuesFragmentFragmentDoc}`;
 export const AttributeValuesDetailFragmentFragmentDoc = gql`
     fragment attributeValuesDetailFragment on SelectedAttribute {
   attribute {
@@ -12683,6 +12794,74 @@ export const UserPrivateDetailsFragmentFragmentDoc = gql`
   isStaff
 }
     `;
+export const DeleteAddressDocument = gql`
+    mutation deleteAddress($id: ID!) {
+  addressDelete(id: $id) {
+    accountErrors {
+      field
+      code
+    }
+  }
+}
+    `;
+export type DeleteAddressMutationFn = Apollo.MutationFunction<DeleteAddressMutation, DeleteAddressMutationVariables>;
+
+/**
+ * __useDeleteAddressMutation__
+ *
+ * To run a mutation, you first call `useDeleteAddressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAddressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAddressMutation, { data, loading, error }] = useDeleteAddressMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteAddressMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAddressMutation, DeleteAddressMutationVariables>) {
+        return Apollo.useMutation<DeleteAddressMutation, DeleteAddressMutationVariables>(DeleteAddressDocument, baseOptions);
+      }
+export type DeleteAddressMutationHookResult = ReturnType<typeof useDeleteAddressMutation>;
+export type DeleteAddressMutationResult = Apollo.MutationResult<DeleteAddressMutation>;
+export type DeleteAddressMutationOptions = Apollo.BaseMutationOptions<DeleteAddressMutation, DeleteAddressMutationVariables>;
+export const GetAddressByIdDocument = gql`
+    query getAddressById($id: ID!) {
+  address(id: $id) {
+    ...addressDetailsFragment
+  }
+}
+    ${AddressDetailsFragmentFragmentDoc}`;
+
+/**
+ * __useGetAddressByIdQuery__
+ *
+ * To run a query within a React component, call `useGetAddressByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAddressByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAddressByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAddressByIdQuery(baseOptions?: Apollo.QueryHookOptions<GetAddressByIdQuery, GetAddressByIdQueryVariables>) {
+        return Apollo.useQuery<GetAddressByIdQuery, GetAddressByIdQueryVariables>(GetAddressByIdDocument, baseOptions);
+      }
+export function useGetAddressByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddressByIdQuery, GetAddressByIdQueryVariables>) {
+          return Apollo.useLazyQuery<GetAddressByIdQuery, GetAddressByIdQueryVariables>(GetAddressByIdDocument, baseOptions);
+        }
+export type GetAddressByIdQueryHookResult = ReturnType<typeof useGetAddressByIdQuery>;
+export type GetAddressByIdLazyQueryHookResult = ReturnType<typeof useGetAddressByIdLazyQuery>;
+export type GetAddressByIdQueryResult = Apollo.QueryResult<GetAddressByIdQuery, GetAddressByIdQueryVariables>;
 export const GetAttributeByIdDocument = gql`
     query getAttributeById($id: ID!) {
   attribute(id: $id) {
@@ -12716,6 +12895,39 @@ export function useGetAttributeByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookO
 export type GetAttributeByIdQueryHookResult = ReturnType<typeof useGetAttributeByIdQuery>;
 export type GetAttributeByIdLazyQueryHookResult = ReturnType<typeof useGetAttributeByIdLazyQuery>;
 export type GetAttributeByIdQueryResult = Apollo.QueryResult<GetAttributeByIdQuery, GetAttributeByIdQueryVariables>;
+export const GetAttributeBySlugDocument = gql`
+    query getAttributeBySlug($slug: String!) {
+  attribute(slug: $slug) {
+    ...attributeDetailsFragment
+  }
+}
+    ${AttributeDetailsFragmentFragmentDoc}`;
+
+/**
+ * __useGetAttributeBySlugQuery__
+ *
+ * To run a query within a React component, call `useGetAttributeBySlugQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAttributeBySlugQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAttributeBySlugQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useGetAttributeBySlugQuery(baseOptions?: Apollo.QueryHookOptions<GetAttributeBySlugQuery, GetAttributeBySlugQueryVariables>) {
+        return Apollo.useQuery<GetAttributeBySlugQuery, GetAttributeBySlugQueryVariables>(GetAttributeBySlugDocument, baseOptions);
+      }
+export function useGetAttributeBySlugLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAttributeBySlugQuery, GetAttributeBySlugQueryVariables>) {
+          return Apollo.useLazyQuery<GetAttributeBySlugQuery, GetAttributeBySlugQueryVariables>(GetAttributeBySlugDocument, baseOptions);
+        }
+export type GetAttributeBySlugQueryHookResult = ReturnType<typeof useGetAttributeBySlugQuery>;
+export type GetAttributeBySlugLazyQueryHookResult = ReturnType<typeof useGetAttributeBySlugLazyQuery>;
+export type GetAttributeBySlugQueryResult = Apollo.QueryResult<GetAttributeBySlugQuery, GetAttributeBySlugQueryVariables>;
 export const GetProductsByCategoryIdDocument = gql`
     query getProductsByCategoryId($id: ID!, $first: Int, $last: Int, $after: String, $before: String) {
   category(id: $id) {
@@ -13448,6 +13660,13 @@ export const UpdateCustomerDocument = gql`
     accountErrors {
       code
       field
+    }
+    user {
+      firstName
+      lastName
+      isActive
+      email
+      note
     }
   }
 }

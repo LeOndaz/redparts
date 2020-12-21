@@ -39,7 +39,7 @@ function Page() {
             lastName: '',
             email: '',
             phone: '',
-            avatar: '',
+            // avatar: '',
         },
     });
 
@@ -59,13 +59,13 @@ function Page() {
             lastName: user?.lastName || '',
             email: user?.email || '',
             phone: user?.phone || '',
-            avatar: '',
+            // avatar: '',
         });
     }, [user, reset]);
 
-    useEffect(() => {
-        register({name: 'avatar'}, {required: true})
-    }, [])
+    // useEffect(() => {
+    //     register({name: 'avatar'}, {required: true})
+    // }, [])
 
     return (
         <div className="card">
@@ -80,34 +80,34 @@ function Page() {
                 <div className="row no-gutters">
                     <div className="col-12 col-lg-7 col-xl-6">
                         <form onSubmit={handleSubmit(submit)}>
-                            <div className="form-group">
-                                <label htmlFor="profile-avatar">
-                                    <FormattedMessage id="INPUT_AVATAR_LABEL"/>
-                                </label>
-                                <div className="profile-card__avatar">
-                                    <label htmlFor="avatar">
-                                        <AppImage
-                                            src={user?.avatar?.url || "http://placehold.it/100"}
-                                            alt={user?.avatar?.alt}
-                                            onClick={handleImageClick}
-                                            style={{
-                                                cursor: 'pointer',
-                                            }}
-                                        />
-                                        <input
-                                            type="file"
-                                            id="profile-avatar"
-                                            name="avatar"
-                                            style={{display: 'none'}}
-                                            className={classNames('form-control', {
-                                                'is-invalid': errors.avatar,
-                                            })}
-                                            placeholder={intl.formatMessage({id: 'INPUT_FIRST_NAME_PLACEHOLDER'})}
-                                            ref={input}
-                                        />
-                                    </label>
-                                </div>
-                            </div>
+                            {/*<div className="form-group">*/}
+                            {/*    <label htmlFor="profile-avatar">*/}
+                            {/*        <FormattedMessage id="INPUT_AVATAR_LABEL"/>*/}
+                            {/*    </label>*/}
+                            {/*    <div className="profile-card__avatar">*/}
+                            {/*        <label htmlFor="avatar">*/}
+                            {/*            <AppImage*/}
+                            {/*                src={user?.avatar?.url || "http://placehold.it/100"}*/}
+                            {/*                alt={user?.avatar?.alt}*/}
+                            {/*                onClick={handleImageClick}*/}
+                            {/*                style={{*/}
+                            {/*                    cursor: 'pointer',*/}
+                            {/*                }}*/}
+                            {/*            />*/}
+                            {/*            <input*/}
+                            {/*                type="file"*/}
+                            {/*                id="profile-avatar"*/}
+                            {/*                name="avatar"*/}
+                            {/*                style={{display: 'none'}}*/}
+                            {/*                className={classNames('form-control', {*/}
+                            {/*                    'is-invalid': errors.avatar,*/}
+                            {/*                })}*/}
+                            {/*                placeholder={intl.formatMessage({id: 'INPUT_FIRST_NAME_PLACEHOLDER'})}*/}
+                            {/*                ref={input}*/}
+                            {/*            />*/}
+                            {/*        </label>*/}
+                            {/*    </div>*/}
+                            {/*</div>*/}
                             <div className="form-group">
                                 <label htmlFor="profile-first-name">
                                     <FormattedMessage id="INPUT_FIRST_NAME_LABEL"/>

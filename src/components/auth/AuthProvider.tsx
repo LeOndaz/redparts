@@ -1,29 +1,21 @@
 import React, {useEffect} from "react";
 import {useUser} from "~/store/user/userHooks";
-import {deleteFromLocalStorage, loadFromLocalStorage, saveToLocalStorage} from "~/services/utils";
-import {useAppRouter} from "~/services/router";
 import {IUser} from "~/interfaces/user";
-import {auth, users} from "~/api/services";
 import {useStore} from "react-redux";
 import {userSetCurrent} from "~/store/user/userAction";
+import {auth} from "~/api";
+import {renewToken} from "~/api/graphql/users/UserService";
+import {load, save} from "~/store/store";
 
 function AuthFlow() {
     const user = useUser()
-    const router = useAppRouter()
     const store = useStore()
-    const USER_KEY = 'user'
-
-    function updateStorageToken(user: IUser) {
-        return users.renewToken(user).then(user => {
-            saveToLocalStorage(USER_KEY, user)
-        })
-    }
 
     function validateUser(user: IUser) {
         const accessToken = user.tokens.access
-        return auth.verifyToken(accessToken).then(isValid => {
+        return auth.verifyToken(accessToken).then(async (isValid) => {
                 if (!isValid) {
-                    updateStorageToken(user).then()
+                    return await renewToken(user).then(updatedUser => updatedUser)
                 }
                 return user
             }
@@ -33,10 +25,10 @@ function AuthFlow() {
     // validate user, if not, make it valid
     useEffect(() => {
         if (typeof window !== "undefined") {
-            const localUser = loadFromLocalStorage(USER_KEY)
-            if (localUser) {
-                validateUser(localUser).then((user) => {
-                    store.dispatch(userSetCurrent(user))
+            const localState = load()
+            if (localState.user.current) {
+                validateUser(localState.user.current).then((updatedUser) => {
+                    store.dispatch(userSetCurrent(updatedUser))
                 })
             }
         }
@@ -44,16 +36,17 @@ function AuthFlow() {
 
     // run JWT update interval
     useEffect(() => {
-        if (user) {
-            const i = setInterval(async () => {
-                updateStorageToken(user).catch(({message}) => {
-                    if (message === 'JWT_SIGNATURE_EXPIRED') {
-                        deleteFromLocalStorage(USER_KEY)
-                        clearInterval(i)
-                        router.reload()
-                    }
-                })
-            }, 5 * 1000)
+        if (typeof window !== "undefined") {
+            if (user) {
+                setInterval(async () => {
+                    validateUser(user).catch(({message}) => {
+                        if (message === 'JWT_SIGNATURE_EXPIRED') {
+                            store.dispatch(userSetCurrent(null))
+                        }
+                    })
+                }, 5 * 1000)
+            }
+
         }
     }, [user])
 

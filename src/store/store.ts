@@ -8,7 +8,7 @@ import version from '~/store/version';
 import { FirstArgType } from '~/store/types';
 import { IRootState } from '~/store/root/rootTypes';
 
-const STORAGE_KEY = 'red-parts/react';
+const STORAGE_KEY = 'app';
 
 export const save = (state: any) => {
     try {
@@ -20,7 +20,7 @@ export const save = (state: any) => {
 };
 
 export const load = () => {
-    if (!process.browser) {
+    if (typeof window === "undefined") {
         return undefined;
     }
 

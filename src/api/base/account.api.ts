@@ -9,7 +9,7 @@ export interface IEditProfileData {
     lastName: string;
     email: string;
     phone: string;
-    avatar: File;
+    // avatar: File;
 }
 
 export interface IEditAddressData extends IAddressData {
@@ -27,21 +27,21 @@ export abstract class AccountApi {
 
     abstract changePassword(oldPassword: string, newPassword: string): Promise<void>;
 
-    abstract addAddress(user: IUser, data: IEditAddressData): Promise<IAddress>;
+    abstract addAddress(data: IEditAddressData): Promise<IAddress>;
 
-    abstract editAddress(user: IUser, addressId: number, data: IEditAddressData): Promise<IAddress>;
+    abstract editAddress(addressId: string, data: IEditAddressData): Promise<IAddress>;
 
-    abstract delAddress(user: IUser, addressId: number): Promise<void>;
+    abstract delAddress(addressId: string): Promise<void>;
 
     abstract getDefaultAddress(): Promise<IAddress | null>;
 
-    abstract getAddress(addressId: number): Promise<IAddress>;
+    abstract getAddress(addressId: string): Promise<IAddress>;
 
     abstract getAddresses(): Promise<IAddress[]>;
 
     abstract getOrdersList(options?: IListOptions): Promise<IOrdersList>;
 
-    abstract getOrderById(id: number): Promise<IOrder>;
+    abstract getOrderById(id: string): Promise<IOrder>;
 
     abstract getOrderByToken(token: string): Promise<IOrder>;
 }

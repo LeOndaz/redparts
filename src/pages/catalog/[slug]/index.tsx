@@ -7,6 +7,7 @@ import ShopPageCategory from '~/components/shop/ShopPageCategory';
 import SitePageNotFound from '~/components/site/SitePageNotFound';
 import { IShopCategory } from '~/interfaces/category';
 import { shopApi } from '~/api';
+import {getClientContext} from "~/services/utils";
 
 interface Props {
     slug: string | null;
@@ -14,11 +15,13 @@ interface Props {
     subcategories: IShopCategory[];
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
+    const {params} = ctx;
+
     const slug = typeof params?.slug === 'string' ? params?.slug : null;
     const [category, subcategories] = await Promise.all([
-        slug ? shopApi.getCategoryBySlug(slug, { depth: 2 }) : null,
-        slug ? [] : shopApi.getCategories({ depth: 1 }),
+        slug ? shopApi.getCategoryBySlug(slug, { depth: 2 }, getClientContext(ctx)) : null,
+        slug ? [] : shopApi.getCategories({ depth: 1 }, getClientContext(ctx)),
     ]);
 
     return {

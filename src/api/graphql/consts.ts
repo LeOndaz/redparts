@@ -23,11 +23,17 @@ const SERVER_ERRORS: any = {
     }
 }
 
+export enum BADGES {
+    HOT = "hot",
+    SALE = "sale",
+    NEW = "new"
+}
 
-export const DEFAULT_ATTR_SLUGS = {
-    BRAND: "brand",
-    BADGES: "badges",
-    TAGS: "tags",
+export enum DEFAULT_ATTR_SLUGS {
+    BRAND = "brand",
+    BADGES = "badges",
+    TAGS = "tags",
 }
 
 export const MAX_BADGES = 3
+export const BASE_CURRENCY = "EUR"

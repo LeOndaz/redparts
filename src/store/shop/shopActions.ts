@@ -89,7 +89,7 @@ export function shopSetFilterValue(filter: string, value: string | null): ShopSe
 }
 
 export function shopFetchCategoryThunk(categorySlug: string | null): ShopThunkAction<Promise<void>> {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         let canceled = false;
 
         cancelPreviousCategoryRequest();
@@ -98,7 +98,7 @@ export function shopFetchCategoryThunk(categorySlug: string | null): ShopThunkAc
         let request: Promise<IShopCategory | null>;
 
         if (categorySlug) {
-            request = shopApi.getCategoryBySlug(categorySlug);
+            request = shopApi.getCategoryBySlug(categorySlug, {}, {});
         } else {
             request = Promise.resolve(null);
         }

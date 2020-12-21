@@ -1,10 +1,23 @@
 // application
-import { accountApi } from '~/api';
-import { IEditProfileData } from '~/api/base';
-import { IUser } from '~/interfaces/user';
-import { USER_SET_CURRENT, UserSetCurrentAction, UserThunkAction } from '~/store/user/userActionTypes';
+import {accountApi} from '~/api';
+import {IEditProfileData} from '~/api/base';
+import {IUser} from '~/interfaces/user';
+import {USER_SET_CURRENT, UserSetCurrentAction, UserThunkAction} from '~/store/user/userActionTypes';
+import {load, save} from "~/store/store";
 
 export function userSetCurrent(user: IUser | null): UserSetCurrentAction {
+    let appState = load()
+
+    if (appState) {
+        appState = {
+            ...appState,
+            user: {
+                current: user,
+            }
+        }
+        save(appState)
+    }
+
     return {
         type: USER_SET_CURRENT,
         payload: user,

@@ -50,7 +50,7 @@ export function addAddress(data: Partial<IEditAddressData>): Promise<IAddress> {
 }
 
 // noinspection DuplicatedCode
-export function editAddress(addressId: number, data: IEditAddressData): Promise<IAddress> {
+export function editAddress(addressId: string, data: IEditAddressData): Promise<IAddress> {
     const address = addresses.find((x) => x.id === addressId);
 
     if (!address) {

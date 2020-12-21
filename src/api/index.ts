@@ -4,23 +4,11 @@ import {FakeBlogApi} from './fake-api/fake-blog.api';
 import {FakeCountriesApi} from './fake-api/fake-countries.api';
 import {FakeShopApi} from './fake-api/fake-shop.api';
 import {FakeVehicleApi} from './fake-api/fake-vehicle.api';
-import CategoryResolver from '~/api/graphql/resolvers/categories';
-import ProductResolver from '~/api/graphql/resolvers/products';
-import {
-    AddressMapper,
-    BlogCategoryMapper,
-    CursorNavigationMapper,
-    FilterMapper,
-    ProductMapper,
-    ReviewsMapper,
-    ShopCategoryMapper,
-    SortingMapper,
-} from '~/api/graphql/mappers';
 import {BatchHttpLink} from "@apollo/client/link/batch-http";
 
 // this will be federated
 import {API_URL, REVIEWS_PLUGIN_API_URL} from '~/api/graphql/consts';
-import {ReviewsResolver} from "~/api/graphql/resolvers/reviews";
+import {AuthService} from "~/api/graphql/users/AuthService";
 
 // shared cache for the whole project
 export const cache = new InMemoryCache();
@@ -42,22 +30,16 @@ export const reviewsClient = new ApolloClient<NormalizedCacheObject>({
     cache,
 })
 
-// resolvers
-export const categoryResolver = new CategoryResolver(client);
-export const productResolver = new ProductResolver(client);
-export const reviewsResolver = new ReviewsResolver(reviewsClient);
 
-// export const auth = new (authService as any)();
+export const auth = new AuthService()
 
-// Mappers
-export const shopCategoryMapper = new ShopCategoryMapper();
-export const blogCategoryMapper = new BlogCategoryMapper();
-export const productMapper = new ProductMapper();
-export const reviewsMapper = new ReviewsMapper();
-export const sortingMapper = new SortingMapper();
-export const filterMapper = new FilterMapper();
-export const cursorNavigationMapper = new CursorNavigationMapper();
-export const addressMapper = new AddressMapper();
+export * from "~/api/graphql/products/ProductService"
+export * from "~/api/graphql/categories/CategoryService"
+export * from "~/api/graphql/attributes/AttributeService"
+export * from "~/api/graphql/collections/CollectionService"
+export * from "~/api/graphql/misc/MiscService"
+export * from "~/api/graphql/reviews/ReviewService"
+
 
 // APIs
 export const accountApi = new FakeAccountApi();

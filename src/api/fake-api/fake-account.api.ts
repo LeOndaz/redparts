@@ -19,14 +19,17 @@ import {
     addAddress,
     delAddress,
     editAddress,
-    getAddress,
+    // getAddress,
     getAddresses,
     getDefaultAddress,
     getOrderById,
     getOrderByToken,
     getOrdersList,
 } from '~/fake-server/endpoints';
-import {auth, users} from "~/api/services";
+import _ from "lodash"
+import {auth} from "~/api";
+import {editProfile} from "~/api/graphql/users/UserService"
+import {deleteAddress, getAddressById} from "~/api/graphql/addresses/AddressService";
 
 export class FakeAccountApi extends AccountApi {
     signIn(email: string, password: string): Promise<IUser> {
@@ -42,7 +45,8 @@ export class FakeAccountApi extends AccountApi {
     }
 
     editProfile(data: IEditProfileData): Promise<IUser> {
-        return accountEditProfile(data);
+        // return accountEditProfile(data);
+        return editProfile(data);
     }
 
     changePassword(oldPassword: string, newPassword: string): Promise<void> {
@@ -57,20 +61,20 @@ export class FakeAccountApi extends AccountApi {
         return addAddress(data);
     }
 
-    editAddress(user: IUser, addressId: number, data: IEditAddressData): Promise<IAddress> {
+    editAddress(addressId: string, data: IEditAddressData): Promise<IAddress> {
         return editAddress(addressId, data);
     }
 
-    delAddress(user: IUser, addressId: number): Promise<void> {
-        return delAddress(addressId);
+    delAddress(addressId: string): Promise<void> {
+        return deleteAddress(addressId).then()
     }
 
     getDefaultAddress(): Promise<IAddress | null> {
         return getDefaultAddress();
     }
 
-    getAddress(addressId: number): Promise<IAddress> {
-        return getAddress(addressId);
+    getAddress(addressId: string): Promise<IAddress> {
+        return getAddressById(addressId).then()
     }
 
     getAddresses(): Promise<IAddress[]> {
@@ -81,7 +85,7 @@ export class FakeAccountApi extends AccountApi {
         return getOrdersList(options);
     }
 
-    getOrderById(id: number): Promise<IOrder> {
+    getOrderById(id: string): Promise<IOrder> {
         return getOrderById(id);
     }
 

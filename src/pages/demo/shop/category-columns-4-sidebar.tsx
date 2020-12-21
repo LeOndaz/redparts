@@ -6,14 +6,15 @@ import { GetServerSideProps } from 'next';
 import ShopPageCategory from '~/components/shop/ShopPageCategory';
 import { IShopCategory } from '~/interfaces/category';
 import { shopApi } from '~/api';
+import {getClientContext} from "~/services/utils";
 
 interface Props {
     subcategories: IShopCategory[];
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => ({
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => ({
     props: {
-        subcategories: await shopApi.getCategories({ depth: 1 }),
+        subcategories: await shopApi.getCategories({ depth: 1 }, getClientContext(ctx)),
     },
 });
 

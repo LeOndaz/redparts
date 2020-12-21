@@ -12,26 +12,23 @@ import {
     removeUserVehicles,
 } from '~/fake-server/endpoints';
 
-import {categoryResolver, shopCategoryMapper} from '~/api';
 import {ICategory} from '~/interfaces/category';
 import {CategoryCountableEdge} from '~/api/graphql/types';
-
+import {shopCategoryMapIn} from "~/api/graphql/categories/CategoryMapper";
+import {getCategoryList} from "~/api";
 
 export class FakeVehicleApi extends VehicleApi {
     getYears(): Promise<ICategory[]> {
-        return categoryResolver.all({
+        return getCategoryList.asProducts({
             first: 100,
-        }).then(({data: {categories}}) =>
-            categories.edges.map((e: CategoryCountableEdge) =>
-                shopCategoryMapper.toInternal(e.node)
-            ));
+        }).then(([products]) => products)
     }
 
     getMakes(categoryName: string, previousCallResult: ICategory[]): Promise<ICategory[]> {
         // TODO possibly undefined
         const category: any = previousCallResult.find(cat => cat.name === categoryName) as ICategory;
 
-        return Promise.resolve(category.children?.map((e: CategoryCountableEdge) => shopCategoryMapper.toInternal(e.node)));
+        return Promise.resolve(category.children?.map((e: CategoryCountableEdge) => shopCategoryMapIn(e.node, 'categories')));
     }
 
     getModels(categoryName: string, subcategoryName: string, previousCallResult: any[]): Promise<string[]> {

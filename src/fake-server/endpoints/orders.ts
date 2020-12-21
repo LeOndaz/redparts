@@ -29,7 +29,7 @@ export function getOrdersList(options?: IListOptions): Promise<IOrdersList> {
     });
 }
 
-export function getOrderById(id: number): Promise<IOrder> {
+export function getOrderById(id: string): Promise<IOrder> {
     const order = orders.find((x) => x.id === id);
 
     if (order) {

@@ -28,7 +28,7 @@ export interface ICursorBasedNavigation {
     limit: number;
 
     /** Total items in list. Not a items.length. */
-    total?: number;
+    total: number | null;
 }
 
 export interface IPageBasedNavigation {

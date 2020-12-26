@@ -1,10 +1,8 @@
-/* eslint-disable import/prefer-default-export,class-methods-use-this */
-
-// application
-import { AbstractFilterBuilder } from '~/api/filters/index';
-import { IBaseFilterItem, ICheckFilter } from '~/interfaces/filter';
-import { IProduct } from '~/interfaces/product';
+import {AbstractFilterBuilder} from "~/fake-server/filters/abstract-filter-builder";
+import {IBaseFilterItem, ICheckFilter} from "~/interfaces/filter";
+import {IProduct} from "~/interfaces/product";
 import {products as dbProducts} from "~/fake-server/database/products";
+
 
 export class CheckFilterBuilder extends AbstractFilterBuilder {
     private items: IBaseFilterItem[] = [];
@@ -33,7 +31,7 @@ export class CheckFilterBuilder extends AbstractFilterBuilder {
     }
 
     // noinspection DuplicatedCode
-    calc(filters: AbstractFilterBuilder[], products: IProduct[]): void {
+    calc(products: IProduct[], filters: AbstractFilterBuilder[]): void {
         products = products.filter(
             (product) => filters.reduce<boolean>(
                 (isMatched, filter) => (isMatched && (filter === this || filter.test(product))),

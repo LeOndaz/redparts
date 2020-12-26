@@ -7,8 +7,7 @@ const reviewDefaults = {
     avatarPlaceholder: 'http://placehold.it/50'
 }
 
-
-export const reviewMapIn = (obj: Review): IReview => {
+const _reviewMapIn = (obj: Review): IReview => {
     const name = [obj.user.firstName, obj.user.lastName].join(' ')
     return ({
         author: name.trim() && name || reviewDefaults.namePlaceholder,
@@ -19,3 +18,8 @@ export const reviewMapIn = (obj: Review): IReview => {
         rating: obj.rating
     });
 }
+
+export const reviewMap = {
+    in: _reviewMapIn
+}
+

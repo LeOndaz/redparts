@@ -34,4 +34,5 @@ export interface IOrder {
     total: number;
     shippingAddress: IAddressData;
     billingAddress: IAddressData;
+    note: string
 }

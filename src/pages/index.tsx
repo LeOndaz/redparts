@@ -16,10 +16,11 @@ import BlockZone from '~/components/blocks/BlockZone';
 import url from '~/services/url';
 import { shopApi, blogApi } from '~/api';
 import { useDeferredData, useProductColumns, useProductTabs } from '~/services/hooks';
+import {useLanguage} from "~/services/i18n/hooks";
 
 function Page() {
     const intl = useIntl();
-
+    const language = useLanguage()
     /**
      * Featured products.
      */
@@ -30,10 +31,10 @@ function Page() {
             { id: 3, name: 'Hand Tools', categorySlug: 'hand-tools' },
             { id: 4, name: 'Plumbing', categorySlug: 'plumbing' },
         ], []),
-        (tab) => shopApi.getFeaturedProducts(tab.categorySlug, 8),
+        (tab) => shopApi.getFeaturedProducts(tab.categorySlug, 8, language),
     );
 
-    const blockSale = useDeferredData(() => shopApi.getSpecialOffers(8), []);
+    const blockSale = useDeferredData(() => shopApi.getSpecialOffers(8, language), []);
 
     const blockZones = useMemo(() => [
         {
@@ -53,7 +54,7 @@ function Page() {
         },
     ], []);
 
-    const newArrivals = useDeferredData(() => shopApi.getLatestProducts(12), []);
+    const newArrivals = useDeferredData(() => shopApi.getLatestProducts(12, language), []);
     const newArrivalsLinks = useMemo(() => [
         { title: 'Wheel Covers', url: url.products() },
         { title: 'Timing Belts', url: url.products() },
@@ -68,7 +69,7 @@ function Page() {
         { title: 'Reviews', url: url.blog() },
     ], []);
 
-    const brands = useDeferredData(() => shopApi.getBrands({ limit: 16 }), []);
+    const brands = useDeferredData(() => shopApi.getBrands({ limit: 16 }, language), []);
 
     /**
      * Product columns.
@@ -77,15 +78,15 @@ function Page() {
         useMemo(() => [
             {
                 title: 'Top Rated Products',
-                source: () => shopApi.getTopRatedProducts(null, 3),
+                source: () => shopApi.getTopRatedProducts(null, 3, language),
             },
             {
                 title: 'Special Offers',
-                source: () => shopApi.getSpecialOffers(3),
+                source: () => shopApi.getSpecialOffers(3, language),
             },
             {
                 title: 'Bestsellers',
-                source: () => shopApi.getPopularProducts(null, 3),
+                source: () => shopApi.getPopularProducts(null, 3, language),
             },
         ], []),
     );

@@ -6,6 +6,10 @@ mutation createUserTokens($email: String!, $password: String!){
         user {
             ...userPrivateDetailsFragment
         }
+        accountErrors {
+            code
+            field
+        }
     }
 }
 mutation accountRegister($email: String!, $password: String!, $redirectUrl: String!){
@@ -48,6 +52,9 @@ mutation tokenRenew($csrfToken: String, $refreshToken: String){
             field
         }
         token
+        user {
+            ...userPrivateDetailsFragment
+        }
     }
 }
 
@@ -58,11 +65,22 @@ mutation updateCustomer($id: ID!, $input: CustomerInput!) {
       field
     }
     user {
-      firstName
-      lastName
-      isActive
-      email
-      note
+      ...userPrivateDetailsFragment
     }
   }
+}
+
+mutation updateMetadata($id: ID!, $input: [MetadataInput!]!){
+    updateMetadata(id: $id, input: $input){
+        metadataErrors{
+            field
+            code
+        }
+        item {
+            metadata {
+                key
+                value
+            }
+        }
+    }
 }

@@ -6,6 +6,7 @@ import { useIntl } from 'react-intl';
 import { IVehicle } from '~/interfaces/vehicle';
 import { vehicleApi } from '~/api';
 import {Category} from '~/api/graphql/types';
+import {useLanguage} from "~/services/i18n/hooks";
 
 interface VehicleSelectItemDef<T = any> {
     key: string;
@@ -71,6 +72,7 @@ export default function useVehicleForm(options: IOptions = {}) {
     const intl = useIntl();
     const { onChange } = options;
     const cancelPrevRequestRef = useRef(() => {});
+    const language = useLanguage()
 
     const [results, setResults] = useState((): any => []);
 
@@ -131,7 +133,8 @@ export default function useVehicleForm(options: IOptions = {}) {
         let optionsSource = Promise.resolve<any[]>([]);
 
         if (args.length === 0 || args.slice().pop() !== 'none') {
-            optionsSource = item.optionsSource(...args, [...results]);
+            console.log('here')
+            optionsSource = item.optionsSource(...args, [...results], language);
         }
 
         const options = await optionsSource;

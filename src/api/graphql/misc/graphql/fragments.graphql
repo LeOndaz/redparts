@@ -4,3 +4,17 @@ fragment pageInfoFragment on PageInfo {
     startCursor
     endCursor
 }
+
+
+fragment taxedMoneyFragment on TaxedMoney {
+    currency
+    gross {
+        amount
+    }
+    net {
+        amount
+    }
+    tax {
+        amount
+    }
+}

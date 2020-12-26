@@ -1,4 +1,4 @@
-import {Product} from "~/api/graphql/types";
+import {PageInfo, Product} from "~/api/graphql/types";
 import {
     IProductAttribute,
     IProductOption,
@@ -7,10 +7,6 @@ import {
 } from "~/interfaces/product";
 import _ from "lodash"
 import {ApolloQueryResult} from "@apollo/client";
-import {productMapIn} from "~/api/graphql/products/ProductMapper";
-import {CategoryType, IShopCategoryLayout} from "~/interfaces/category";
-import {blogCategoryMapIn, categoryMapIn, shopCategoryMapIn} from "~/api/graphql/categories/CategoryMapper";
-import {ICustomFields} from "~/interfaces/custom-fields";
 
 export let getProductAttrs = (product: Product) => {
     const attrs: IProductAttribute[] = [];
@@ -89,38 +85,56 @@ export let mapVariantAttrsToOptions = (product: Product): IProductOption[] => {
 }
 
 interface handlerArgs {
-    res: ApolloQueryResult<any>,
-    dataField: string,
-    errorsField?: string,
-    inMapper: (arg: any) => any
+    res: ApolloQueryResult<any>;
+    dataField: string;
+    errorsField?: string;
+    inMapper: (arg: any) => any;
+    relay?: boolean;
 }
+
 
 export const handleSingleResponse = (config: handlerArgs) => {
-    const {res, dataField, inMapper} = config
-    let item = res.data[dataField]
+    const {res, dataField, inMapper, errorsField } = config
 
-    if (item) {
-        return inMapper(item)
-    }
+    const item = res.data[dataField] || null
+    // const errors = errorsField ? res.data[errorsField] : []
 
-    return null
+    return item ? inMapper(item) : null
+
+    // return {
+    //     item,
+    //     errors,
+    // }
 }
 
+export interface RelayedResponse<T> {
+    dataList: T[],
+    pageInfo: PageInfo;
+    totalCount: number;
+    errors: any[];
+}
 
-export const handleRelayedResponse = (config: handlerArgs) => {
-    const {res, dataField, errorsField, inMapper} = config
+export const handleRelayedResponse = (config: handlerArgs): RelayedResponse<any> => {
+    const {res, dataField, errorsField, inMapper, relay = true} = config
 
-    const dataList = _.map(res.data[dataField].edges, 'node').map(inMapper)
+    let dataList: any[];
+
+    if (relay){
+        dataList = res.data[dataField].edges.map(edge => edge.node).map(inMapper)
+    } else {
+        dataList = res.data[dataField].map(inMapper)
+    }
+
     const pageInfo = res.data[dataField].pageInfo
     const totalCount = res.data.totalCount;
-    const errors = errorsField ? _.defaultTo(res.data[errorsField], []) : [];
+    const errors = _.defaultTo(res.data[errorsField!], []);
 
-    return [
+    return {
         dataList,
         pageInfo,
         totalCount,
         errors,
-    ]
+    }
 
 }
 
@@ -128,7 +142,15 @@ export const handleRelayedResponse = (config: handlerArgs) => {
  * -returns handler(response)
  *
  **/
-export const wrapService = <T>(service: (...args: any[]) => Promise<any>, responseHandler: (res: ApolloQueryResult<any>, ...args: any) => any, ...handlerArgs: any[]) => (input: T) => {
-    console.log(handlerArgs, ' #handlerArgs')
-    return service(input).then(r => responseHandler(r, ...handlerArgs))
-}
+/// export const wrapService = <T>(service: (...args: any[]) => Promise<any>, responseHandler: (res: ApolloQueryResult<any>, ...args: any) => any, ...handlerArgs: any[]) =>
+//     (serviceArgs: T) => {
+//         console.log(handlerArgs, ' #handlerArgs')
+//         return service(serviceArgs).then(r => responseHandler(r, ...handlerArgs))
+//     }
+
+//
+// export const wrapService = (service: (...args: any[]) => Promise<any>, responseHandler: (res: any, ...handlerAgs: any) => any, ...handlerArgs: any[]) =>
+//     (...serviceArgs: any[]) => {
+//         console.log(handlerArgs, ' #handlerArgs')
+//         return service(...serviceArgs).then(r => responseHandler(r, ...handlerArgs))
+//     }

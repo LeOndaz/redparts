@@ -1,4 +1,6 @@
+import {CountryCode} from "~/api/graphql/types";
+
 export interface ICountry {
-    code: string;
+    code: CountryCode;
     country: string;
 }

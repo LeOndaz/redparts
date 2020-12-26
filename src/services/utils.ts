@@ -58,11 +58,3 @@ const getServerSideLocale = (ctx: GetServerSidePropsContext) => {
 
     return language ? language.locale : getDefaultLocale();
 }
-
-export interface clientContext {
-    locale: string
-}
-
-export const getClientContext = (ctx: GetServerSidePropsContext) => ({
-    locale: getServerSideLocale(ctx)
-})

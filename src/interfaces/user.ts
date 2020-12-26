@@ -7,7 +7,7 @@ export interface IUser {
     firstName: string;
     lastName: string;
     avatar: IImage;
-    tokens: IUserTokens;
+    // tokens: IUserTokens;
     isActive: boolean;
     lastLogin: string;
     dateJoined: string;

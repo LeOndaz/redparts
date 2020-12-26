@@ -1,12 +1,14 @@
 // application
-import { IAddressData } from '~/interfaces/address';
-import { IBrand } from '~/interfaces/brand';
-import { IFilterValues, IListOptions, IReviewsList } from '~/interfaces/list';
-import { IOrder } from '~/interfaces/order';
-import { IProduct, IProductsList } from '~/interfaces/product';
-import { IReview } from '~/interfaces/review';
+import {IAddressData} from '~/interfaces/address';
+import {IBrand} from '~/interfaces/brand';
+import {IFilterValues, IListOptions, IReviewsList} from '~/interfaces/list';
+import {IOrder} from '~/interfaces/order';
+import {IProduct, IProductsList} from '~/interfaces/product';
+import {IReview} from '~/interfaces/review';
 import {ICategory, IShopCategory} from '~/interfaces/category';
 import {Category} from '~/api/graphql/types';
+import {IInfo} from "~/store/interfaces";
+import {ILanguage} from "~/interfaces/language";
 
 export interface IGetCategoryBySlugOptions {
     depth?: number;
@@ -60,15 +62,15 @@ export interface ICheckoutData {
 }
 
 export abstract class ShopApi {
-    abstract getCategoryBySlug(slug: string, options?: IGetCategoryBySlugOptions): Promise<ICategory>;
+    abstract getCategoryBySlug(slug: string, options?: IGetCategoryBySlugOptions, language?: ILanguage): Promise<ICategory>;
 
-    abstract getCategories(options?: IGetCategoriesOptions): Promise<ICategory[]>;
+    abstract getCategories(options?: IGetCategoriesOptions, language?: ILanguage): Promise<ICategory[]>;
 
-    abstract getBrands(options?: IGetBrandsOptions): Promise<IBrand[]>;
+    abstract getBrands(options?: IGetBrandsOptions, language?: ILanguage): Promise<IBrand[]>;
 
-    abstract getProductsList(options?: IListOptions, filters?: IFilterValues): Promise<IProductsList>;
+    abstract getProductsList(option?: IListOptions, filters?: IFilterValues, language?: ILanguage): Promise<IProductsList>;
 
-    abstract getProductBySlug(slug: string): Promise<IProduct>;
+    abstract getProductBySlug(slug: string, language?: ILanguage): Promise<IProduct>;
 
     abstract getProductReviews(productId: string, options?: IListOptions): Promise<IReviewsList>;
 
@@ -76,21 +78,22 @@ export abstract class ShopApi {
 
     abstract getProductAnalogs(productId: string): Promise<IProduct[]>;
 
-    abstract getRelatedProducts(productId: string, limit: number): Promise<IProduct[]>;
+    abstract getRelatedProducts(productId: string, limit: number, language?: ILanguage): Promise<IProduct[]>;
 
-    abstract getFeaturedProducts(categorySlug: string | null, limit: number): Promise<IProduct[]>;
+    abstract getFeaturedProducts(categorySlug: string | null, limit: number, language?: ILanguage): Promise<IProduct[]>;
 
-    abstract getPopularProducts(categorySlug: string | null, limit: number): Promise<IProduct[]>;
+    abstract getPopularProducts(categorySlug: string | null, limit: number, language?: ILanguage): Promise<IProduct[]>;
 
-    abstract getTopRatedProducts(categorySlug: string | null, limit: number): Promise<IProduct[]>;
+    abstract getTopRatedProducts(categorySlug: string | null, limit: number, language?: ILanguage): Promise<IProduct[]>;
 
-    abstract getSpecialOffers(limit: number): Promise<IProduct[]>;
+    abstract getSpecialOffers(limit: number, language?: ILanguage): Promise<IProduct[]>;
 
-    abstract getLatestProducts(limit: number): Promise<IProduct[]>;
+    abstract getLatestProducts(limit: number, language?: ILanguage): Promise<IProduct[]>;
 
     abstract getSearchSuggestions(
         query: string,
         options?: IGetSearchSuggestionsOptions,
+        language?: ILanguage
     ): Promise<IGetSearchSuggestionsResult>;
 
     abstract checkout(data: ICheckoutData): Promise<IOrder>;

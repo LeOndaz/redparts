@@ -16,6 +16,7 @@ import { IEditAddressData } from '~/api/base';
 import { useAppRouter } from '~/services/router';
 import { useAsyncAction } from '~/store/hooks';
 import {useUser} from "~/store/user/userHooks";
+import {useLanguage} from "~/services/i18n/hooks";
 
 interface IForm {
     address: IAddressForm;
@@ -25,10 +26,12 @@ interface IForm {
 function Page() {
     const router = useAppRouter();
     const intl = useIntl();
+    const language = useLanguage()
     const user = useUser();
+
     const addressId = router.query.id === 'new' || typeof router.query.id !== 'string'
         ? null
-        : parseFloat(router.query.id);
+        : router.query.id;
 
     const formMethods = useForm<IForm>({
         defaultValues: {
@@ -48,9 +51,9 @@ function Page() {
         let saveMethod: Promise<IAddress>;
 
         if (addressId) {
-            saveMethod = accountApi.editAddress(user, addressId, addressData);
+            saveMethod = accountApi.editAddress(addressId, addressData, language);
         } else {
-            saveMethod = accountApi.addAddress(user, addressData);
+            saveMethod = accountApi.addAddress(user!, addressData, language);
         }
 
         return saveMethod.then(() => router.push(url.accountAddresses()));

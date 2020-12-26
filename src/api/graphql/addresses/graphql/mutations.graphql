@@ -1,6 +1,30 @@
 mutation deleteAddress($id: ID!){
-  addressDelete(id: $id){
-    accountErrors {
+    addressDelete(id: $id){
+        accountErrors {
+            field
+            code
+        }
+    }
+}
+
+mutation addAddress($id: ID!, $input: AddressInput!){
+    addressCreate (userId: $id, input: $input){
+        address {
+            ...addressDetailsFragment
+        }
+        accountErrors {
+            field
+            code
+        }
+    }
+}
+
+mutation updateAddress($id: ID!, $input: AddressInput!) {
+  addressUpdate(id: $id, input: $input){
+    address {
+      ...addressDetailsFragment
+    }
+    accountErrors{
       field
       code
     }

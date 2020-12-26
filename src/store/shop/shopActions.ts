@@ -1,9 +1,10 @@
-import { IActiveFilter } from '~/interfaces/filter';
-import { IFilterValues, IListOptions } from '~/interfaces/list';
-import { IProductsList } from '~/interfaces/product';
-import { IShopCategory } from '~/interfaces/category';
-import { SHOP_NAMESPACE } from '~/store/shop/shopTypes';
-import { shopApi } from '~/api';
+import {IActiveFilter} from '~/interfaces/filter';
+import {IFilterValues, IListOptions} from '~/interfaces/list';
+import {IProductsList} from '~/interfaces/product';
+import {IShopCategory} from '~/interfaces/category';
+import {LANGUAGE_NAMESPACE} from '~/store/language/languageReducer';
+import {SHOP_NAMESPACE} from '~/store/shop/shopTypes';
+import {shopApi} from '~/api';
 import {
     SHOP_FETCH_CATEGORY_SUCCESS,
     SHOP_FETCH_PRODUCTS_LIST_START,
@@ -23,8 +24,10 @@ import {
     ShopThunkAction,
 } from '~/store/shop/shopActionTypes';
 
-let cancelPreviousCategoryRequest = () => {};
-let cancelPreviousProductsListRequest = () => {};
+let cancelPreviousCategoryRequest = () => {
+};
+let cancelPreviousProductsListRequest = () => {
+};
 
 export function shopInit(
     categorySlug: string | null,
@@ -93,12 +96,16 @@ export function shopFetchCategoryThunk(categorySlug: string | null): ShopThunkAc
         let canceled = false;
 
         cancelPreviousCategoryRequest();
-        cancelPreviousCategoryRequest = () => { canceled = true; };
+        cancelPreviousCategoryRequest = () => {
+            canceled = true;
+        };
+
+        const language = getState()[LANGUAGE_NAMESPACE].current
 
         let request: Promise<IShopCategory | null>;
 
         if (categorySlug) {
-            request = shopApi.getCategoryBySlug(categorySlug, {}, {});
+            request = shopApi.getCategoryBySlug(categorySlug, {}, language);
         } else {
             request = Promise.resolve(null);
         }
@@ -118,19 +125,24 @@ export function shopFetchProductsListThunk(): ShopThunkAction<Promise<void>> {
         let canceled = false;
 
         cancelPreviousProductsListRequest();
-        cancelPreviousProductsListRequest = () => { canceled = true; };
 
+        cancelPreviousProductsListRequest = () => {
+            canceled = true;
+        };
         dispatch(shopFetchProductsListStart());
 
-        const shopState = getState()[SHOP_NAMESPACE];
+        const state = getState()
+        const shopState = state[SHOP_NAMESPACE];
+        const language = state[LANGUAGE_NAMESPACE].current;
 
-        let { filters } = shopState;
+
+        let {filters} = shopState;
 
         if (shopState.categorySlug !== null) {
-            filters = { ...filters, category: shopState.categorySlug };
+            filters = {...filters, category: shopState.categorySlug};
         }
 
-        const productsList = await shopApi.getProductsList(shopState.options, filters);
+        const productsList = await shopApi.getProductsList(shopState.options, filters, language);
 
         if (canceled && process.browser) {
             return;

@@ -7,7 +7,7 @@ import ShopPageProduct from '~/components/shop/ShopPageProduct';
 import {IProduct} from '~/interfaces/product';
 import {shopApi} from '~/api';
 import SitePageNotFound from '~/components/site/SitePageNotFound';
-import {getClientContext} from "~/services/utils";
+import {getLanguageServerSide} from "~/services/i18n/utils";
 
 interface Props {
     product: IProduct | null;
@@ -17,10 +17,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     const {params,} = ctx;
 
     const slug = typeof params?.slug === 'string' ? params?.slug : null;
+    const language = getLanguageServerSide(ctx)
 
     return {
         props: {
-            product: slug ? await shopApi.getProductBySlug(slug, getClientContext(ctx)) : null,
+            product: slug ? await shopApi.getProductBySlug(slug, language) : null,
         },
     };
 };

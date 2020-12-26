@@ -11,20 +11,23 @@ import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
 import { accountApi } from '~/api';
 import { IAddress } from '~/interfaces/address';
+import {useUser} from "~/store/user/userHooks";
 
 function Page() {
     const intl = useIntl();
+    const user = useUser()
     const [addresses, setAddresses] = useState<IAddress[]>([]);
+
 
     const delAddress = async (addressId: string) => {
         await accountApi.delAddress(addressId);
-        await accountApi.getAddresses().then(setAddresses);
+        await accountApi.getAddresses(user).then(setAddresses);
     };
 
     useEffect(() => {
         let canceled = false;
 
-        accountApi.getAddresses().then((result) => {
+        accountApi.getAddresses(user).then((result) => {
             if (canceled) {
                 return;
             }

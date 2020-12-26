@@ -28,6 +28,7 @@ function Page() {
     const cartRemoveItem = useCartRemoveItem();
     const cartUpdateQuantities = useCartUpdateQuantities();
     const [quantities, setQuantities] = useState<Quantity[]>([]);
+
     const { items } = cart;
 
     const updateQuantities = () => (

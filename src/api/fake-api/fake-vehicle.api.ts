@@ -14,21 +14,23 @@ import {
 
 import {ICategory} from '~/interfaces/category';
 import {CategoryCountableEdge} from '~/api/graphql/types';
-import {shopCategoryMapIn} from "~/api/graphql/categories/CategoryMapper";
-import {getCategoryList} from "~/api";
+import {getShopCategoryListProductsLayout} from "~/api";
+import {shopCategoryMap} from "~/api/graphql/categories/categoryMappers";
+import {ILanguage} from "~/interfaces/language";
 
 export class FakeVehicleApi extends VehicleApi {
-    getYears(): Promise<ICategory[]> {
-        return getCategoryList.asProducts({
+    getYears(_: any, language: ILanguage): Promise<ICategory[]> {
+        console.log('languageeeeeee ', language)
+        return getShopCategoryListProductsLayout({
             first: 100,
-        }).then(([products]) => products)
+        }, language).then(r => r.dataList)
     }
 
-    getMakes(categoryName: string, previousCallResult: ICategory[]): Promise<ICategory[]> {
+    getMakes(categoryName: string, previousCallResult: ICategory[], language: ILanguage): Promise<ICategory[]> {
         // TODO possibly undefined
         const category: any = previousCallResult.find(cat => cat.name === categoryName) as ICategory;
 
-        return Promise.resolve(category.children?.map((e: CategoryCountableEdge) => shopCategoryMapIn(e.node, 'categories')));
+        return Promise.resolve(category.children?.map((e: CategoryCountableEdge) => shopCategoryMap.inProductsLayout(e.node, 'categories')));
     }
 
     getModels(categoryName: string, subcategoryName: string, previousCallResult: any[]): Promise<string[]> {

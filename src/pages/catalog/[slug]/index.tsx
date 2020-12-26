@@ -7,7 +7,7 @@ import ShopPageCategory from '~/components/shop/ShopPageCategory';
 import SitePageNotFound from '~/components/site/SitePageNotFound';
 import { IShopCategory } from '~/interfaces/category';
 import { shopApi } from '~/api';
-import {getClientContext} from "~/services/utils";
+import {getLanguageServerSide} from "~/services/i18n/utils";
 
 interface Props {
     slug: string | null;
@@ -18,10 +18,12 @@ interface Props {
 export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     const {params} = ctx;
 
+    const language = getLanguageServerSide(ctx)
+
     const slug = typeof params?.slug === 'string' ? params?.slug : null;
     const [category, subcategories] = await Promise.all([
-        slug ? shopApi.getCategoryBySlug(slug, { depth: 2 }, getClientContext(ctx)) : null,
-        slug ? [] : shopApi.getCategories({ depth: 1 }, getClientContext(ctx)),
+        slug ? shopApi.getCategoryBySlug(slug, { depth: 2 }, language) : null,
+        slug ? [] : shopApi.getCategories({ depth: 1 }, language),
     ]);
 
     return {

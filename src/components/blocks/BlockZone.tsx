@@ -20,6 +20,7 @@ import { baseUrl } from '~/services/utils';
 import { IProduct } from '~/interfaces/product';
 import { IShopCategory } from '~/interfaces/category';
 import { shopApi } from '~/api';
+import {useLanguage} from "~/services/i18n/hooks";
 
 export interface IBlockZoneTab {
     name: string;
@@ -58,6 +59,7 @@ function BlockZone(props: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [currentTab, setCurrentTab] = useState<IBlockZoneTab | null>(null);
     const subs = category?.children || [];
+    const language = useLanguage()
 
     const handleNextClick = () => {
         if (slickRef.current) {
@@ -74,15 +76,15 @@ function BlockZone(props: Props) {
     const tabs: IBlockZoneTab[] = useMemo(() => [
         {
             name: intl.formatMessage({ id: 'TEXT_TAB_FEATURED' }),
-            source: () => shopApi.getFeaturedProducts(categorySlug, 6),
+            source: () => shopApi.getFeaturedProducts(categorySlug, 6, language),
         },
         {
             name: intl.formatMessage({ id: 'TEXT_TAB_BESTSELLERS' }),
-            source: () => shopApi.getPopularProducts(categorySlug, 6),
+            source: () => shopApi.getPopularProducts(categorySlug, 6, language),
         },
         {
             name: intl.formatMessage({ id: 'TEXT_TAB_TOP_RATED' }),
-            source: () => shopApi.getTopRatedProducts(categorySlug, 6),
+            source: () => shopApi.getTopRatedProducts(categorySlug, 6, language),
         },
     ], [intl, categorySlug]);
 
@@ -119,7 +121,7 @@ function BlockZone(props: Props) {
     useEffect(() => {
         let canceled = false;
 
-        shopApi.getCategoryBySlug(categorySlug, { depth: 1 }).then((result) => {
+        shopApi.getCategoryBySlug(categorySlug, { depth: 1 }, language).then((result) => {
             if (canceled) {
                 return;
             }

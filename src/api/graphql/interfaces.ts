@@ -5,6 +5,7 @@ import {
     ProductTypeFilterInput,
     ProductTypeSortingInput, ReviewFilterInput, ReviewSortingInput
 } from "~/api/graphql/types";
+import {ILanguage} from "~/interfaces/language";
 
 export interface Mapper<T, U> {
     options?: {

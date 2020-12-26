@@ -1,0 +1,38 @@
+mutation createCheckout($input: CheckoutCreateInput!) {
+  checkoutCreate (input: $input){
+    created
+    checkoutErrors {
+      code
+      field
+    }
+    checkout {
+      id
+      user {
+        id
+      }
+      quantity
+      token
+      totalPrice {
+        ...taxedMoneyFragment
+      }
+      subtotalPrice {
+        ...taxedMoneyFragment
+      }
+      note
+      email
+      shippingPrice {
+        ...taxedMoneyFragment
+      }
+      lines {
+        variant {
+          ...productVariantDetails
+        }
+        quantity
+        totalPrice {
+            ...taxedMoneyFragment
+        }
+        requiresShipping
+      }
+    }
+  }
+}

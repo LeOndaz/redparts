@@ -1,4 +1,4 @@
-query getProductById($id: ID!, $channel: String) {
+query getProductById($id: ID!, $languageCode: LanguageCodeEnum!, $channel: String) {
     product(id: $id, channel: $channel){
         ...productDetailFragment
         variants {
@@ -7,7 +7,7 @@ query getProductById($id: ID!, $channel: String) {
     }
 }
 
-query getProductBySlug($slug: String!, $channel: String) {
+query getProductBySlug($slug: String!, $languageCode: LanguageCodeEnum!, $channel: String) {
     product(slug: $slug, channel: $channel){
         ...productDetailFragment
         variants {
@@ -16,7 +16,7 @@ query getProductBySlug($slug: String!, $channel: String) {
     }
 }
 
-query getProductList($first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder){
+query getProductList($first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder, $languageCode: LanguageCodeEnum!){
     products(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy){
         edges {
             node {

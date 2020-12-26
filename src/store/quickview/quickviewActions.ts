@@ -1,6 +1,6 @@
 // application
-import { IProduct } from '~/interfaces/product';
-import { shopApi } from '~/api';
+import {IProduct} from '~/interfaces/product';
+import {shopApi} from '~/api';
 import {
     QUICKVIEW_CLOSE,
     QUICKVIEW_OPEN,
@@ -8,6 +8,7 @@ import {
     QuickviewOpenAction,
     QuickviewThunkAction,
 } from '~/store/quickview/quickviewActionTypes';
+import {LANGUAGE_NAMESPACE} from "~/store/language/languageReducer";
 
 let cancelPreviousRequest = () => {};
 
@@ -25,14 +26,15 @@ export function quickviewClose(): QuickviewCloseAction {
 }
 
 export function quickviewOpen(productSlug: string): QuickviewThunkAction<Promise<void>> {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         cancelPreviousRequest();
 
+        const language = getState()[LANGUAGE_NAMESPACE].current
         return new Promise((resolve) => {
             let canceled = false;
             // sending request to server, timeout is used as a stub
             const timer = setTimeout(() => {
-                shopApi.getProductBySlug(productSlug).then((product) => {
+                shopApi.getProductBySlug(productSlug, language).then((product) => {
                     if (canceled) {
                         return;
                     }

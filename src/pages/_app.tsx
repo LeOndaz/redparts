@@ -12,7 +12,7 @@ import Layout from '~/components/Layout';
 import PageTitle from '~/components/shared/PageTitle';
 import {AppDispatch} from '~/store/types';
 import {CurrentVehicleGarageProvider} from '~/services/current-vehicle';
-import {getLanguageByLocale, getLanguageByPath} from '~/services/i18n/utils';
+import {getLanguageByLocale, getLanguageByPath, getDefaultLanguage} from '~/services/i18n/utils';
 import {load, save, wrapper} from '~/store/store';
 import {optionsSetAll} from '~/store/options/optionsActions';
 import {useApplyClientState} from '~/store/client';
@@ -30,7 +30,8 @@ import '../scss/style.header-classic-variant-five.scss';
 import '../scss/style.mobile-header-variant-one.scss';
 import '../scss/style.mobile-header-variant-two.scss';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import AuthFlow from "~/components/auth/AuthProvider";
+import AuthFlow from "~/components/auth/AuthFlow";
+import {languageSet} from "~/store/language/languageActions";
 
 interface Props extends AppProps {
     languageInitialProps: ILanguageProviderProps;
@@ -123,6 +124,9 @@ App.getInitialProps = async (context: AppContext) => {
     } else {
         language = getLanguageByPath(context.ctx.asPath || context.ctx.pathname);
     }
+
+    dispatch(languageSet(language || getDefaultLanguage()));
+
 
     return {
         ...(await AppBase.getInitialProps(context)),

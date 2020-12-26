@@ -7,10 +7,12 @@ import React, {
 } from 'react';
 // third-party
 import { IntlProvider } from 'react-intl';
+import { useDispatch } from 'react-redux';
 // application
 import GlobalIntlProvider from '~/services/i18n/global-intl';
 import { ILanguage } from '~/interfaces/language';
 import { LanguageLocaleContext, LanguageSetLocaleContext } from '~/services/i18n/context';
+import { languageSet } from '~/store/language/languageActions';
 import { useOriginalRouter } from '~/services/router';
 import {
     getDefaultLanguage,
@@ -46,6 +48,7 @@ function LanguageProvider(props: PropsWithChildren<ILanguageProviderProps>) {
     const router = useOriginalRouter();
     const language = useMemo(() => getLanguageByPath(router.asPath) || getDefaultLanguage(), [router.asPath]);
     const { locale } = language;
+    const dispatch = useDispatch();
 
     // Puts the initial translation into the cache.
     useEffect(() => {
@@ -83,6 +86,8 @@ function LanguageProvider(props: PropsWithChildren<ILanguageProviderProps>) {
     }, [router]);
 
     useEffect(() => {
+        dispatch(languageSet(language));
+
         document.documentElement.lang = language.locale;
         document.documentElement.dir = language.direction;
     }, [language]);

@@ -20,7 +20,8 @@ import { IShopCategoryPageLayout, IShopCategoryPageSidebarPosition } from '~/int
 import { IProduct } from '~/interfaces/product';
 import { IShopCategory } from '~/interfaces/category';
 import { shopApi } from '~/api';
-import { useDeferredData } from '~/services/hooks';
+import {useDeferredData } from '~/services/hooks';
+import {useLanguage} from "~/services/i18n/hooks";
 
 interface Props {
     layout: IShopCategoryPageLayout;
@@ -36,6 +37,7 @@ function ShopPageCategory(props: Props) {
     const hasSidebar = layout.endsWith('-sidebar');
     const [brands, setBrands] = useState<IBrand[]>([]);
     const [latestProducts, setLatestProducts] = useState<IProduct[]>([]);
+    const language = useLanguage()
 
     if (category && subcategories === undefined) {
         subcategories = category.children || [];
@@ -44,17 +46,17 @@ function ShopPageCategory(props: Props) {
     subcategories = subcategories || [];
 
     const bestsellers = useDeferredData(() => (
-        shopApi.getPopularProducts(null, 8)
+        shopApi.getPopularProducts(null, 8, language)
     ), []);
 
     const featured = useDeferredData(() => (
-        shopApi.getFeaturedProducts(null, 8)
+        shopApi.getFeaturedProducts(null, 8, language)
     ), []);
 
     useEffect(() => {
         let canceled = false;
 
-        shopApi.getBrands({ limit: (hasSidebar ? 7 : 8) * 2 }).then((result) => {
+        shopApi.getBrands({ limit: (hasSidebar ? 7 : 8) * 2 }, language).then((result) => {
             if (canceled) {
                 return;
             }
@@ -63,7 +65,7 @@ function ShopPageCategory(props: Props) {
         });
 
         if (hasSidebar) {
-            shopApi.getLatestProducts(5).then((result) => {
+            shopApi.getLatestProducts(5, language).then((result) => {
                 if (canceled) {
                     return;
                 }

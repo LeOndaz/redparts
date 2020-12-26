@@ -7,6 +7,6 @@ import {getCountries} from "~/api/graphql/misc/MiscService"
 
 export class FakeCountriesApi extends CountriesApi {
     getCountries(): Promise<ICountry[]> {
-        return getCountries().then(r => r.data.shop.countries);
+        return getCountries();
     }
 }

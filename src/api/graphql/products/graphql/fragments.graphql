@@ -16,26 +16,12 @@ fragment productDetailFragment on Product {
         onSale
         priceRange {
             start {
-                gross {
-                    amount
-                    currency
-                }
-                net {
-                    amount
-                    currency
-                }
+                ...taxedMoneyFragment
             }
         }
         priceRangeUndiscounted {
             start {
-                gross {
-                    amount
-                    currency
-                }
-                net {
-                    amount
-                    currency
-                }
+                ...taxedMoneyFragment
             }
         }
     }
@@ -63,12 +49,32 @@ fragment productDetailFragment on Product {
         }
     }
     productType {
-        slug
         name
+        slug
+        variantAttributes {
+            name
+            slug
+        }
+        productAttributes {
+            name
+            slug
+        }
     }
     category {
         ...categoryDetailFragment
     }
+    translation(languageCode: $languageCode){
+        seoTitle
+        seoDescription
+        name
+        description
+        descriptionJson
+        language {
+            code
+            language
+        }
+    }
+
 }
 
 fragment productVariantDetails on ProductVariant {
@@ -77,9 +83,7 @@ fragment productVariantDetails on ProductVariant {
     name
     pricing {
         price {
-            net {
-                amount
-            }
+            ...taxedMoneyFragment
         }
     }
     attributes {

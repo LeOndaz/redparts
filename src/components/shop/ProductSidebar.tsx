@@ -8,15 +8,17 @@ import WidgetProducts from '~/components/widgets/WidgetProducts';
 import { IProduct } from '~/interfaces/product';
 import { IShopCategory } from '~/interfaces/category';
 import { shopApi } from '~/api';
+import {useLanguage} from "~/services/i18n/hooks";
 
 function ProductSidebar() {
     const [categories, setCategories] = useState<IShopCategory[]>([]);
     const [products, setProducts] = useState<IProduct[]>([]);
+    const language = useLanguage()
 
     useEffect(() => {
         let canceled = false;
 
-        shopApi.getCategories({ depth: 1 }).then((result) => {
+        shopApi.getCategories({ depth: 1 }, language).then((result) => {
             if (canceled) {
                 return;
             }
@@ -24,7 +26,7 @@ function ProductSidebar() {
             setCategories(result);
         });
 
-        shopApi.getLatestProducts(5).then((result) => {
+        shopApi.getLatestProducts(5, language).then((result) => {
             if (canceled) {
                 return;
             }

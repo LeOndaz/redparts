@@ -15,10 +15,10 @@ import {
     accountEditProfile,
     accountSignIn,
     accountSignOut,
-    accountSignUp,
-    addAddress,
-    delAddress,
-    editAddress,
+    accountSignUp, editAddress,
+    // addAddress,
+    // delAddress,
+    // editAddress,
     // getAddress,
     getAddresses,
     getDefaultAddress,
@@ -27,42 +27,48 @@ import {
     getOrdersList,
 } from '~/fake-server/endpoints';
 import _ from "lodash"
-import {auth} from "~/api";
-import {editProfile} from "~/api/graphql/users/UserService"
-import {deleteAddress, getAddressById} from "~/api/graphql/addresses/AddressService";
+import { editProfile} from "~/api/graphql/users/userService"
+import {
+    addAddress,
+    deleteAddress,
+    getAddressById,
+    getAddressList,
+    updateAddress
+} from "~/api/graphql/addresses/addressService";
+import {ILanguage} from "~/interfaces/language";
+import {changePassword, signIn, signOut, signUp} from "~/api/graphql/users/authService";
+import {throwAuthError} from "~/api/graphql/misc/helpers";
 
 export class FakeAccountApi extends AccountApi {
     signIn(email: string, password: string): Promise<IUser> {
-        return auth.signIn(email, password)
+        return signIn(email, password)
     }
 
     signUp(email: string, password: string): Promise<IUser> {
-        return auth.signUp(email, password);
+        return signUp(email, password);
     }
 
     signOut(): Promise<void> {
-        return auth.signOut()
+        return signOut()
     }
 
     editProfile(data: IEditProfileData): Promise<IUser> {
-        // return accountEditProfile(data);
         return editProfile(data);
     }
 
     changePassword(oldPassword: string, newPassword: string): Promise<void> {
-        return auth.changePassword(oldPassword, newPassword).then()
+        return changePassword(oldPassword, newPassword)
     }
 
-    addAddress(user: IUser, data: IEditAddressData): Promise<IAddress> {
+    addAddress(user: IUser, data: IEditAddressData, language: ILanguage): Promise<IAddress> {
         // return users.addAddress(user, {
         //     defaultShippingAddress:
         // })
-
-        return addAddress(data);
+        return addAddress(user.id, data).then()
     }
 
-    editAddress(addressId: string, data: IEditAddressData): Promise<IAddress> {
-        return editAddress(addressId, data);
+    editAddress(addressId: string, data: IEditAddressData, language: ILanguage): Promise<IAddress> {
+        return updateAddress(addressId, data).then();
     }
 
     delAddress(addressId: string): Promise<void> {
@@ -74,11 +80,11 @@ export class FakeAccountApi extends AccountApi {
     }
 
     getAddress(addressId: string): Promise<IAddress> {
-        return getAddressById(addressId).then()
+        return getAddressById(addressId)
     }
 
-    getAddresses(): Promise<IAddress[]> {
-        return getAddresses();
+    getAddresses(user: IUser): Promise<IAddress[]> {
+        return getAddressList(user.id).then(res => res.dataList)
     }
 
     getOrdersList(options?: IListOptions): Promise<IOrdersList> {

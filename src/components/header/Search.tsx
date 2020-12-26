@@ -17,7 +17,7 @@ import { IProduct } from '~/interfaces/product';
 import { IShopCategory } from '~/interfaces/category';
 import { IVehicle } from '~/interfaces/vehicle';
 import { shopApi } from '~/api';
-import { useGlobalMousedown } from '~/services/hooks';
+import {useGlobalMousedown} from '~/services/hooks';
 import {
     useGarageAddItem,
     useGarageCurrent,
@@ -25,6 +25,7 @@ import {
     useGarageSetCurrent,
     useUserVehicles,
 } from '~/store/garage/garageHooks';
+import {useLanguage} from "~/services/i18n/hooks";
 
 export function Search() {
     const intl = useIntl();
@@ -42,6 +43,7 @@ export function Search() {
     const hasVehicles = vehicles.length > 0;
     const selectVehicleButtonRef = useRef<HTMLButtonElement>(null);
     const vehiclePickerDropdownRef = useRef<HTMLDivElement>(null);
+    const language = useLanguage()
 
     const currentVehicle = useGarageCurrent();
     const garageSetCurrent = useGarageSetCurrent();
@@ -61,7 +63,7 @@ export function Search() {
         shopApi.getSearchSuggestions(value, {
             limitProducts: 3,
             limitCategories: 4,
-        }).then((result) => {
+        }, language).then((result) => {
             if (canceled) {
                 return;
             }

@@ -3,6 +3,7 @@ import { IAddress, IAddressData } from '~/interfaces/address';
 import { IListOptions, IOrdersList } from '~/interfaces/list';
 import { IOrder } from '~/interfaces/order';
 import { IUser } from '~/interfaces/user';
+import {IInfo} from "~/store/interfaces";
 
 export interface IEditProfileData {
     firstName: string;
@@ -27,9 +28,9 @@ export abstract class AccountApi {
 
     abstract changePassword(oldPassword: string, newPassword: string): Promise<void>;
 
-    abstract addAddress(data: IEditAddressData): Promise<IAddress>;
+    abstract addAddress(user: IUser, data: IEditAddressData, info: IInfo): Promise<IAddress>;
 
-    abstract editAddress(addressId: string, data: IEditAddressData): Promise<IAddress>;
+    abstract editAddress(addressId: string, data: IEditAddressData, info: IInfo): Promise<IAddress>;
 
     abstract delAddress(addressId: string): Promise<void>;
 
@@ -37,7 +38,7 @@ export abstract class AccountApi {
 
     abstract getAddress(addressId: string): Promise<IAddress>;
 
-    abstract getAddresses(): Promise<IAddress[]>;
+    abstract getAddresses(info: IInfo): Promise<IAddress[]>;
 
     abstract getOrdersList(options?: IListOptions): Promise<IOrdersList>;
 

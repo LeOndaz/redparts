@@ -7,7 +7,7 @@ import {
     useState,
 } from 'react';
 // third-party
-import { ValidationRules } from 'react-hook-form';
+import {ValidationRules} from 'react-hook-form';
 import {
     FieldElement,
     FieldName,
@@ -15,10 +15,14 @@ import {
     UseFormMethods,
 } from 'react-hook-form/dist/types/form';
 // application
-import { IListOptions, INavigableList } from '~/interfaces/list';
-import { INavigationEvent } from '~/components/shared/Navigation';
-import { IProduct } from '~/interfaces/product';
-import { useIsUnmountedRef } from '~/store/hooks';
+import {IListOptions, INavigableList} from '~/interfaces/list';
+import {INavigationEvent} from '~/components/shared/Navigation';
+import {IProduct} from '~/interfaces/product';
+import {useIsUnmountedRef} from '~/store/hooks';
+import {useUser} from "~/store/user/userHooks";
+import {useLanguage, useLocale} from "~/services/i18n/hooks";
+import {useCurrency} from "~/store/currency/currencyHooks";
+import {IInfo} from "~/store/interfaces";
 
 export function useGlobalMousedown(callback: (event: MouseEvent) => void, deps?: DependencyList) {
     const memoCallback = useCallback(callback, deps || []);
@@ -50,14 +54,15 @@ export function useDeferredData<T>(
         if (skipNextRef.current) {
             skipNextRef.current = false;
 
-            return () => {};
+            return () => {
+            };
         }
 
         let canceled = false;
 
         setState((curState) => {
             if (!curState.isLoading) {
-                return { ...curState, isLoading: true };
+                return {...curState, isLoading: true};
             }
 
             return curState;
@@ -68,7 +73,7 @@ export function useDeferredData<T>(
                 return;
             }
 
-            setState(() => ({ isLoading: false, data }));
+            setState(() => ({isLoading: false, data}));
         });
 
         return () => {
@@ -80,7 +85,7 @@ export function useDeferredData<T>(
 }
 
 export type IProductTab = { id: number; name: string };
-export type IWithCurrent<T> = T & {current: boolean};
+export type IWithCurrent<T> = T & { current: boolean };
 export type IProductTabSource<T extends IProductTab> = (tab: T) => Promise<IProduct[]>;
 export type IProductTabsState<T extends IProductTab> = {
     tabs: IWithCurrent<T>[];
@@ -133,7 +138,7 @@ export function useProductColumns(columns: IProductColumn[]) {
 }
 
 export function useDetachableForm<T extends Record<string, any>>(formMethods: UseFormMethods<T>, detached: boolean) {
-    const { register: originalRegister, unregister, trigger } = formMethods;
+    const {register: originalRegister, unregister, trigger} = formMethods;
 
     const fieldNamesRef = useRef<(string | FieldName<T>)[]>([]);
 
@@ -169,13 +174,14 @@ export function useList<T extends INavigableList<any>>(
     const [, rerender] = useState<boolean>(false);
     const [list, setList] = useState<T | null>(null);
     const optionsRef = useRef<IListOptions>({});
-    const cancelRequestRef = useRef<() => void>(() => {});
+    const cancelRequestRef = useRef<() => void>(() => {
+    });
     const isUnmountedRef = useIsUnmountedRef();
 
     const load = async (options: IListOptions = optionsRef.current) => {
         cancelRequestRef.current();
 
-        const canceledRef = { current: false };
+        const canceledRef = {current: false};
 
         cancelRequestRef.current = () => {
             canceledRef.current = true;
@@ -189,9 +195,9 @@ export function useList<T extends INavigableList<any>>(
             setList(result);
 
             if (result.navigation.type === 'page') {
-                const { page } = result.navigation;
+                const {page} = result.navigation;
 
-                optionsRef.current = { ...optionsRef.current, page };
+                optionsRef.current = {...optionsRef.current, page};
 
                 rerender((state) => !state);
             }
@@ -200,11 +206,11 @@ export function useList<T extends INavigableList<any>>(
 
     const onNavigate = useCallback((event: INavigationEvent) => {
         if (event.type === 'page') {
-            optionsRef.current = { ...optionsRef.current, page: event.page };
+            optionsRef.current = {...optionsRef.current, page: event.page};
         } else if (event.type === 'before') {
-            optionsRef.current = { ...optionsRef.current, before: event.before };
+            optionsRef.current = {...optionsRef.current, before: event.before};
         } else if (event.type === 'after') {
-            optionsRef.current = { ...optionsRef.current, after: event.after };
+            optionsRef.current = {...optionsRef.current, after: event.after};
         }
 
         rerender((state) => !state);

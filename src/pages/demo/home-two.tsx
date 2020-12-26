@@ -19,6 +19,7 @@ import { optionsSetAll } from '~/store/options/optionsActions';
 import { shopApi, blogApi } from '~/api';
 import { useDeferredData, useProductColumns, useProductTabs } from '~/services/hooks';
 import { wrapper } from '~/store/store';
+import {useLanguage} from "~/services/i18n/hooks";
 
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
     const dispatch = context.store.dispatch as AppDispatch;
@@ -31,6 +32,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
 
 function Page() {
     const intl = useIntl();
+    const language = useLanguage()
 
     const slides = useMemo(() => [
         {
@@ -61,7 +63,7 @@ function Page() {
         },
     ], []);
 
-    const brands = useDeferredData(() => shopApi.getBrands({ limit: 16 }), []);
+    const brands = useDeferredData(() => shopApi.getBrands({ limit: 16 }, language), []);
 
     const popularCategories = useDeferredData(() => shopApi.getCategories({
         slugs: [
@@ -73,7 +75,7 @@ function Page() {
             'engine-drivetrain',
         ],
         depth: 1,
-    }), []);
+    }, language), []);
 
     /**
      * Featured products.
@@ -85,12 +87,12 @@ function Page() {
             { id: 3, name: 'Hand Tools', categorySlug: 'hand-tools' },
             { id: 4, name: 'Plumbing', categorySlug: 'plumbing' },
         ], []),
-        (tab) => shopApi.getFeaturedProducts(tab.categorySlug, 8),
+        (tab) => shopApi.getFeaturedProducts(tab.categorySlug, 8, language),
     );
 
-    const blockSale = useDeferredData(() => shopApi.getSpecialOffers(8), []);
+    const blockSale = useDeferredData(() => shopApi.getSpecialOffers(8, language), []);
 
-    const latestPosts = useDeferredData(() => blogApi.getLatestPosts(8), []);
+    const latestPosts = useDeferredData(() => blogApi.getLatestPosts(8, language), []);
     const latestPostsLinks = useMemo(() => [
         { title: 'Special Offers', url: url.blog() },
         { title: 'New Arrivals', url: url.blog() },
@@ -104,15 +106,15 @@ function Page() {
         useMemo(() => [
             {
                 title: 'Top Rated Products',
-                source: () => shopApi.getTopRatedProducts(null, 3),
+                source: () => shopApi.getTopRatedProducts(null, 3, language),
             },
             {
                 title: 'Special Offers',
-                source: () => shopApi.getSpecialOffers(3),
+                source: () => shopApi.getSpecialOffers(3, language),
             },
             {
                 title: 'Bestsellers',
-                source: () => shopApi.getPopularProducts(null, 3),
+                source: () => shopApi.getPopularProducts(null, 3, language),
             },
         ], []),
     );

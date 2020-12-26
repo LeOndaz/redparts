@@ -8,7 +8,6 @@ import {BatchHttpLink} from "@apollo/client/link/batch-http";
 
 // this will be federated
 import {API_URL, REVIEWS_PLUGIN_API_URL} from '~/api/graphql/consts';
-import {AuthService} from "~/api/graphql/users/AuthService";
 
 // shared cache for the whole project
 export const cache = new InMemoryCache();
@@ -31,15 +30,13 @@ export const reviewsClient = new ApolloClient<NormalizedCacheObject>({
 })
 
 
-export const auth = new AuthService()
-
-export * from "~/api/graphql/products/ProductService"
-export * from "~/api/graphql/categories/CategoryService"
+export * from "~/api/graphql/products/productService"
+export * from "~/api/graphql/categories/categoryService"
 export * from "~/api/graphql/attributes/AttributeService"
-export * from "~/api/graphql/collections/CollectionService"
+export * from "~/api/graphql/orders/OrderService"
 export * from "~/api/graphql/misc/MiscService"
+export * from "~/api/graphql/misc/FilterService"
 export * from "~/api/graphql/reviews/ReviewService"
-
 
 // APIs
 export const accountApi = new FakeAccountApi();

@@ -9,6 +9,7 @@ import Rating from '~/components/shared/Rating';
 import url from '~/services/url';
 import { IProduct } from '~/interfaces/product';
 import { shopApi } from '~/api';
+import {useLanguage} from "~/services/i18n/hooks";
 
 interface Props {
     productId: string;
@@ -18,11 +19,12 @@ function AnalogsTable(props: Props) {
     const intl = useIntl();
     const { productId } = props;
     const [analogs, setAnalogs] = useState<IProduct[]>([]);
+    const language = useLanguage()
 
     useEffect(() => {
         let canceled = false;
 
-        shopApi.getProductAnalogs(productId).then((result) => {
+        shopApi.getProductAnalogs(productId, language).then((result) => {
             if (canceled) {
                 return;
             }

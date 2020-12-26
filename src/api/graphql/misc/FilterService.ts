@@ -11,8 +11,8 @@ interface filterable {
     [propName: string]: any
 }
 
-export const filterStack = (callables: any[], filterable: filterable) => {
-    return callables.reduce((acc, filterFn) => filterFn(acc), filterable)
+export const filterStack = (filterFns: any[], filterable: filterable) => {
+    return filterFns.reduce((acc, filterFn) => filterFn(acc), filterable)
 }
 
 const filter = (filterable: filterable, filters: ICustomFields): filterable => {

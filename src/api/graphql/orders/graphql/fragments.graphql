@@ -1,0 +1,25 @@
+fragment orderDetailsFragment on Order {
+    id
+    token
+    created
+    voucher {
+        id
+        discountValue
+    }
+    isShippingRequired
+    paymentStatusDisplay
+    total {
+        gross {
+            amount
+        }
+    }
+    subtotal {
+        net {
+            amount
+        }
+    }
+    statusDisplay
+    shippingAddress {
+        ...addressDetailsFragment
+    }
+}

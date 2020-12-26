@@ -19,6 +19,7 @@ import { shopApi } from '~/api';
 import { SidebarContext } from '~/services/sidebar';
 import { useMedia } from '~/store/hooks';
 import { IShopPageOffCanvasSidebar } from '~/interfaces/pages';
+import {useLanguage} from "~/services/i18n/hooks";
 
 interface Props {
     offcanvas: IShopPageOffCanvasSidebar;
@@ -29,6 +30,7 @@ function ShopSidebar(props: Props) {
     const [isOpen, setIsOpen] = useContext(SidebarContext);
     const [latestProducts, setLatestProducts] = useState<IProduct[]>([]);
     const isMobile = useMedia('(max-width: 991px)');
+    const language = useLanguage()
 
     const rootClasses = classNames('sidebar', `sidebar--offcanvas--${offcanvas}`, {
         'sidebar--open': isOpen,
@@ -60,7 +62,7 @@ function ShopSidebar(props: Props) {
         let canceled = false;
 
         if (offcanvas === 'mobile') {
-            shopApi.getLatestProducts(5).then((products) => {
+            shopApi.getLatestProducts(5, language).then((products) => {
                 if (canceled) {
                     return;
                 }

@@ -1,35 +1,35 @@
-query getProductsByCategoryId($id: ID!, $first: Int, $last: Int, $after: String, $before: String) {
+#query getProductsByCategoryId($id: ID!, $first: Int, $last: Int, $after: String, $before: String, $languageCode: LanguageCodeEnum) {
+#    category(id: $id){
+#        ...categoryDetailFragment
+#        ...categoryChildrenFragment
+#        products(first: $first, last: $last, after: $after, before: $before) {
+#            edges {
+#                node {
+#                    ...productDetailFragment
+#                }
+#                cursor
+#            }
+#            ...productPageInfoFragment
+#        }
+#    }
+#}
+
+
+query getCategoryById($id: ID!, $languageCode: LanguageCodeEnum!){
     category(id: $id){
         ...categoryDetailFragment
         ...categoryChildrenFragment
-        products(first: $first, last: $last, after: $after, before: $before) {
-            edges {
-                node {
-                    ...productDetailFragment
-                }
-                cursor
-            }
-            ...productPageInfoFragment
-        }
     }
 }
 
-
-query getCategoryById($id: ID!){
-    category(id: $id){
-        ...categoryDetailFragment
-        ...categoryChildrenFragment
-    }
-}
-
-query getCategoryBySlug($slug: String!){
+query getCategoryBySlug($slug: String!, $languageCode: LanguageCodeEnum!){
     category(slug: $slug){
         ...categoryDetailFragment
         ...categoryChildrenFragment
     }
 }
 
-query GetCategoryList($first: Int, $last: Int, $after: String, $before: String, $filter: CategoryFilterInput, $sortBy: CategorySortingInput, $level: Int) {
+query GetCategoryList($first: Int, $last: Int, $after: String, $before: String, $filter: CategoryFilterInput, $sortBy: CategorySortingInput, $level: Int, $languageCode: LanguageCodeEnum!) {
     categories(first: $first, last: $last, after: $after, before: $before, level: $level, filter: $filter, sortBy: $sortBy){
         edges {
             node{
@@ -42,14 +42,14 @@ query GetCategoryList($first: Int, $last: Int, $after: String, $before: String, 
     }
 }
 
-query getCategoryChildrenById($id: ID!){
-    category(id: $id){
-        ...categoryChildrenFragment
-    }
-}
-
-query getCategoryChildrenBySlug($slug: String!){
-    category(slug: $slug){
-        ...categoryChildrenFragment
-    }
-}
+#query getCategoryChildrenById($id: ID!){
+#    category(id: $id){
+#        ...categoryChildrenFragment
+#    }
+#}
+#
+#query getCategoryChildrenBySlug($slug: String!){
+#    category(slug: $slug){
+#        ...categoryChildrenFragment
+#    }
+#}

@@ -11946,6 +11946,15 @@ export type ReviewUpdateInput = {
   rating?: Maybe<Scalars['Int']>;
 };
 
+export type AddressDetailsFragmentFragment = (
+  { __typename?: 'Address' }
+  & Pick<Address, 'id' | 'firstName' | 'lastName' | 'streetAddress1' | 'streetAddress2' | 'city' | 'cityArea' | 'postalCode' | 'phone' | 'isDefaultBillingAddress' | 'isDefaultShippingAddress' | 'companyName'>
+  & { country: (
+    { __typename?: 'CountryDisplay' }
+    & Pick<CountryDisplay, 'code' | 'country'>
+  ) }
+);
+
 export type DeleteAddressMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
@@ -11962,13 +11971,44 @@ export type DeleteAddressMutation = (
   )> }
 );
 
-export type AddressDetailsFragmentFragment = (
-  { __typename?: 'Address' }
-  & Pick<Address, 'id' | 'firstName' | 'lastName' | 'streetAddress1' | 'streetAddress2' | 'city' | 'cityArea' | 'postalCode' | 'phone' | 'isDefaultBillingAddress' | 'isDefaultShippingAddress' | 'companyName'>
-  & { country: (
-    { __typename?: 'CountryDisplay' }
-    & Pick<CountryDisplay, 'code' | 'country'>
-  ) }
+export type AddAddressMutationVariables = Exact<{
+  id: Scalars['ID'];
+  input: AddressInput;
+}>;
+
+
+export type AddAddressMutation = (
+  { __typename?: 'Mutation' }
+  & { addressCreate?: Maybe<(
+    { __typename?: 'AddressCreate' }
+    & { address?: Maybe<(
+      { __typename?: 'Address' }
+      & AddressDetailsFragmentFragment
+    )>, accountErrors: Array<(
+      { __typename?: 'AccountError' }
+      & Pick<AccountError, 'field' | 'code'>
+    )> }
+  )> }
+);
+
+export type UpdateAddressMutationVariables = Exact<{
+  id: Scalars['ID'];
+  input: AddressInput;
+}>;
+
+
+export type UpdateAddressMutation = (
+  { __typename?: 'Mutation' }
+  & { addressUpdate?: Maybe<(
+    { __typename?: 'AddressUpdate' }
+    & { address?: Maybe<(
+      { __typename?: 'Address' }
+      & AddressDetailsFragmentFragment
+    )>, accountErrors: Array<(
+      { __typename?: 'AccountError' }
+      & Pick<AccountError, 'field' | 'code'>
+    )> }
+  )> }
 );
 
 export type GetAddressByIdQueryVariables = Exact<{
@@ -11981,6 +12021,22 @@ export type GetAddressByIdQuery = (
   & { address?: Maybe<(
     { __typename?: 'Address' }
     & AddressDetailsFragmentFragment
+  )> }
+);
+
+export type GetAddressListQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetAddressListQuery = (
+  { __typename?: 'Query' }
+  & { user?: Maybe<(
+    { __typename?: 'User' }
+    & { addresses?: Maybe<Array<Maybe<(
+      { __typename?: 'Address' }
+      & AddressDetailsFragmentFragment
+    )>>> }
   )> }
 );
 
@@ -12050,6 +12106,10 @@ export type CategoryPageInfoFragmentFragment = (
 export type CategoryDetailFragmentFragment = (
   { __typename?: 'Category' }
   & Pick<Category, 'id' | 'name' | 'slug' | 'level' | 'description' | 'seoTitle' | 'seoDescription'>
+  & { translation?: Maybe<(
+    { __typename?: 'CategoryTranslation' }
+    & Pick<CategoryTranslation, 'name' | 'description' | 'descriptionJson' | 'seoTitle' | 'seoDescription'>
+  )> }
 );
 
 export type CategoryChildrenFragmentFragment = (
@@ -12076,38 +12136,9 @@ export type CategoryChildrenFragmentFragment = (
   )> }
 );
 
-export type GetProductsByCategoryIdQueryVariables = Exact<{
-  id: Scalars['ID'];
-  first?: Maybe<Scalars['Int']>;
-  last?: Maybe<Scalars['Int']>;
-  after?: Maybe<Scalars['String']>;
-  before?: Maybe<Scalars['String']>;
-}>;
-
-
-export type GetProductsByCategoryIdQuery = (
-  { __typename?: 'Query' }
-  & { category?: Maybe<(
-    { __typename?: 'Category' }
-    & { products?: Maybe<(
-      { __typename?: 'ProductCountableConnection' }
-      & { edges: Array<(
-        { __typename?: 'ProductCountableEdge' }
-        & Pick<ProductCountableEdge, 'cursor'>
-        & { node: (
-          { __typename?: 'Product' }
-          & ProductDetailFragmentFragment
-        ) }
-      )> }
-      & ProductPageInfoFragmentFragment
-    )> }
-    & CategoryDetailFragmentFragment
-    & CategoryChildrenFragmentFragment
-  )> }
-);
-
 export type GetCategoryByIdQueryVariables = Exact<{
   id: Scalars['ID'];
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12122,6 +12153,7 @@ export type GetCategoryByIdQuery = (
 
 export type GetCategoryBySlugQueryVariables = Exact<{
   slug: Scalars['String'];
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12142,6 +12174,7 @@ export type GetCategoryListQueryVariables = Exact<{
   filter?: Maybe<CategoryFilterInput>;
   sortBy?: Maybe<CategorySortingInput>;
   level?: Maybe<Scalars['Int']>;
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12162,35 +12195,24 @@ export type GetCategoryListQuery = (
   )> }
 );
 
-export type GetCategoryChildrenByIdQueryVariables = Exact<{
-  id: Scalars['ID'];
-}>;
-
-
-export type GetCategoryChildrenByIdQuery = (
-  { __typename?: 'Query' }
-  & { category?: Maybe<(
-    { __typename?: 'Category' }
-    & CategoryChildrenFragmentFragment
-  )> }
-);
-
-export type GetCategoryChildrenBySlugQueryVariables = Exact<{
-  slug: Scalars['String'];
-}>;
-
-
-export type GetCategoryChildrenBySlugQuery = (
-  { __typename?: 'Query' }
-  & { category?: Maybe<(
-    { __typename?: 'Category' }
-    & CategoryChildrenFragmentFragment
-  )> }
-);
-
 export type PageInfoFragmentFragment = (
   { __typename?: 'PageInfo' }
   & Pick<PageInfo, 'hasNextPage' | 'hasPreviousPage' | 'startCursor' | 'endCursor'>
+);
+
+export type TaxedMoneyFragmentFragment = (
+  { __typename?: 'TaxedMoney' }
+  & Pick<TaxedMoney, 'currency'>
+  & { gross: (
+    { __typename?: 'Money' }
+    & Pick<Money, 'amount'>
+  ), net: (
+    { __typename?: 'Money' }
+    & Pick<Money, 'amount'>
+  ), tax: (
+    { __typename?: 'Money' }
+    & Pick<Money, 'amount'>
+  ) }
 );
 
 export type GetCountriesQueryVariables = Exact<{
@@ -12207,6 +12229,128 @@ export type GetCountriesQuery = (
       & Pick<CountryDisplay, 'country' | 'code'>
     )> }
   ) }
+);
+
+export type OrderDetailsFragmentFragment = (
+  { __typename?: 'Order' }
+  & Pick<Order, 'id' | 'token' | 'created' | 'isShippingRequired' | 'paymentStatusDisplay' | 'statusDisplay'>
+  & { voucher?: Maybe<(
+    { __typename?: 'Voucher' }
+    & Pick<Voucher, 'id' | 'discountValue'>
+  )>, total?: Maybe<(
+    { __typename?: 'TaxedMoney' }
+    & { gross: (
+      { __typename?: 'Money' }
+      & Pick<Money, 'amount'>
+    ) }
+  )>, subtotal?: Maybe<(
+    { __typename?: 'TaxedMoney' }
+    & { net: (
+      { __typename?: 'Money' }
+      & Pick<Money, 'amount'>
+    ) }
+  )>, shippingAddress?: Maybe<(
+    { __typename?: 'Address' }
+    & AddressDetailsFragmentFragment
+  )> }
+);
+
+export type GetOrderByIdQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetOrderByIdQuery = (
+  { __typename?: 'Query' }
+  & { order?: Maybe<(
+    { __typename?: 'Order' }
+    & OrderDetailsFragmentFragment
+  )> }
+);
+
+export type GetOrderByTokenQueryVariables = Exact<{
+  token: Scalars['UUID'];
+}>;
+
+
+export type GetOrderByTokenQuery = (
+  { __typename?: 'Query' }
+  & { orderByToken?: Maybe<(
+    { __typename?: 'Order' }
+    & OrderDetailsFragmentFragment
+  )> }
+);
+
+export type GetOrderListQueryVariables = Exact<{
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  after?: Maybe<Scalars['String']>;
+  before?: Maybe<Scalars['String']>;
+  filter?: Maybe<OrderFilterInput>;
+  sortBy?: Maybe<OrderSortingInput>;
+  channel: Scalars['String'];
+}>;
+
+
+export type GetOrderListQuery = (
+  { __typename?: 'Query' }
+  & { orders?: Maybe<(
+    { __typename?: 'OrderCountableConnection' }
+    & { edges: Array<(
+      { __typename?: 'OrderCountableEdge' }
+      & Pick<OrderCountableEdge, 'cursor'>
+      & { node: (
+        { __typename?: 'Order' }
+        & OrderDetailsFragmentFragment
+      ) }
+    )>, pageInfo: (
+      { __typename?: 'PageInfo' }
+      & PageInfoFragmentFragment
+    ) }
+  )> }
+);
+
+export type CreateCheckoutMutationVariables = Exact<{
+  input: CheckoutCreateInput;
+}>;
+
+
+export type CreateCheckoutMutation = (
+  { __typename?: 'Mutation' }
+  & { checkoutCreate?: Maybe<(
+    { __typename?: 'CheckoutCreate' }
+    & Pick<CheckoutCreate, 'created'>
+    & { checkoutErrors: Array<(
+      { __typename?: 'CheckoutError' }
+      & Pick<CheckoutError, 'code' | 'field'>
+    )>, checkout?: Maybe<(
+      { __typename?: 'Checkout' }
+      & Pick<Checkout, 'id' | 'quantity' | 'token' | 'note' | 'email'>
+      & { user?: Maybe<(
+        { __typename?: 'User' }
+        & Pick<User, 'id'>
+      )>, totalPrice?: Maybe<(
+        { __typename?: 'TaxedMoney' }
+        & TaxedMoneyFragmentFragment
+      )>, subtotalPrice?: Maybe<(
+        { __typename?: 'TaxedMoney' }
+        & TaxedMoneyFragmentFragment
+      )>, shippingPrice?: Maybe<(
+        { __typename?: 'TaxedMoney' }
+        & TaxedMoneyFragmentFragment
+      )>, lines?: Maybe<Array<Maybe<(
+        { __typename?: 'CheckoutLine' }
+        & Pick<CheckoutLine, 'quantity' | 'requiresShipping'>
+        & { variant: (
+          { __typename?: 'ProductVariant' }
+          & ProductVariantDetailsFragment
+        ), totalPrice?: Maybe<(
+          { __typename?: 'TaxedMoney' }
+          & TaxedMoneyFragmentFragment
+        )> }
+      )>>> }
+    )> }
+  )> }
 );
 
 export type ProductPageInfoFragmentFragment = (
@@ -12270,10 +12414,24 @@ export type ProductDetailFragmentFragment = (
     )> }
   )>, productType: (
     { __typename?: 'ProductType' }
-    & Pick<ProductType, 'slug' | 'name'>
+    & Pick<ProductType, 'name' | 'slug'>
+    & { variantAttributes?: Maybe<Array<Maybe<(
+      { __typename?: 'Attribute' }
+      & Pick<Attribute, 'name' | 'slug'>
+    )>>>, productAttributes?: Maybe<Array<Maybe<(
+      { __typename?: 'Attribute' }
+      & Pick<Attribute, 'name' | 'slug'>
+    )>>> }
   ), category?: Maybe<(
     { __typename?: 'Category' }
     & CategoryDetailFragmentFragment
+  )>, translation?: Maybe<(
+    { __typename?: 'ProductTranslation' }
+    & Pick<ProductTranslation, 'seoTitle' | 'seoDescription' | 'name' | 'description' | 'descriptionJson'>
+    & { language: (
+      { __typename?: 'LanguageDisplay' }
+      & Pick<LanguageDisplay, 'code' | 'language'>
+    ) }
   )> }
 );
 
@@ -12297,6 +12455,7 @@ export type ProductVariantDetailsFragment = (
 
 export type GetProductByIdQueryVariables = Exact<{
   id: Scalars['ID'];
+  languageCode: LanguageCodeEnum;
   channel?: Maybe<Scalars['String']>;
 }>;
 
@@ -12315,6 +12474,7 @@ export type GetProductByIdQuery = (
 
 export type GetProductBySlugQueryVariables = Exact<{
   slug: Scalars['String'];
+  languageCode: LanguageCodeEnum;
   channel?: Maybe<Scalars['String']>;
 }>;
 
@@ -12338,6 +12498,7 @@ export type GetProductListQueryVariables = Exact<{
   before?: Maybe<Scalars['String']>;
   filter?: Maybe<ProductFilterInput>;
   sortBy?: Maybe<ProductOrder>;
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12453,7 +12614,10 @@ export type UserPrivateDetailsFragmentFragment = (
   & { avatar?: Maybe<(
     { __typename?: 'Image' }
     & Pick<Image, 'alt' | 'url'>
-  )> }
+  )>, metadata: Array<Maybe<(
+    { __typename?: 'MetadataItem' }
+    & Pick<MetadataItem, 'key' | 'value'>
+  )>> }
 );
 
 export type CreateUserTokensMutationVariables = Exact<{
@@ -12470,6 +12634,9 @@ export type CreateUserTokensMutation = (
     & { user?: Maybe<(
       { __typename?: 'User' }
       & UserPrivateDetailsFragmentFragment
+    )>, accountErrors: Array<(
+      { __typename?: 'AccountError' }
+      & Pick<AccountError, 'code' | 'field'>
     )> }
   )> }
 );
@@ -12544,6 +12711,9 @@ export type TokenRenewMutation = (
     & { accountErrors: Array<(
       { __typename?: 'AccountError' }
       & Pick<AccountError, 'code' | 'field'>
+    )>, user?: Maybe<(
+      { __typename?: 'User' }
+      & UserPrivateDetailsFragmentFragment
     )> }
   )> }
 );
@@ -12563,7 +12733,132 @@ export type UpdateCustomerMutation = (
       & Pick<AccountError, 'code' | 'field'>
     )>, user?: Maybe<(
       { __typename?: 'User' }
-      & Pick<User, 'firstName' | 'lastName' | 'isActive' | 'email' | 'note'>
+      & UserPrivateDetailsFragmentFragment
+    )> }
+  )> }
+);
+
+export type UpdateMetadataMutationVariables = Exact<{
+  id: Scalars['ID'];
+  input: Array<MetadataInput>;
+}>;
+
+
+export type UpdateMetadataMutation = (
+  { __typename?: 'Mutation' }
+  & { updateMetadata?: Maybe<(
+    { __typename?: 'UpdateMetadata' }
+    & { metadataErrors: Array<(
+      { __typename?: 'MetadataError' }
+      & Pick<MetadataError, 'field' | 'code'>
+    )>, item?: Maybe<(
+      { __typename?: 'App' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'ShippingZone' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'ShippingMethod' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Product' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'ProductType' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Attribute' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Category' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'ProductVariant' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'DigitalContent' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Collection' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Page' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'PageType' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'User' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Checkout' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Order' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Fulfillment' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Invoice' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Review' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
     )> }
   )> }
 );
@@ -12579,26 +12874,6 @@ export type GetCurrentAuthUserQuery = (
   )> }
 );
 
-export const AddressDetailsFragmentFragmentDoc = gql`
-    fragment addressDetailsFragment on Address {
-  id
-  firstName
-  lastName
-  streetAddress1
-  streetAddress2
-  city
-  cityArea
-  postalCode
-  country {
-    code
-    country
-  }
-  phone
-  isDefaultBillingAddress
-  isDefaultShippingAddress
-  companyName
-}
-    `;
 export const PageInfoFragmentFragmentDoc = gql`
     fragment pageInfoFragment on PageInfo {
   hasNextPage
@@ -12624,6 +12899,13 @@ export const CategoryDetailFragmentFragmentDoc = gql`
   description
   seoTitle
   seoDescription
+  translation(languageCode: $languageCode) {
+    name
+    description
+    descriptionJson
+    seoTitle
+    seoDescription
+  }
 }
     `;
 export const CategoryChildrenFragmentFragmentDoc = gql`
@@ -12644,6 +12926,67 @@ export const CategoryChildrenFragmentFragmentDoc = gql`
   }
 }
     ${CategoryDetailFragmentFragmentDoc}`;
+export const TaxedMoneyFragmentFragmentDoc = gql`
+    fragment taxedMoneyFragment on TaxedMoney {
+  currency
+  gross {
+    amount
+  }
+  net {
+    amount
+  }
+  tax {
+    amount
+  }
+}
+    `;
+export const AddressDetailsFragmentFragmentDoc = gql`
+    fragment addressDetailsFragment on Address {
+  id
+  firstName
+  lastName
+  streetAddress1
+  streetAddress2
+  city
+  cityArea
+  postalCode
+  country {
+    code
+    country
+  }
+  phone
+  isDefaultBillingAddress
+  isDefaultShippingAddress
+  companyName
+}
+    `;
+export const OrderDetailsFragmentFragmentDoc = gql`
+    fragment orderDetailsFragment on Order {
+  id
+  token
+  created
+  voucher {
+    id
+    discountValue
+  }
+  isShippingRequired
+  paymentStatusDisplay
+  total {
+    gross {
+      amount
+    }
+  }
+  subtotal {
+    net {
+      amount
+    }
+  }
+  statusDisplay
+  shippingAddress {
+    ...addressDetailsFragment
+  }
+}
+    ${AddressDetailsFragmentFragmentDoc}`;
 export const ProductPageInfoFragmentFragmentDoc = gql`
     fragment productPageInfoFragment on ProductCountableConnection {
   pageInfo {
@@ -12760,11 +13103,30 @@ export const ProductDetailFragmentFragmentDoc = gql`
     }
   }
   productType {
-    slug
     name
+    slug
+    variantAttributes {
+      name
+      slug
+    }
+    productAttributes {
+      name
+      slug
+    }
   }
   category {
     ...categoryDetailFragment
+  }
+  translation(languageCode: $languageCode) {
+    seoTitle
+    seoDescription
+    name
+    description
+    descriptionJson
+    language {
+      code
+      language
+    }
   }
 }
     ${AttributeValuesDetailFragmentFragmentDoc}
@@ -12792,6 +13154,10 @@ export const UserPrivateDetailsFragmentFragmentDoc = gql`
   dateJoined
   isActive
   isStaff
+  metadata {
+    key
+    value
+  }
 }
     `;
 export const DeleteAddressDocument = gql`
@@ -12829,6 +13195,84 @@ export function useDeleteAddressMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteAddressMutationHookResult = ReturnType<typeof useDeleteAddressMutation>;
 export type DeleteAddressMutationResult = Apollo.MutationResult<DeleteAddressMutation>;
 export type DeleteAddressMutationOptions = Apollo.BaseMutationOptions<DeleteAddressMutation, DeleteAddressMutationVariables>;
+export const AddAddressDocument = gql`
+    mutation addAddress($id: ID!, $input: AddressInput!) {
+  addressCreate(userId: $id, input: $input) {
+    address {
+      ...addressDetailsFragment
+    }
+    accountErrors {
+      field
+      code
+    }
+  }
+}
+    ${AddressDetailsFragmentFragmentDoc}`;
+export type AddAddressMutationFn = Apollo.MutationFunction<AddAddressMutation, AddAddressMutationVariables>;
+
+/**
+ * __useAddAddressMutation__
+ *
+ * To run a mutation, you first call `useAddAddressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAddressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAddressMutation, { data, loading, error }] = useAddAddressMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddAddressMutation(baseOptions?: Apollo.MutationHookOptions<AddAddressMutation, AddAddressMutationVariables>) {
+        return Apollo.useMutation<AddAddressMutation, AddAddressMutationVariables>(AddAddressDocument, baseOptions);
+      }
+export type AddAddressMutationHookResult = ReturnType<typeof useAddAddressMutation>;
+export type AddAddressMutationResult = Apollo.MutationResult<AddAddressMutation>;
+export type AddAddressMutationOptions = Apollo.BaseMutationOptions<AddAddressMutation, AddAddressMutationVariables>;
+export const UpdateAddressDocument = gql`
+    mutation updateAddress($id: ID!, $input: AddressInput!) {
+  addressUpdate(id: $id, input: $input) {
+    address {
+      ...addressDetailsFragment
+    }
+    accountErrors {
+      field
+      code
+    }
+  }
+}
+    ${AddressDetailsFragmentFragmentDoc}`;
+export type UpdateAddressMutationFn = Apollo.MutationFunction<UpdateAddressMutation, UpdateAddressMutationVariables>;
+
+/**
+ * __useUpdateAddressMutation__
+ *
+ * To run a mutation, you first call `useUpdateAddressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAddressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAddressMutation, { data, loading, error }] = useUpdateAddressMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAddressMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAddressMutation, UpdateAddressMutationVariables>) {
+        return Apollo.useMutation<UpdateAddressMutation, UpdateAddressMutationVariables>(UpdateAddressDocument, baseOptions);
+      }
+export type UpdateAddressMutationHookResult = ReturnType<typeof useUpdateAddressMutation>;
+export type UpdateAddressMutationResult = Apollo.MutationResult<UpdateAddressMutation>;
+export type UpdateAddressMutationOptions = Apollo.BaseMutationOptions<UpdateAddressMutation, UpdateAddressMutationVariables>;
 export const GetAddressByIdDocument = gql`
     query getAddressById($id: ID!) {
   address(id: $id) {
@@ -12862,6 +13306,41 @@ export function useGetAddressByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type GetAddressByIdQueryHookResult = ReturnType<typeof useGetAddressByIdQuery>;
 export type GetAddressByIdLazyQueryHookResult = ReturnType<typeof useGetAddressByIdLazyQuery>;
 export type GetAddressByIdQueryResult = Apollo.QueryResult<GetAddressByIdQuery, GetAddressByIdQueryVariables>;
+export const GetAddressListDocument = gql`
+    query getAddressList($id: ID!) {
+  user(id: $id) {
+    addresses {
+      ...addressDetailsFragment
+    }
+  }
+}
+    ${AddressDetailsFragmentFragmentDoc}`;
+
+/**
+ * __useGetAddressListQuery__
+ *
+ * To run a query within a React component, call `useGetAddressListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAddressListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAddressListQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAddressListQuery(baseOptions?: Apollo.QueryHookOptions<GetAddressListQuery, GetAddressListQueryVariables>) {
+        return Apollo.useQuery<GetAddressListQuery, GetAddressListQueryVariables>(GetAddressListDocument, baseOptions);
+      }
+export function useGetAddressListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddressListQuery, GetAddressListQueryVariables>) {
+          return Apollo.useLazyQuery<GetAddressListQuery, GetAddressListQueryVariables>(GetAddressListDocument, baseOptions);
+        }
+export type GetAddressListQueryHookResult = ReturnType<typeof useGetAddressListQuery>;
+export type GetAddressListLazyQueryHookResult = ReturnType<typeof useGetAddressListLazyQuery>;
+export type GetAddressListQueryResult = Apollo.QueryResult<GetAddressListQuery, GetAddressListQueryVariables>;
 export const GetAttributeByIdDocument = gql`
     query getAttributeById($id: ID!) {
   attribute(id: $id) {
@@ -12928,58 +13407,8 @@ export function useGetAttributeBySlugLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type GetAttributeBySlugQueryHookResult = ReturnType<typeof useGetAttributeBySlugQuery>;
 export type GetAttributeBySlugLazyQueryHookResult = ReturnType<typeof useGetAttributeBySlugLazyQuery>;
 export type GetAttributeBySlugQueryResult = Apollo.QueryResult<GetAttributeBySlugQuery, GetAttributeBySlugQueryVariables>;
-export const GetProductsByCategoryIdDocument = gql`
-    query getProductsByCategoryId($id: ID!, $first: Int, $last: Int, $after: String, $before: String) {
-  category(id: $id) {
-    ...categoryDetailFragment
-    ...categoryChildrenFragment
-    products(first: $first, last: $last, after: $after, before: $before) {
-      edges {
-        node {
-          ...productDetailFragment
-        }
-        cursor
-      }
-      ...productPageInfoFragment
-    }
-  }
-}
-    ${CategoryDetailFragmentFragmentDoc}
-${CategoryChildrenFragmentFragmentDoc}
-${ProductDetailFragmentFragmentDoc}
-${ProductPageInfoFragmentFragmentDoc}`;
-
-/**
- * __useGetProductsByCategoryIdQuery__
- *
- * To run a query within a React component, call `useGetProductsByCategoryIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetProductsByCategoryIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetProductsByCategoryIdQuery({
- *   variables: {
- *      id: // value for 'id'
- *      first: // value for 'first'
- *      last: // value for 'last'
- *      after: // value for 'after'
- *      before: // value for 'before'
- *   },
- * });
- */
-export function useGetProductsByCategoryIdQuery(baseOptions?: Apollo.QueryHookOptions<GetProductsByCategoryIdQuery, GetProductsByCategoryIdQueryVariables>) {
-        return Apollo.useQuery<GetProductsByCategoryIdQuery, GetProductsByCategoryIdQueryVariables>(GetProductsByCategoryIdDocument, baseOptions);
-      }
-export function useGetProductsByCategoryIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductsByCategoryIdQuery, GetProductsByCategoryIdQueryVariables>) {
-          return Apollo.useLazyQuery<GetProductsByCategoryIdQuery, GetProductsByCategoryIdQueryVariables>(GetProductsByCategoryIdDocument, baseOptions);
-        }
-export type GetProductsByCategoryIdQueryHookResult = ReturnType<typeof useGetProductsByCategoryIdQuery>;
-export type GetProductsByCategoryIdLazyQueryHookResult = ReturnType<typeof useGetProductsByCategoryIdLazyQuery>;
-export type GetProductsByCategoryIdQueryResult = Apollo.QueryResult<GetProductsByCategoryIdQuery, GetProductsByCategoryIdQueryVariables>;
 export const GetCategoryByIdDocument = gql`
-    query getCategoryById($id: ID!) {
+    query getCategoryById($id: ID!, $languageCode: LanguageCodeEnum!) {
   category(id: $id) {
     ...categoryDetailFragment
     ...categoryChildrenFragment
@@ -13001,6 +13430,7 @@ ${CategoryChildrenFragmentFragmentDoc}`;
  * const { data, loading, error } = useGetCategoryByIdQuery({
  *   variables: {
  *      id: // value for 'id'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
@@ -13014,7 +13444,7 @@ export type GetCategoryByIdQueryHookResult = ReturnType<typeof useGetCategoryByI
 export type GetCategoryByIdLazyQueryHookResult = ReturnType<typeof useGetCategoryByIdLazyQuery>;
 export type GetCategoryByIdQueryResult = Apollo.QueryResult<GetCategoryByIdQuery, GetCategoryByIdQueryVariables>;
 export const GetCategoryBySlugDocument = gql`
-    query getCategoryBySlug($slug: String!) {
+    query getCategoryBySlug($slug: String!, $languageCode: LanguageCodeEnum!) {
   category(slug: $slug) {
     ...categoryDetailFragment
     ...categoryChildrenFragment
@@ -13036,6 +13466,7 @@ ${CategoryChildrenFragmentFragmentDoc}`;
  * const { data, loading, error } = useGetCategoryBySlugQuery({
  *   variables: {
  *      slug: // value for 'slug'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
@@ -13049,7 +13480,7 @@ export type GetCategoryBySlugQueryHookResult = ReturnType<typeof useGetCategoryB
 export type GetCategoryBySlugLazyQueryHookResult = ReturnType<typeof useGetCategoryBySlugLazyQuery>;
 export type GetCategoryBySlugQueryResult = Apollo.QueryResult<GetCategoryBySlugQuery, GetCategoryBySlugQueryVariables>;
 export const GetCategoryListDocument = gql`
-    query GetCategoryList($first: Int, $last: Int, $after: String, $before: String, $filter: CategoryFilterInput, $sortBy: CategorySortingInput, $level: Int) {
+    query GetCategoryList($first: Int, $last: Int, $after: String, $before: String, $filter: CategoryFilterInput, $sortBy: CategorySortingInput, $level: Int, $languageCode: LanguageCodeEnum!) {
   categories(first: $first, last: $last, after: $after, before: $before, level: $level, filter: $filter, sortBy: $sortBy) {
     edges {
       node {
@@ -13084,6 +13515,7 @@ ${CategoryPageInfoFragmentFragmentDoc}`;
  *      filter: // value for 'filter'
  *      sortBy: // value for 'sortBy'
  *      level: // value for 'level'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
@@ -13096,72 +13528,6 @@ export function useGetCategoryListLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
 export type GetCategoryListQueryHookResult = ReturnType<typeof useGetCategoryListQuery>;
 export type GetCategoryListLazyQueryHookResult = ReturnType<typeof useGetCategoryListLazyQuery>;
 export type GetCategoryListQueryResult = Apollo.QueryResult<GetCategoryListQuery, GetCategoryListQueryVariables>;
-export const GetCategoryChildrenByIdDocument = gql`
-    query getCategoryChildrenById($id: ID!) {
-  category(id: $id) {
-    ...categoryChildrenFragment
-  }
-}
-    ${CategoryChildrenFragmentFragmentDoc}`;
-
-/**
- * __useGetCategoryChildrenByIdQuery__
- *
- * To run a query within a React component, call `useGetCategoryChildrenByIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCategoryChildrenByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCategoryChildrenByIdQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetCategoryChildrenByIdQuery(baseOptions?: Apollo.QueryHookOptions<GetCategoryChildrenByIdQuery, GetCategoryChildrenByIdQueryVariables>) {
-        return Apollo.useQuery<GetCategoryChildrenByIdQuery, GetCategoryChildrenByIdQueryVariables>(GetCategoryChildrenByIdDocument, baseOptions);
-      }
-export function useGetCategoryChildrenByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCategoryChildrenByIdQuery, GetCategoryChildrenByIdQueryVariables>) {
-          return Apollo.useLazyQuery<GetCategoryChildrenByIdQuery, GetCategoryChildrenByIdQueryVariables>(GetCategoryChildrenByIdDocument, baseOptions);
-        }
-export type GetCategoryChildrenByIdQueryHookResult = ReturnType<typeof useGetCategoryChildrenByIdQuery>;
-export type GetCategoryChildrenByIdLazyQueryHookResult = ReturnType<typeof useGetCategoryChildrenByIdLazyQuery>;
-export type GetCategoryChildrenByIdQueryResult = Apollo.QueryResult<GetCategoryChildrenByIdQuery, GetCategoryChildrenByIdQueryVariables>;
-export const GetCategoryChildrenBySlugDocument = gql`
-    query getCategoryChildrenBySlug($slug: String!) {
-  category(slug: $slug) {
-    ...categoryChildrenFragment
-  }
-}
-    ${CategoryChildrenFragmentFragmentDoc}`;
-
-/**
- * __useGetCategoryChildrenBySlugQuery__
- *
- * To run a query within a React component, call `useGetCategoryChildrenBySlugQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCategoryChildrenBySlugQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCategoryChildrenBySlugQuery({
- *   variables: {
- *      slug: // value for 'slug'
- *   },
- * });
- */
-export function useGetCategoryChildrenBySlugQuery(baseOptions?: Apollo.QueryHookOptions<GetCategoryChildrenBySlugQuery, GetCategoryChildrenBySlugQueryVariables>) {
-        return Apollo.useQuery<GetCategoryChildrenBySlugQuery, GetCategoryChildrenBySlugQueryVariables>(GetCategoryChildrenBySlugDocument, baseOptions);
-      }
-export function useGetCategoryChildrenBySlugLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCategoryChildrenBySlugQuery, GetCategoryChildrenBySlugQueryVariables>) {
-          return Apollo.useLazyQuery<GetCategoryChildrenBySlugQuery, GetCategoryChildrenBySlugQueryVariables>(GetCategoryChildrenBySlugDocument, baseOptions);
-        }
-export type GetCategoryChildrenBySlugQueryHookResult = ReturnType<typeof useGetCategoryChildrenBySlugQuery>;
-export type GetCategoryChildrenBySlugLazyQueryHookResult = ReturnType<typeof useGetCategoryChildrenBySlugLazyQuery>;
-export type GetCategoryChildrenBySlugQueryResult = Apollo.QueryResult<GetCategoryChildrenBySlugQuery, GetCategoryChildrenBySlugQueryVariables>;
 export const GetCountriesDocument = gql`
     query getCountries($languageCode: LanguageCodeEnum) {
   shop {
@@ -13198,8 +13564,188 @@ export function useGetCountriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type GetCountriesQueryHookResult = ReturnType<typeof useGetCountriesQuery>;
 export type GetCountriesLazyQueryHookResult = ReturnType<typeof useGetCountriesLazyQuery>;
 export type GetCountriesQueryResult = Apollo.QueryResult<GetCountriesQuery, GetCountriesQueryVariables>;
+export const GetOrderByIdDocument = gql`
+    query getOrderById($id: ID!) {
+  order(id: $id) {
+    ...orderDetailsFragment
+  }
+}
+    ${OrderDetailsFragmentFragmentDoc}`;
+
+/**
+ * __useGetOrderByIdQuery__
+ *
+ * To run a query within a React component, call `useGetOrderByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrderByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrderByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetOrderByIdQuery(baseOptions?: Apollo.QueryHookOptions<GetOrderByIdQuery, GetOrderByIdQueryVariables>) {
+        return Apollo.useQuery<GetOrderByIdQuery, GetOrderByIdQueryVariables>(GetOrderByIdDocument, baseOptions);
+      }
+export function useGetOrderByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderByIdQuery, GetOrderByIdQueryVariables>) {
+          return Apollo.useLazyQuery<GetOrderByIdQuery, GetOrderByIdQueryVariables>(GetOrderByIdDocument, baseOptions);
+        }
+export type GetOrderByIdQueryHookResult = ReturnType<typeof useGetOrderByIdQuery>;
+export type GetOrderByIdLazyQueryHookResult = ReturnType<typeof useGetOrderByIdLazyQuery>;
+export type GetOrderByIdQueryResult = Apollo.QueryResult<GetOrderByIdQuery, GetOrderByIdQueryVariables>;
+export const GetOrderByTokenDocument = gql`
+    query getOrderByToken($token: UUID!) {
+  orderByToken(token: $token) {
+    ...orderDetailsFragment
+  }
+}
+    ${OrderDetailsFragmentFragmentDoc}`;
+
+/**
+ * __useGetOrderByTokenQuery__
+ *
+ * To run a query within a React component, call `useGetOrderByTokenQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrderByTokenQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrderByTokenQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useGetOrderByTokenQuery(baseOptions?: Apollo.QueryHookOptions<GetOrderByTokenQuery, GetOrderByTokenQueryVariables>) {
+        return Apollo.useQuery<GetOrderByTokenQuery, GetOrderByTokenQueryVariables>(GetOrderByTokenDocument, baseOptions);
+      }
+export function useGetOrderByTokenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderByTokenQuery, GetOrderByTokenQueryVariables>) {
+          return Apollo.useLazyQuery<GetOrderByTokenQuery, GetOrderByTokenQueryVariables>(GetOrderByTokenDocument, baseOptions);
+        }
+export type GetOrderByTokenQueryHookResult = ReturnType<typeof useGetOrderByTokenQuery>;
+export type GetOrderByTokenLazyQueryHookResult = ReturnType<typeof useGetOrderByTokenLazyQuery>;
+export type GetOrderByTokenQueryResult = Apollo.QueryResult<GetOrderByTokenQuery, GetOrderByTokenQueryVariables>;
+export const GetOrderListDocument = gql`
+    query getOrderList($first: Int, $last: Int, $after: String, $before: String, $filter: OrderFilterInput, $sortBy: OrderSortingInput, $channel: String!) {
+  orders(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy, channel: $channel) {
+    edges {
+      node {
+        ...orderDetailsFragment
+      }
+      cursor
+    }
+    pageInfo {
+      ...pageInfoFragment
+    }
+  }
+}
+    ${OrderDetailsFragmentFragmentDoc}
+${PageInfoFragmentFragmentDoc}`;
+
+/**
+ * __useGetOrderListQuery__
+ *
+ * To run a query within a React component, call `useGetOrderListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrderListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrderListQuery({
+ *   variables: {
+ *      first: // value for 'first'
+ *      last: // value for 'last'
+ *      after: // value for 'after'
+ *      before: // value for 'before'
+ *      filter: // value for 'filter'
+ *      sortBy: // value for 'sortBy'
+ *      channel: // value for 'channel'
+ *   },
+ * });
+ */
+export function useGetOrderListQuery(baseOptions?: Apollo.QueryHookOptions<GetOrderListQuery, GetOrderListQueryVariables>) {
+        return Apollo.useQuery<GetOrderListQuery, GetOrderListQueryVariables>(GetOrderListDocument, baseOptions);
+      }
+export function useGetOrderListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderListQuery, GetOrderListQueryVariables>) {
+          return Apollo.useLazyQuery<GetOrderListQuery, GetOrderListQueryVariables>(GetOrderListDocument, baseOptions);
+        }
+export type GetOrderListQueryHookResult = ReturnType<typeof useGetOrderListQuery>;
+export type GetOrderListLazyQueryHookResult = ReturnType<typeof useGetOrderListLazyQuery>;
+export type GetOrderListQueryResult = Apollo.QueryResult<GetOrderListQuery, GetOrderListQueryVariables>;
+export const CreateCheckoutDocument = gql`
+    mutation createCheckout($input: CheckoutCreateInput!) {
+  checkoutCreate(input: $input) {
+    created
+    checkoutErrors {
+      code
+      field
+    }
+    checkout {
+      id
+      user {
+        id
+      }
+      quantity
+      token
+      totalPrice {
+        ...taxedMoneyFragment
+      }
+      subtotalPrice {
+        ...taxedMoneyFragment
+      }
+      note
+      email
+      shippingPrice {
+        ...taxedMoneyFragment
+      }
+      lines {
+        variant {
+          ...productVariantDetails
+        }
+        quantity
+        totalPrice {
+          ...taxedMoneyFragment
+        }
+        requiresShipping
+      }
+    }
+  }
+}
+    ${TaxedMoneyFragmentFragmentDoc}
+${ProductVariantDetailsFragmentDoc}`;
+export type CreateCheckoutMutationFn = Apollo.MutationFunction<CreateCheckoutMutation, CreateCheckoutMutationVariables>;
+
+/**
+ * __useCreateCheckoutMutation__
+ *
+ * To run a mutation, you first call `useCreateCheckoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCheckoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCheckoutMutation, { data, loading, error }] = useCreateCheckoutMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCheckoutMutation(baseOptions?: Apollo.MutationHookOptions<CreateCheckoutMutation, CreateCheckoutMutationVariables>) {
+        return Apollo.useMutation<CreateCheckoutMutation, CreateCheckoutMutationVariables>(CreateCheckoutDocument, baseOptions);
+      }
+export type CreateCheckoutMutationHookResult = ReturnType<typeof useCreateCheckoutMutation>;
+export type CreateCheckoutMutationResult = Apollo.MutationResult<CreateCheckoutMutation>;
+export type CreateCheckoutMutationOptions = Apollo.BaseMutationOptions<CreateCheckoutMutation, CreateCheckoutMutationVariables>;
 export const GetProductByIdDocument = gql`
-    query getProductById($id: ID!, $channel: String) {
+    query getProductById($id: ID!, $languageCode: LanguageCodeEnum!, $channel: String) {
   product(id: $id, channel: $channel) {
     ...productDetailFragment
     variants {
@@ -13223,6 +13769,7 @@ ${ProductVariantDetailsFragmentDoc}`;
  * const { data, loading, error } = useGetProductByIdQuery({
  *   variables: {
  *      id: // value for 'id'
+ *      languageCode: // value for 'languageCode'
  *      channel: // value for 'channel'
  *   },
  * });
@@ -13237,7 +13784,7 @@ export type GetProductByIdQueryHookResult = ReturnType<typeof useGetProductByIdQ
 export type GetProductByIdLazyQueryHookResult = ReturnType<typeof useGetProductByIdLazyQuery>;
 export type GetProductByIdQueryResult = Apollo.QueryResult<GetProductByIdQuery, GetProductByIdQueryVariables>;
 export const GetProductBySlugDocument = gql`
-    query getProductBySlug($slug: String!, $channel: String) {
+    query getProductBySlug($slug: String!, $languageCode: LanguageCodeEnum!, $channel: String) {
   product(slug: $slug, channel: $channel) {
     ...productDetailFragment
     variants {
@@ -13261,6 +13808,7 @@ ${ProductVariantDetailsFragmentDoc}`;
  * const { data, loading, error } = useGetProductBySlugQuery({
  *   variables: {
  *      slug: // value for 'slug'
+ *      languageCode: // value for 'languageCode'
  *      channel: // value for 'channel'
  *   },
  * });
@@ -13275,7 +13823,7 @@ export type GetProductBySlugQueryHookResult = ReturnType<typeof useGetProductByS
 export type GetProductBySlugLazyQueryHookResult = ReturnType<typeof useGetProductBySlugLazyQuery>;
 export type GetProductBySlugQueryResult = Apollo.QueryResult<GetProductBySlugQuery, GetProductBySlugQueryVariables>;
 export const GetProductListDocument = gql`
-    query getProductList($first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder) {
+    query getProductList($first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder, $languageCode: LanguageCodeEnum!) {
   products(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy) {
     edges {
       node {
@@ -13307,6 +13855,7 @@ ${ProductPageInfoFragmentFragmentDoc}`;
  *      before: // value for 'before'
  *      filter: // value for 'filter'
  *      sortBy: // value for 'sortBy'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
@@ -13474,6 +14023,10 @@ export const CreateUserTokensDocument = gql`
     user {
       ...userPrivateDetailsFragment
     }
+    accountErrors {
+      code
+      field
+    }
   }
 }
     ${UserPrivateDetailsFragmentFragmentDoc}`;
@@ -13625,9 +14178,12 @@ export const TokenRenewDocument = gql`
       field
     }
     token
+    user {
+      ...userPrivateDetailsFragment
+    }
   }
 }
-    `;
+    ${UserPrivateDetailsFragmentFragmentDoc}`;
 export type TokenRenewMutationFn = Apollo.MutationFunction<TokenRenewMutation, TokenRenewMutationVariables>;
 
 /**
@@ -13662,15 +14218,11 @@ export const UpdateCustomerDocument = gql`
       field
     }
     user {
-      firstName
-      lastName
-      isActive
-      email
-      note
+      ...userPrivateDetailsFragment
     }
   }
 }
-    `;
+    ${UserPrivateDetailsFragmentFragmentDoc}`;
 export type UpdateCustomerMutationFn = Apollo.MutationFunction<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
 
 /**
@@ -13697,6 +14249,48 @@ export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
 export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
 export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+export const UpdateMetadataDocument = gql`
+    mutation updateMetadata($id: ID!, $input: [MetadataInput!]!) {
+  updateMetadata(id: $id, input: $input) {
+    metadataErrors {
+      field
+      code
+    }
+    item {
+      metadata {
+        key
+        value
+      }
+    }
+  }
+}
+    `;
+export type UpdateMetadataMutationFn = Apollo.MutationFunction<UpdateMetadataMutation, UpdateMetadataMutationVariables>;
+
+/**
+ * __useUpdateMetadataMutation__
+ *
+ * To run a mutation, you first call `useUpdateMetadataMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMetadataMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMetadataMutation, { data, loading, error }] = useUpdateMetadataMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateMetadataMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMetadataMutation, UpdateMetadataMutationVariables>) {
+        return Apollo.useMutation<UpdateMetadataMutation, UpdateMetadataMutationVariables>(UpdateMetadataDocument, baseOptions);
+      }
+export type UpdateMetadataMutationHookResult = ReturnType<typeof useUpdateMetadataMutation>;
+export type UpdateMetadataMutationResult = Apollo.MutationResult<UpdateMetadataMutation>;
+export type UpdateMetadataMutationOptions = Apollo.BaseMutationOptions<UpdateMetadataMutation, UpdateMetadataMutationVariables>;
 export const GetCurrentAuthUserDocument = gql`
     query getCurrentAuthUser {
   me {

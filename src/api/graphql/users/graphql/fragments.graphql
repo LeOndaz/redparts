@@ -11,4 +11,8 @@ fragment userPrivateDetailsFragment on User {
     dateJoined
     isActive
     isStaff
+    metadata {
+        key
+        value
+    }
 }

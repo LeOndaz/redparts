@@ -31,6 +31,18 @@ export class RangeFilterBuilder extends AbstractFilterBuilder {
 
         this.max = Math.ceil(this.max / digit) * digit;
         this.min = Math.floor(this.min / digit) * digit;
+
+        if (this.min === this.max){
+            /** if min equals max, we just round the max to the nearest nth number
+             *  where n is the biggest place value number like 94123 has n = 9.
+             * */
+            const stringMin = this.min.toString()
+            const firstDigit = parseInt(stringMin[0])
+            let newMax: any = (firstDigit + 1).toString() + "0".repeat(stringMin.length - 1)
+            newMax = parseFloat(newMax);
+            this.max = newMax
+        }
+
         this.value = [this.min, this.max];
 
         if (value) {

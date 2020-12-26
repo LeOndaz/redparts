@@ -1,26 +1,13 @@
-fragment addressDetailsFragment on Address {
-  id
-  firstName
-  lastName
-  streetAddress1
-  streetAddress2
-  city
-  cityArea
-  postalCode
-  country {
-    code
-    country
-  }
-  phone
-  isDefaultBillingAddress
-  isDefaultShippingAddress
-  companyName
-}
-
 query getAddressById($id: ID!){
 	address(id: $id){
     ...addressDetailsFragment
   }
 }
 
-
+query getAddressList($id: ID!) {
+	user(id: $id){
+    addresses {
+      ...addressDetailsFragment
+    }
+  }
+}

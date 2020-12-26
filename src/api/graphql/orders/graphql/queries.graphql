@@ -1,29 +1,3 @@
-fragment orderDetailsFragment on Order {
-    id
-    token
-    created
-    voucher {
-        id
-        discountValue
-    }
-    isShippingRequired
-    paymentStatusDisplay
-    total {
-        gross {
-            amount
-        }
-    }
-    subtotal {
-        net {
-            amount
-        }
-    }
-    statusDisplay
-    shippingAddress {
-        ...addressDetailsFragment
-    }
-}
-
 query getOrderById($id: ID!){
     order (id: $id){
         ...orderDetailsFragment
@@ -33,5 +7,28 @@ query getOrderById($id: ID!){
 query getOrderByToken($token: UUID!){
     orderByToken(token: $token) {
         ...orderDetailsFragment
+    }
+}
+
+
+query getOrderList (
+    $first: Int
+    $last: Int
+    $after: String
+    $before: String
+    $filter: OrderFilterInput
+    $sortBy: OrderSortingInput
+    $channel: String!
+){
+    orders(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy, channel: $channel){
+        edges {
+            node {
+                ...orderDetailsFragment
+            }
+            cursor
+        }
+        pageInfo {
+            ...pageInfoFragment
+        }
     }
 }

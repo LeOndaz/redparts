@@ -1,8 +1,9 @@
 // application
-import { baseUrl } from '~/services/utils';
-import { ILanguage } from '~/interfaces/language';
+import {baseUrl} from '~/services/utils';
+import {ILanguage} from '~/interfaces/language';
 // data
-import dataShopLanguages, { dataShopDefaultLocale } from '~/data/shopLanguages';
+import dataShopLanguages, {dataShopDefaultLocale} from '~/data/shopLanguages';
+import {GetServerSidePropsContext} from "next";
 
 export function getDefaultLocale(): string {
     return dataShopDefaultLocale;
@@ -48,7 +49,7 @@ export async function loadMessages(locale: string): Promise<Record<string, strin
         : loadTranslation(getDefaultLocale());
     const mainMessages = loadTranslation(locale);
 
-    return { ...await baseMessages, ...await mainMessages };
+    return {...await baseMessages, ...await mainMessages};
 }
 
 export function removePrefix(path: string): string {
@@ -64,4 +65,17 @@ export function removePrefix(path: string): string {
     }
 
     return path;
+}
+
+export function getLanguageServerSide(ctx: GetServerSidePropsContext) {
+    let language = null;
+    const {query, req} = ctx;
+
+    if (typeof query.lang === 'string') {
+        language = getLanguageByLocale(query.lang);
+    } else if (req.url) {
+        language = getLanguageByPath(req.url);
+    }
+
+    return language ? language : getDefaultLanguage();
 }

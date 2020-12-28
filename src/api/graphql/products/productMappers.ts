@@ -1,19 +1,26 @@
 import {Product, SelectedAttribute, StockAvailability} from "~/api/graphql/types";
 import {IImage, IProduct, IProductAttribute, IProductAttributeValue, IProductType} from "~/interfaces/product";
-import {DEFAULT_ATTR_SLUGS} from "~/api/graphql/consts";
 import _ from "lodash";
 import {customEditorjsParser} from "~/components/utils";
 import {mapVariantAttrsToOptions} from "~/api/graphql/misc/mappers/utils";
 import {shopCategoryMap} from "~/api/graphql/categories/categoryMappers";
-import {getAttribute, getAttributeValue, getAttributeValues, getMetadataItem} from "~/api/graphql/misc/helpers";
+import {
+    clone,
+    getAttribute,
+    getAttributeValue,
+    getAttributeValues,
+    getMetadataItem,
+    mapTranslatable
+} from "~/api/graphql/misc/helpers";
 import {IBrand} from "~/interfaces/brand";
+import {DefaultAttrSlugs} from "~/api/graphql/consts";
 
 const selectedAttrMapIn = (selectedAttr: SelectedAttribute): IProductAttribute => {
     return {
         name: selectedAttr.attribute.name as string,
         slug: selectedAttr.attribute.slug as string,
         featured: !!getMetadataItem(selectedAttr.attribute.metadata, 'featured', false),
-        values: _.clone(selectedAttr.values) as IProductAttributeValue[],
+        values: clone(selectedAttr.values) as IProductAttributeValue[],
     }
 }
 
@@ -77,6 +84,12 @@ const productMapIn = (product: Product): IProduct => {
         throw Error('Default channel slug is not specified or not correct. ')
     }
 
+    let [name, description] = mapTranslatable(product, ['name', 'descriptionJson'])
+
+    /** Handle markdown description */
+    description = JSON.parse(description)
+    description = customEditorjsParser.parse(description)
+
     /** Handle pricing & discounts */
     let finalPrice = product.pricing!.priceRange!.start!.gross.amount
     let compareAtPrice: number | null = product.pricing!.priceRangeUndiscounted!.start!.gross.amount
@@ -84,22 +97,18 @@ const productMapIn = (product: Product): IProduct => {
         compareAtPrice = null;
     }
 
-    /** Handle markdown description */
-    let description = JSON.parse(_.defaultTo(product.descriptionJson, null))
-    description = customEditorjsParser.parse(description)
-
     /** Handle badges */
-    let badgeClasses = getAttributeValues(DEFAULT_ATTR_SLUGS.BADGES, product.attributes, 'slug').map(_.toLower)
+    let badgeClasses = getAttributeValues(DefaultAttrSlugs.Badges, product.attributes, 'slug').map(_.toLower)
 
     /** Handle tags */
-    let tags = getAttributeValues(DEFAULT_ATTR_SLUGS.TAGS, product.attributes)
+    let tags = getAttributeValues(DefaultAttrSlugs.Tags, product.attributes)
 
     /** Handle category */
     const categories = product.category ? [shopCategoryMap.inProductsLayout(product.category)] : []
 
     /** Handle brand */
-    const brandName = getAttributeValue(DEFAULT_ATTR_SLUGS.BRAND, product.attributes, 'Generic')
-    const brandSlug = getAttributeValue(DEFAULT_ATTR_SLUGS.BRAND, product.attributes, brandName.toLowerCase(), 'slug')
+    const brandName = getAttributeValue(DefaultAttrSlugs.Brand, product.attributes, 'Generic')
+    const brandSlug = getAttributeValue(DefaultAttrSlugs.Brand, product.attributes, brandName.toLowerCase(), 'slug')
 
     const brand: IBrand = {
         name: brandName,
@@ -124,7 +133,7 @@ const productMapIn = (product: Product): IProduct => {
 
     return {
         id: product.id,
-        name: product.name,
+        name: name,
         slug: product.slug,
         description: description,
         excerpt: '',
@@ -139,13 +148,16 @@ const productMapIn = (product: Product): IProduct => {
         type: type,
         attributes: attributes,
         brand: brand,
-        customFields: {},
         categories: categories,
         sku: product.defaultVariant?.sku || product.variants?.[0]?.sku,
         badges: badgeClasses,
         rating: 2,
         reviews: 4,
         tags: tags,
+        customFields: {
+            seoTitle: product.seoTitle,
+            seoDescription: product.seoDescription,
+        },
     }
 }
 

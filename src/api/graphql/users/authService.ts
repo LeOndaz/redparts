@@ -8,7 +8,6 @@ import {
 } from "~/api/graphql/types";
 import {ApolloQueryResult, FetchResult, MutationOptions, QueryOptions} from "@apollo/client";
 import {load, save} from "~/store/store";
-import _ from "lodash";
 import {userMap} from "~/api/graphql/users/userMappers";
 import {handleAccountErrors, loadLocal, saveLocal, throwAuthError} from "~/api/graphql/misc/helpers";
 import {AuthError} from "~/api/errors";
@@ -103,7 +102,7 @@ export const verifyToken = (token: string) => {
 export const withAuth = <T>(func: (opts: T) => Promise<FetchResult>): (opts: T) => any => {
     let tokens = loadLocal('tokens')
 
-    if (!tokens) {
+    if (!tokens || !tokens.token) {
         throwAuthError(AuthError.INVALID)
     }
 

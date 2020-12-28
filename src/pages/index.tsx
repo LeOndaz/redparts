@@ -27,7 +27,7 @@ function Page() {
     const featuredProducts = useProductTabs(
         useMemo(() => [
             { id: 1, name: 'All', categorySlug: null },
-            { id: 2, name: 'Power Tools', categorySlug: 'power-tools' },
+            { id: 2, name: 'Smartphones', categorySlug: 'smartphone' },
             { id: 3, name: 'Hand Tools', categorySlug: 'hand-tools' },
             { id: 4, name: 'Plumbing', categorySlug: 'plumbing' },
         ], []),
@@ -40,17 +40,17 @@ function Page() {
         {
             image: '/images/categories/category-overlay-1.jpg',
             mobileImage: '/images/categories/category-overlay-1-mobile.jpg',
-            categorySlug: 'mobiles',
+            categorySlug: 'smartphone',
         },
         {
             image: '/images/categories/category-overlay-2.jpg',
             mobileImage: '/images/categories/category-overlay-2-mobile.jpg',
-            categorySlug: 'mobiles',
+            categorySlug: 'smartphone',
         },
         {
             image: '/images/categories/category-overlay-3.jpg',
             mobileImage: '/images/categories/category-overlay-3-mobile.jpg',
-            categorySlug: 'mobiles',
+            categorySlug: 'smartphone',
         },
     ], []);
 

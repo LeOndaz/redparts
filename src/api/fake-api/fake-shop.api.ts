@@ -28,13 +28,12 @@ import {
 } from '~/fake-server/endpoints';
 
 import {
-    createReview,
+    createReview, filterNew,
     getBrands,
     getProductBySlug, getProductList,
     getReviewsList, getShopCategoryBySlugProductsLayout, getShopCategoryListProductsLayout,
 } from "~/api"
 
-import {ReviewCountableEdge} from '~/api/graphql/types';
 import {
     CategoryFilterBuilder,
     CheckFilterBuilder,
@@ -42,10 +41,11 @@ import {
     RangeFilterBuilder,
     RatingFilterBuilder,
 } from "~/api/filters"
-import {cursorNavigationMapIn} from "~/api/graphql/misc/mappers/navigation";
-import {filterHot} from "~/api/graphql/misc/FilterService";
-import {reviewMap} from "~/api/graphql/reviews/ReviewMappers";
 import {ILanguage} from "~/interfaces/language";
+import {getProductsByCollectionSlug} from "~/api/graphql/collections/CollectionService";
+import {Badges, Collections} from "~/api/graphql/consts";
+import {reviewMap} from "~/api/graphql/reviews/ReviewMappers";
+import {sortingMap} from "~/api/graphql/misc/mappers/sorting";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 
 const emptyProductList: IProductsList = {
@@ -63,6 +63,8 @@ const emptyProductList: IProductsList = {
     filters: [],
 }
 
+
+const filterProductsByCategory = (slug: string, products: IProduct[]) => products.filter(product => product.categories!.map(cat => cat.slug).includes(slug))
 
 export class FakeShopApi implements ShopApi {
     getCategoryBySlug(slug: string, options: IGetCategoryBySlugOptions, language: ILanguage): Promise<ICategory> {
@@ -84,7 +86,6 @@ export class FakeShopApi implements ShopApi {
             level: depth,
         }, language).then(r => {
             const {dataList: categoryList} = r;
-            console.log('categoryList => \n ', categoryList)
 
             if (slugs) {
                 return categoryList.filter((category: ICategory) => options?.slugs?.includes(category.slug))
@@ -98,46 +99,36 @@ export class FakeShopApi implements ShopApi {
         });
     }
 
-    getBrands(options?: IGetBrandsOptions, language?: ILanguage): Promise<IBrand[]> {
-        return getBrands().then(r => r.slice(0, options?.limit))
+    getBrands(options: IGetBrandsOptions, language: ILanguage): Promise<IBrand[]> {
+        return getBrands(language).then(r => r.slice(0, options?.limit))
     }
 
     getProductsList(options: IListOptions = {}, filterValues: IFilterValues = {}, language: ILanguage): Promise<IProductsList> {
-        // if (typeof window !== "undefined") {
-        //     client.query({
-        //         query: TestErrorDocument,
-        //     }).then(r => {
-        //         console.log('########')
-        //         console.log(r)
-        //         console.log(r.errors)
-        //         console.log('########')
-        //     }).catch(err => {
-        //         console.log('err', '   ', err)
-        //     })
-        // }
-
-        console.log(options, filterValues);
-
         options.limit = options.limit || 16;
+        const sortBy = options.sort && options.sort !== 'default' ? sortingMap.out(options.sort) : null
 
         let categoriesPromise: Promise<ICategory[]> = this.getCategories({}, language)
         let productsPromise = getProductList({
             first: options.limit,
             after: options.after,
             before: options.before,
-        }, language)
+            sortBy,
+        },
+        language
+    )
 
         return Promise.all([
             categoriesPromise,
             productsPromise
         ]).then(([categories, productsResponse]) => {
-            let {dataList: products, pageInfo, totalCount} = productsResponse;
+            let {dataList: products, getNavigation, totalCount} = productsResponse;
 
             if (totalCount === 0) {
                 return emptyProductList
             }
 
-            const navigation = cursorNavigationMapIn(pageInfo, options.limit!, totalCount)
+            const navigation = getNavigation(options.limit || 16)
+
             const filterBuilders = [
                 new CategoryFilterBuilder('category', 'Categories'),
                 new RangeFilterBuilder('price', 'Price range'),
@@ -153,7 +144,6 @@ export class FakeShopApi implements ShopApi {
             });
 
             products = products.filter((product: IProduct) => filterBuilders.reduce<boolean>((acc, fb) => acc && fb.test(product), true))
-
             return {
                 items: products,
                 navigation: navigation,
@@ -168,35 +158,44 @@ export class FakeShopApi implements ShopApi {
     }
 
     getProductReviews(productId: string, options?: IListOptions): Promise<IReviewsList> {
-        return getProductReviews(productId, options)
-        // let variables = JSON.parse(JSON.stringify({
-        //     first: options?.limit,
-        //     after: options?.after,
-        //     before: options?.before,
-        //     filter: {
-        //         product: productId,
-        //     },
-        // }))
-        //
-        // return getReviewsList(variables).then(({data: {reviews}}) => ({
-        //     items: reviews.edges.map((edge: ReviewCountableEdge) => reviewMap.in(edge.node)),
-        //     sort: 'default',
-        //     navigation: cursorNavigationMapIn(reviews.pageInfo, variables?.limit, reviews.totalCount),
-        // }))
+        let variables: IBaseModelProps = {
+            first: options?.limit || 8,
+            after: options?.after,
+            before: options?.before,
+            filter: {
+                product: productId,
+            },
+            ...(options?.sort ? {sortBy: sortingMap.out(options?.sort)} : {})
+        }
+
+        return getReviewsList(variables).then(r => ({
+            items: r.dataList,
+            navigation: r.getNavigation(variables.first!),
+            sort: options?.sort || 'default',
+        }))
     }
 
     addProductReview(productId: string, data: IAddProductReviewData): Promise<IReview> {
-        return addProductReview(productId, data)
         /* review user is current authenticated user */
-        // return createReview({
-        //     product: productId,
-        //     content: data.content,
-        //     rating: data.rating,
-        // }).then(r => r.data!.review)
+        return createReview(productId, {
+            content: data.content,
+            rating: data.rating,
+        }).then(r => r.data!.review)
     }
 
-    getProductAnalogs(productId: string, language: ILanguage): Promise<IProduct[]> {
-        return getProductAnalogs(productId);
+    getProductAnalogs(product: IProduct, language: ILanguage): Promise<IProduct[]> {
+        const productCategoryIds = product.categories!.map(cat => cat.id)
+
+        return getProductList({
+            first: 8,
+            filter: {
+                price: {
+                    lte: product.price + 100,
+                    gte: product.price - 100,
+                },
+                ...(productCategoryIds.length > 0 && {categories: productCategoryIds})
+            }
+        }, language).then(r => r.dataList.filter(pr => pr.id !== product.id));
     }
 
     getRelatedProducts(productId: string, limit: number, language: ILanguage): Promise<IProduct[]> {
@@ -204,11 +203,17 @@ export class FakeShopApi implements ShopApi {
     }
 
     getFeaturedProducts(categorySlug: string | null, limit: number, language: ILanguage): Promise<IProduct[]> {
-        return getFeaturedProducts(categorySlug, limit);
+        return getProductsByCollectionSlug(
+            Collections.Featured,
+            {
+                first: limit,
+            }, language).then(r => categorySlug ? filterProductsByCategory(categorySlug, r.dataList) : r.dataList)
     }
 
     getPopularProducts(categorySlug: string | null, limit: number, language: ILanguage): Promise<IProduct[]> {
-        return getPopularProducts(categorySlug, limit);
+        return getProductList({
+            first: limit
+        }, language).then(r => categorySlug ? filterProductsByCategory(categorySlug, r.dataList) : r.dataList)
     }
 
     getTopRatedProducts(categorySlug: string | null, limit: number, language: ILanguage): Promise<IProduct[]> {
@@ -217,15 +222,23 @@ export class FakeShopApi implements ShopApi {
     }
 
     getSpecialOffers(limit: number, language: ILanguage): Promise<IProduct[]> {
-        const variables: IBaseModelProps = filterHot({
-            first: limit,
-        })
+        return getProductsByCollectionSlug(
+            Collections.DealZone,
+            {
+                first: limit,
+            }, language).then(r => r.dataList.map(product => {
+            if (!(Badges.Hot in product.badges)) {
+                product.badges.push(Badges.Hot)
+            }
 
-        return getProductList(variables, language).then(r => r.dataList)
+            return product
+        }))
     }
 
     getLatestProducts(limit: number, language: ILanguage): Promise<IProduct[]> {
-        return getLatestProducts(limit);
+        return getProductList(filterNew({
+            first: limit,
+        }), language).then(r => r.dataList)
     }
 
     getSearchSuggestions(

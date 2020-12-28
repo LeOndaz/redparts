@@ -1,10 +1,8 @@
-query getAttributeById($id: ID!){
-  attribute(id: $id){
-      ...attributeDetailsFragment
-  }
-}
-query getAttributeBySlug($slug: String!) {
-  attribute(slug: $slug){
+query getAttributeBySlug($slug: String!, $languageCode: LanguageCodeEnum!) {
+    attribute(slug: $slug){
         ...attributeDetailsFragment
-  }
+        translation (languageCode: $languageCode){
+            name
+        }
+    }
 }

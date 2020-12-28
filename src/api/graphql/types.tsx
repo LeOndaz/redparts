@@ -12049,12 +12049,19 @@ export type AttributeDetailsFragmentFragment = (
   )>>>, metadata: Array<Maybe<(
     { __typename?: 'MetadataItem' }
     & Pick<MetadataItem, 'key' | 'value'>
-  )>> }
+  )>>, translation?: Maybe<(
+    { __typename?: 'AttributeTranslation' }
+    & Pick<AttributeTranslation, 'name'>
+  )> }
 );
 
 export type AttributeValuesFragmentFragment = (
   { __typename?: 'AttributeValue' }
   & Pick<AttributeValue, 'id' | 'name' | 'slug'>
+  & { translation?: Maybe<(
+    { __typename?: 'AttributeValueTranslation' }
+    & Pick<AttributeValueTranslation, 'name'>
+  )> }
 );
 
 export type AttributeValuesDetailFragmentFragment = (
@@ -12068,21 +12075,9 @@ export type AttributeValuesDetailFragmentFragment = (
   )>> }
 );
 
-export type GetAttributeByIdQueryVariables = Exact<{
-  id: Scalars['ID'];
-}>;
-
-
-export type GetAttributeByIdQuery = (
-  { __typename?: 'Query' }
-  & { attribute?: Maybe<(
-    { __typename?: 'Attribute' }
-    & AttributeDetailsFragmentFragment
-  )> }
-);
-
 export type GetAttributeBySlugQueryVariables = Exact<{
   slug: Scalars['String'];
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12090,6 +12085,10 @@ export type GetAttributeBySlugQuery = (
   { __typename?: 'Query' }
   & { attribute?: Maybe<(
     { __typename?: 'Attribute' }
+    & { translation?: Maybe<(
+      { __typename?: 'AttributeTranslation' }
+      & Pick<AttributeTranslation, 'name'>
+    )> }
     & AttributeDetailsFragmentFragment
   )> }
 );
@@ -12105,7 +12104,7 @@ export type CategoryPageInfoFragmentFragment = (
 
 export type CategoryDetailFragmentFragment = (
   { __typename?: 'Category' }
-  & Pick<Category, 'id' | 'name' | 'slug' | 'level' | 'description' | 'seoTitle' | 'seoDescription'>
+  & Pick<Category, 'id' | 'name' | 'slug' | 'level' | 'description' | 'descriptionJson' | 'seoTitle' | 'seoDescription'>
   & { translation?: Maybe<(
     { __typename?: 'CategoryTranslation' }
     & Pick<CategoryTranslation, 'name' | 'description' | 'descriptionJson' | 'seoTitle' | 'seoDescription'>
@@ -12195,6 +12194,52 @@ export type GetCategoryListQuery = (
   )> }
 );
 
+export type CollectionDetailsFragmentFragment = (
+  { __typename?: 'Collection' }
+  & Pick<Collection, 'name' | 'description' | 'descriptionJson' | 'seoTitle' | 'seoDescription'>
+  & { translation?: Maybe<(
+    { __typename?: 'CollectionTranslation' }
+    & Pick<CollectionTranslation, 'name'>
+  )>, backgroundImage?: Maybe<(
+    { __typename?: 'Image' }
+    & Pick<Image, 'url' | 'alt'>
+  )>, products?: Maybe<(
+    { __typename?: 'ProductCountableConnection' }
+    & Pick<ProductCountableConnection, 'totalCount'>
+    & { pageInfo: (
+      { __typename?: 'PageInfo' }
+      & PageInfoFragmentFragment
+    ), edges: Array<(
+      { __typename?: 'ProductCountableEdge' }
+      & Pick<ProductCountableEdge, 'cursor'>
+      & { node: (
+        { __typename?: 'Product' }
+        & ProductDetailFragmentFragment
+      ) }
+    )> }
+  )> }
+);
+
+export type GetCollectionBySlugQueryVariables = Exact<{
+  slug: Scalars['String'];
+  languageCode: LanguageCodeEnum;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  after?: Maybe<Scalars['String']>;
+  before?: Maybe<Scalars['String']>;
+  filter?: Maybe<ProductFilterInput>;
+  sortBy?: Maybe<ProductOrder>;
+}>;
+
+
+export type GetCollectionBySlugQuery = (
+  { __typename?: 'Query' }
+  & { collection?: Maybe<(
+    { __typename?: 'Collection' }
+    & CollectionDetailsFragmentFragment
+  )> }
+);
+
 export type PageInfoFragmentFragment = (
   { __typename?: 'PageInfo' }
   & Pick<PageInfo, 'hasNextPage' | 'hasPreviousPage' | 'startCursor' | 'endCursor'>
@@ -12216,7 +12261,7 @@ export type TaxedMoneyFragmentFragment = (
 );
 
 export type GetCountriesQueryVariables = Exact<{
-  languageCode?: Maybe<LanguageCodeEnum>;
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12310,8 +12355,24 @@ export type GetOrderListQuery = (
   )> }
 );
 
+export type ProductVariantDetailsFragment = (
+  { __typename?: 'ProductVariant' }
+  & Pick<ProductVariant, 'id' | 'sku' | 'name'>
+  & { pricing?: Maybe<(
+    { __typename?: 'VariantPricingInfo' }
+    & { price?: Maybe<(
+      { __typename?: 'TaxedMoney' }
+      & TaxedMoneyFragmentFragment
+    )> }
+  )>, attributes: Array<(
+    { __typename?: 'SelectedAttribute' }
+    & AttributeValuesDetailFragmentFragment
+  )> }
+);
+
 export type CreateCheckoutMutationVariables = Exact<{
   input: CheckoutCreateInput;
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12372,25 +12433,13 @@ export type ProductDetailFragmentFragment = (
       { __typename?: 'TaxedMoneyRange' }
       & { start?: Maybe<(
         { __typename?: 'TaxedMoney' }
-        & { gross: (
-          { __typename?: 'Money' }
-          & Pick<Money, 'amount' | 'currency'>
-        ), net: (
-          { __typename?: 'Money' }
-          & Pick<Money, 'amount' | 'currency'>
-        ) }
+        & TaxedMoneyFragmentFragment
       )> }
     )>, priceRangeUndiscounted?: Maybe<(
       { __typename?: 'TaxedMoneyRange' }
       & { start?: Maybe<(
         { __typename?: 'TaxedMoney' }
-        & { gross: (
-          { __typename?: 'Money' }
-          & Pick<Money, 'amount' | 'currency'>
-        ), net: (
-          { __typename?: 'Money' }
-          & Pick<Money, 'amount' | 'currency'>
-        ) }
+        & TaxedMoneyFragmentFragment
       )> }
     )> }
   )>, images?: Maybe<Array<Maybe<(
@@ -12432,24 +12481,6 @@ export type ProductDetailFragmentFragment = (
       { __typename?: 'LanguageDisplay' }
       & Pick<LanguageDisplay, 'code' | 'language'>
     ) }
-  )> }
-);
-
-export type ProductVariantDetailsFragment = (
-  { __typename?: 'ProductVariant' }
-  & Pick<ProductVariant, 'id' | 'sku' | 'name'>
-  & { pricing?: Maybe<(
-    { __typename?: 'VariantPricingInfo' }
-    & { price?: Maybe<(
-      { __typename?: 'TaxedMoney' }
-      & { net: (
-        { __typename?: 'Money' }
-        & Pick<Money, 'amount'>
-      ) }
-    )> }
-  )>, attributes: Array<(
-    { __typename?: 'SelectedAttribute' }
-    & AttributeValuesDetailFragmentFragment
   )> }
 );
 
@@ -12499,6 +12530,7 @@ export type GetProductListQueryVariables = Exact<{
   filter?: Maybe<ProductFilterInput>;
   sortBy?: Maybe<ProductOrder>;
   languageCode: LanguageCodeEnum;
+  channel?: Maybe<Scalars['String']>;
 }>;
 
 
@@ -12518,32 +12550,6 @@ export type GetProductListQuery = (
   )> }
 );
 
-export type GetTopRatedProductsQueryVariables = Exact<{
-  first?: Maybe<Scalars['Int']>;
-  last?: Maybe<Scalars['Int']>;
-  after?: Maybe<Scalars['String']>;
-  before?: Maybe<Scalars['String']>;
-  period: ReportingPeriod;
-  channel: Scalars['String'];
-}>;
-
-
-export type GetTopRatedProductsQuery = (
-  { __typename?: 'Query' }
-  & { reportProductSales?: Maybe<(
-    { __typename?: 'ProductVariantCountableConnection' }
-    & Pick<ProductVariantCountableConnection, 'totalCount'>
-    & { edges: Array<(
-      { __typename?: 'ProductVariantCountableEdge' }
-      & Pick<ProductVariantCountableEdge, 'cursor'>
-      & { node: (
-        { __typename?: 'ProductVariant' }
-        & ProductVariantDetailsFragment
-      ) }
-    )> }
-  )> }
-);
-
 export type ReviewPageInfoFragmentFragment = (
   { __typename?: 'ReviewCountableConnection' }
   & Pick<ReviewCountableConnection, 'totalCount'>
@@ -12553,8 +12559,20 @@ export type ReviewPageInfoFragmentFragment = (
   ) }
 );
 
+export type ReviewDetailsFragmentFragment = (
+  { __typename?: 'Review' }
+  & Pick<Review, 'id' | 'content' | 'rating' | 'created'>
+  & { user: (
+    { __typename?: 'User' }
+    & UserPrivateDetailsFragmentFragment
+  ), metadata: Array<Maybe<(
+    { __typename?: 'MetadataItem' }
+    & Pick<MetadataItem, 'key' | 'value'>
+  )>> }
+);
+
 export type CreateReviewMutationVariables = Exact<{
-  product: Scalars['ID'];
+  productId: Scalars['ID'];
   rating: Scalars['Int'];
   content: Scalars['String'];
 }>;
@@ -12566,7 +12584,7 @@ export type CreateReviewMutation = (
     { __typename?: 'ReviewCreateMutation' }
     & { review?: Maybe<(
       { __typename?: 'Review' }
-      & Pick<Review, 'id' | 'content' | 'rating' | 'created'>
+      & ReviewDetailsFragmentFragment
     )>, reviewsErrors: Array<(
       { __typename?: 'ReviewError' }
       & Pick<ReviewError, 'field' | 'message' | 'code'>
@@ -12575,7 +12593,7 @@ export type CreateReviewMutation = (
 );
 
 export type GetReviewsListQueryVariables = Exact<{
-  first: Scalars['Int'];
+  first?: Maybe<Scalars['Int']>;
   after?: Maybe<Scalars['String']>;
   before?: Maybe<Scalars['String']>;
   filter?: Maybe<ReviewFilterInput>;
@@ -12591,20 +12609,12 @@ export type GetReviewsListQuery = (
       { __typename?: 'ReviewCountableEdge' }
       & { node: (
         { __typename?: 'Review' }
-        & Pick<Review, 'id' | 'content' | 'rating' | 'created'>
-        & { user: (
-          { __typename?: 'User' }
-          & Pick<User, 'id' | 'firstName' | 'lastName' | 'isActive'>
-          & { avatar?: Maybe<(
-            { __typename?: 'Image' }
-            & Pick<Image, 'url' | 'alt'>
-          )> }
-        ), metadata: Array<Maybe<(
-          { __typename?: 'MetadataItem' }
-          & Pick<MetadataItem, 'key' | 'value'>
-        )>> }
+        & ReviewDetailsFragmentFragment
       ) }
-    )> }
+    )>, pageInfo: (
+      { __typename?: 'PageInfo' }
+      & PageInfoFragmentFragment
+    ) }
   )> }
 );
 
@@ -12897,6 +12907,7 @@ export const CategoryDetailFragmentFragmentDoc = gql`
   slug
   level
   description
+  descriptionJson
   seoTitle
   seoDescription
   translation(languageCode: $languageCode) {
@@ -12940,6 +12951,164 @@ export const TaxedMoneyFragmentFragmentDoc = gql`
   }
 }
     `;
+export const AttributeValuesFragmentFragmentDoc = gql`
+    fragment attributeValuesFragment on AttributeValue {
+  id
+  name
+  slug
+  translation(languageCode: $languageCode) {
+    name
+  }
+}
+    `;
+export const AttributeDetailsFragmentFragmentDoc = gql`
+    fragment attributeDetailsFragment on Attribute {
+  id
+  slug
+  name
+  values {
+    ...attributeValuesFragment
+  }
+  metadata {
+    key
+    value
+  }
+  translation(languageCode: $languageCode) {
+    name
+  }
+}
+    ${AttributeValuesFragmentFragmentDoc}`;
+export const AttributeValuesDetailFragmentFragmentDoc = gql`
+    fragment attributeValuesDetailFragment on SelectedAttribute {
+  attribute {
+    ...attributeDetailsFragment
+  }
+  values {
+    ...attributeValuesFragment
+  }
+}
+    ${AttributeDetailsFragmentFragmentDoc}
+${AttributeValuesFragmentFragmentDoc}`;
+export const ProductVariantDetailsFragmentDoc = gql`
+    fragment productVariantDetails on ProductVariant {
+  id
+  sku
+  name
+  pricing {
+    price {
+      ...taxedMoneyFragment
+    }
+  }
+  attributes {
+    ...attributeValuesDetailFragment
+  }
+}
+    ${TaxedMoneyFragmentFragmentDoc}
+${AttributeValuesDetailFragmentFragmentDoc}`;
+export const ProductDetailFragmentFragmentDoc = gql`
+    fragment productDetailFragment on Product {
+  id
+  name
+  slug
+  descriptionJson
+  seoTitle
+  seoDescription
+  pricing {
+    onSale
+    priceRange {
+      start {
+        ...taxedMoneyFragment
+      }
+    }
+    priceRangeUndiscounted {
+      start {
+        ...taxedMoneyFragment
+      }
+    }
+  }
+  images {
+    id
+    alt
+    url
+  }
+  isAvailable
+  isAvailableForPurchase
+  weight {
+    unit
+    value
+  }
+  attributes {
+    ...attributeValuesDetailFragment
+  }
+  variants {
+    ...productVariantDetails
+  }
+  defaultVariant {
+    sku
+    attributes {
+      ...attributeValuesDetailFragment
+    }
+  }
+  productType {
+    name
+    slug
+    variantAttributes {
+      name
+      slug
+    }
+    productAttributes {
+      name
+      slug
+    }
+  }
+  category {
+    ...categoryDetailFragment
+  }
+  translation(languageCode: $languageCode) {
+    seoTitle
+    seoDescription
+    name
+    description
+    descriptionJson
+    language {
+      code
+      language
+    }
+  }
+}
+    ${TaxedMoneyFragmentFragmentDoc}
+${AttributeValuesDetailFragmentFragmentDoc}
+${ProductVariantDetailsFragmentDoc}
+${CategoryDetailFragmentFragmentDoc}`;
+export const CollectionDetailsFragmentFragmentDoc = gql`
+    fragment collectionDetailsFragment on Collection {
+  name
+  description
+  descriptionJson
+  translation(languageCode: $languageCode) {
+    name
+  }
+  seoTitle
+  seoDescription
+  backgroundImage {
+    url
+    alt
+  }
+  products(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy) {
+    pageInfo {
+      ...pageInfoFragment
+    }
+    edges {
+      node {
+        ...productDetailFragment
+      }
+      cursor
+    }
+    totalCount
+  }
+}
+    ${PageInfoFragmentFragmentDoc}
+${ProductDetailFragmentFragmentDoc}`;
 export const AddressDetailsFragmentFragmentDoc = gql`
     fragment addressDetailsFragment on Address {
   id
@@ -12995,143 +13164,6 @@ export const ProductPageInfoFragmentFragmentDoc = gql`
   totalCount
 }
     ${PageInfoFragmentFragmentDoc}`;
-export const AttributeValuesFragmentFragmentDoc = gql`
-    fragment attributeValuesFragment on AttributeValue {
-  id
-  name
-  slug
-}
-    `;
-export const AttributeDetailsFragmentFragmentDoc = gql`
-    fragment attributeDetailsFragment on Attribute {
-  id
-  slug
-  name
-  values {
-    ...attributeValuesFragment
-  }
-  metadata {
-    key
-    value
-  }
-}
-    ${AttributeValuesFragmentFragmentDoc}`;
-export const AttributeValuesDetailFragmentFragmentDoc = gql`
-    fragment attributeValuesDetailFragment on SelectedAttribute {
-  attribute {
-    ...attributeDetailsFragment
-  }
-  values {
-    ...attributeValuesFragment
-  }
-}
-    ${AttributeDetailsFragmentFragmentDoc}
-${AttributeValuesFragmentFragmentDoc}`;
-export const ProductVariantDetailsFragmentDoc = gql`
-    fragment productVariantDetails on ProductVariant {
-  id
-  sku
-  name
-  pricing {
-    price {
-      net {
-        amount
-      }
-    }
-  }
-  attributes {
-    ...attributeValuesDetailFragment
-  }
-}
-    ${AttributeValuesDetailFragmentFragmentDoc}`;
-export const ProductDetailFragmentFragmentDoc = gql`
-    fragment productDetailFragment on Product {
-  id
-  name
-  slug
-  descriptionJson
-  seoTitle
-  seoDescription
-  pricing {
-    onSale
-    priceRange {
-      start {
-        gross {
-          amount
-          currency
-        }
-        net {
-          amount
-          currency
-        }
-      }
-    }
-    priceRangeUndiscounted {
-      start {
-        gross {
-          amount
-          currency
-        }
-        net {
-          amount
-          currency
-        }
-      }
-    }
-  }
-  images {
-    id
-    alt
-    url
-  }
-  isAvailable
-  isAvailableForPurchase
-  weight {
-    unit
-    value
-  }
-  attributes {
-    ...attributeValuesDetailFragment
-  }
-  variants {
-    ...productVariantDetails
-  }
-  defaultVariant {
-    sku
-    attributes {
-      ...attributeValuesDetailFragment
-    }
-  }
-  productType {
-    name
-    slug
-    variantAttributes {
-      name
-      slug
-    }
-    productAttributes {
-      name
-      slug
-    }
-  }
-  category {
-    ...categoryDetailFragment
-  }
-  translation(languageCode: $languageCode) {
-    seoTitle
-    seoDescription
-    name
-    description
-    descriptionJson
-    language {
-      code
-      language
-    }
-  }
-}
-    ${AttributeValuesDetailFragmentFragmentDoc}
-${ProductVariantDetailsFragmentDoc}
-${CategoryDetailFragmentFragmentDoc}`;
 export const ReviewPageInfoFragmentFragmentDoc = gql`
     fragment reviewPageInfoFragment on ReviewCountableConnection {
   pageInfo {
@@ -13160,6 +13192,21 @@ export const UserPrivateDetailsFragmentFragmentDoc = gql`
   }
 }
     `;
+export const ReviewDetailsFragmentFragmentDoc = gql`
+    fragment reviewDetailsFragment on Review {
+  id
+  content
+  rating
+  created
+  user {
+    ...userPrivateDetailsFragment
+  }
+  metadata {
+    key
+    value
+  }
+}
+    ${UserPrivateDetailsFragmentFragmentDoc}`;
 export const DeleteAddressDocument = gql`
     mutation deleteAddress($id: ID!) {
   addressDelete(id: $id) {
@@ -13341,43 +13388,13 @@ export function useGetAddressListLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type GetAddressListQueryHookResult = ReturnType<typeof useGetAddressListQuery>;
 export type GetAddressListLazyQueryHookResult = ReturnType<typeof useGetAddressListLazyQuery>;
 export type GetAddressListQueryResult = Apollo.QueryResult<GetAddressListQuery, GetAddressListQueryVariables>;
-export const GetAttributeByIdDocument = gql`
-    query getAttributeById($id: ID!) {
-  attribute(id: $id) {
-    ...attributeDetailsFragment
-  }
-}
-    ${AttributeDetailsFragmentFragmentDoc}`;
-
-/**
- * __useGetAttributeByIdQuery__
- *
- * To run a query within a React component, call `useGetAttributeByIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAttributeByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAttributeByIdQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetAttributeByIdQuery(baseOptions?: Apollo.QueryHookOptions<GetAttributeByIdQuery, GetAttributeByIdQueryVariables>) {
-        return Apollo.useQuery<GetAttributeByIdQuery, GetAttributeByIdQueryVariables>(GetAttributeByIdDocument, baseOptions);
-      }
-export function useGetAttributeByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAttributeByIdQuery, GetAttributeByIdQueryVariables>) {
-          return Apollo.useLazyQuery<GetAttributeByIdQuery, GetAttributeByIdQueryVariables>(GetAttributeByIdDocument, baseOptions);
-        }
-export type GetAttributeByIdQueryHookResult = ReturnType<typeof useGetAttributeByIdQuery>;
-export type GetAttributeByIdLazyQueryHookResult = ReturnType<typeof useGetAttributeByIdLazyQuery>;
-export type GetAttributeByIdQueryResult = Apollo.QueryResult<GetAttributeByIdQuery, GetAttributeByIdQueryVariables>;
 export const GetAttributeBySlugDocument = gql`
-    query getAttributeBySlug($slug: String!) {
+    query getAttributeBySlug($slug: String!, $languageCode: LanguageCodeEnum!) {
   attribute(slug: $slug) {
     ...attributeDetailsFragment
+    translation(languageCode: $languageCode) {
+      name
+    }
   }
 }
     ${AttributeDetailsFragmentFragmentDoc}`;
@@ -13395,6 +13412,7 @@ export const GetAttributeBySlugDocument = gql`
  * const { data, loading, error } = useGetAttributeBySlugQuery({
  *   variables: {
  *      slug: // value for 'slug'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
@@ -13528,8 +13546,48 @@ export function useGetCategoryListLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
 export type GetCategoryListQueryHookResult = ReturnType<typeof useGetCategoryListQuery>;
 export type GetCategoryListLazyQueryHookResult = ReturnType<typeof useGetCategoryListLazyQuery>;
 export type GetCategoryListQueryResult = Apollo.QueryResult<GetCategoryListQuery, GetCategoryListQueryVariables>;
+export const GetCollectionBySlugDocument = gql`
+    query getCollectionBySlug($slug: String!, $languageCode: LanguageCodeEnum!, $first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder) {
+  collection(slug: $slug) {
+    ...collectionDetailsFragment
+  }
+}
+    ${CollectionDetailsFragmentFragmentDoc}`;
+
+/**
+ * __useGetCollectionBySlugQuery__
+ *
+ * To run a query within a React component, call `useGetCollectionBySlugQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCollectionBySlugQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCollectionBySlugQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *      languageCode: // value for 'languageCode'
+ *      first: // value for 'first'
+ *      last: // value for 'last'
+ *      after: // value for 'after'
+ *      before: // value for 'before'
+ *      filter: // value for 'filter'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetCollectionBySlugQuery(baseOptions?: Apollo.QueryHookOptions<GetCollectionBySlugQuery, GetCollectionBySlugQueryVariables>) {
+        return Apollo.useQuery<GetCollectionBySlugQuery, GetCollectionBySlugQueryVariables>(GetCollectionBySlugDocument, baseOptions);
+      }
+export function useGetCollectionBySlugLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCollectionBySlugQuery, GetCollectionBySlugQueryVariables>) {
+          return Apollo.useLazyQuery<GetCollectionBySlugQuery, GetCollectionBySlugQueryVariables>(GetCollectionBySlugDocument, baseOptions);
+        }
+export type GetCollectionBySlugQueryHookResult = ReturnType<typeof useGetCollectionBySlugQuery>;
+export type GetCollectionBySlugLazyQueryHookResult = ReturnType<typeof useGetCollectionBySlugLazyQuery>;
+export type GetCollectionBySlugQueryResult = Apollo.QueryResult<GetCollectionBySlugQuery, GetCollectionBySlugQueryVariables>;
 export const GetCountriesDocument = gql`
-    query getCountries($languageCode: LanguageCodeEnum) {
+    query getCountries($languageCode: LanguageCodeEnum!) {
   shop {
     countries(languageCode: $languageCode) {
       country
@@ -13679,7 +13737,7 @@ export type GetOrderListQueryHookResult = ReturnType<typeof useGetOrderListQuery
 export type GetOrderListLazyQueryHookResult = ReturnType<typeof useGetOrderListLazyQuery>;
 export type GetOrderListQueryResult = Apollo.QueryResult<GetOrderListQuery, GetOrderListQueryVariables>;
 export const CreateCheckoutDocument = gql`
-    mutation createCheckout($input: CheckoutCreateInput!) {
+    mutation createCheckout($input: CheckoutCreateInput!, $languageCode: LanguageCodeEnum!) {
   checkoutCreate(input: $input) {
     created
     checkoutErrors {
@@ -13735,6 +13793,7 @@ export type CreateCheckoutMutationFn = Apollo.MutationFunction<CreateCheckoutMut
  * const [createCheckoutMutation, { data, loading, error }] = useCreateCheckoutMutation({
  *   variables: {
  *      input: // value for 'input'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
@@ -13823,8 +13882,8 @@ export type GetProductBySlugQueryHookResult = ReturnType<typeof useGetProductByS
 export type GetProductBySlugLazyQueryHookResult = ReturnType<typeof useGetProductBySlugLazyQuery>;
 export type GetProductBySlugQueryResult = Apollo.QueryResult<GetProductBySlugQuery, GetProductBySlugQueryVariables>;
 export const GetProductListDocument = gql`
-    query getProductList($first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder, $languageCode: LanguageCodeEnum!) {
-  products(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy) {
+    query getProductList($first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder, $languageCode: LanguageCodeEnum!, $channel: String) {
+  products(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy, channel: $channel) {
     edges {
       node {
         ...productDetailFragment
@@ -13856,6 +13915,7 @@ ${ProductPageInfoFragmentFragmentDoc}`;
  *      filter: // value for 'filter'
  *      sortBy: // value for 'sortBy'
  *      languageCode: // value for 'languageCode'
+ *      channel: // value for 'channel'
  *   },
  * });
  */
@@ -13868,58 +13928,11 @@ export function useGetProductListLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type GetProductListQueryHookResult = ReturnType<typeof useGetProductListQuery>;
 export type GetProductListLazyQueryHookResult = ReturnType<typeof useGetProductListLazyQuery>;
 export type GetProductListQueryResult = Apollo.QueryResult<GetProductListQuery, GetProductListQueryVariables>;
-export const GetTopRatedProductsDocument = gql`
-    query getTopRatedProducts($first: Int, $last: Int, $after: String, $before: String, $period: ReportingPeriod!, $channel: String!) {
-  reportProductSales(first: $first, last: $last, after: $after, before: $before, period: $period, channel: $channel) {
-    totalCount
-    edges {
-      node {
-        ...productVariantDetails
-      }
-      cursor
-    }
-  }
-}
-    ${ProductVariantDetailsFragmentDoc}`;
-
-/**
- * __useGetTopRatedProductsQuery__
- *
- * To run a query within a React component, call `useGetTopRatedProductsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetTopRatedProductsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetTopRatedProductsQuery({
- *   variables: {
- *      first: // value for 'first'
- *      last: // value for 'last'
- *      after: // value for 'after'
- *      before: // value for 'before'
- *      period: // value for 'period'
- *      channel: // value for 'channel'
- *   },
- * });
- */
-export function useGetTopRatedProductsQuery(baseOptions?: Apollo.QueryHookOptions<GetTopRatedProductsQuery, GetTopRatedProductsQueryVariables>) {
-        return Apollo.useQuery<GetTopRatedProductsQuery, GetTopRatedProductsQueryVariables>(GetTopRatedProductsDocument, baseOptions);
-      }
-export function useGetTopRatedProductsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTopRatedProductsQuery, GetTopRatedProductsQueryVariables>) {
-          return Apollo.useLazyQuery<GetTopRatedProductsQuery, GetTopRatedProductsQueryVariables>(GetTopRatedProductsDocument, baseOptions);
-        }
-export type GetTopRatedProductsQueryHookResult = ReturnType<typeof useGetTopRatedProductsQuery>;
-export type GetTopRatedProductsLazyQueryHookResult = ReturnType<typeof useGetTopRatedProductsLazyQuery>;
-export type GetTopRatedProductsQueryResult = Apollo.QueryResult<GetTopRatedProductsQuery, GetTopRatedProductsQueryVariables>;
 export const CreateReviewDocument = gql`
-    mutation createReview($product: ID!, $rating: Int!, $content: String!) {
-  reviewCreate(input: {product: $product, rating: $rating, content: $content}) {
+    mutation createReview($productId: ID!, $rating: Int!, $content: String!) {
+  reviewCreate(input: {product: $productId, rating: $rating, content: $content}) {
     review {
-      id
-      content
-      rating
-      created
+      ...reviewDetailsFragment
     }
     reviewsErrors {
       field
@@ -13928,7 +13941,7 @@ export const CreateReviewDocument = gql`
     }
   }
 }
-    `;
+    ${ReviewDetailsFragmentFragmentDoc}`;
 export type CreateReviewMutationFn = Apollo.MutationFunction<CreateReviewMutation, CreateReviewMutationVariables>;
 
 /**
@@ -13944,7 +13957,7 @@ export type CreateReviewMutationFn = Apollo.MutationFunction<CreateReviewMutatio
  * @example
  * const [createReviewMutation, { data, loading, error }] = useCreateReviewMutation({
  *   variables: {
- *      product: // value for 'product'
+ *      productId: // value for 'productId'
  *      rating: // value for 'rating'
  *      content: // value for 'content'
  *   },
@@ -13957,33 +13970,20 @@ export type CreateReviewMutationHookResult = ReturnType<typeof useCreateReviewMu
 export type CreateReviewMutationResult = Apollo.MutationResult<CreateReviewMutation>;
 export type CreateReviewMutationOptions = Apollo.BaseMutationOptions<CreateReviewMutation, CreateReviewMutationVariables>;
 export const GetReviewsListDocument = gql`
-    query getReviewsList($first: Int!, $after: String, $before: String, $filter: ReviewFilterInput, $sortBy: ReviewSortingInput) {
+    query getReviewsList($first: Int, $after: String, $before: String, $filter: ReviewFilterInput, $sortBy: ReviewSortingInput) {
   reviews(first: $first, after: $after, before: $before, filter: $filter, sortBy: $sortBy) {
     edges {
       node {
-        id
-        content
-        rating
-        created
-        user {
-          id
-          firstName
-          lastName
-          isActive
-          avatar {
-            url
-            alt
-          }
-        }
-        metadata {
-          key
-          value
-        }
+        ...reviewDetailsFragment
       }
+    }
+    pageInfo {
+      ...pageInfoFragment
     }
   }
 }
-    `;
+    ${ReviewDetailsFragmentFragmentDoc}
+${PageInfoFragmentFragmentDoc}`;
 
 /**
  * __useGetReviewsListQuery__

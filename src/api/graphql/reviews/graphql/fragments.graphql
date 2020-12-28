@@ -4,3 +4,18 @@ fragment reviewPageInfoFragment on ReviewCountableConnection {
     }
     totalCount
 }
+
+
+fragment reviewDetailsFragment on Review {
+    id
+    content
+    rating
+    created
+    user {
+        ...userPrivateDetailsFragment
+    }
+    metadata {
+        key
+        value
+    }
+}

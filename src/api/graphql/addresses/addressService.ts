@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import {ApolloQueryResult, DocumentNode} from '@apollo/client';
-import {handleAccountErrors, mutateById, queryById} from '~/api/graphql/misc/helpers';
+import {clone, handleAccountErrors, mutateById, queryById} from '~/api/graphql/misc/helpers';
 import {
     AddAddressDocument,
     DeleteAddressDocument,
@@ -22,7 +22,7 @@ const handleSingleAddressResponse = (res: ApolloQueryResult<any>) => handleSingl
 
 /** special case because the addresses query is actually returning user -> addresses*/
 const handleRelayedAddressResponse = (res: ApolloQueryResult<any>) => {
-    const newRes = _.cloneDeep(res)
+    const newRes = clone(res)
     newRes.data.addresses = res.data.user.addresses
 
     return handleRelayedResponse({

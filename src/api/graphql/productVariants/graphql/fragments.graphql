@@ -1,0 +1,14 @@
+
+fragment productVariantDetails on ProductVariant {
+    id
+    sku
+    name
+    pricing {
+        price {
+            ...taxedMoneyFragment
+        }
+    }
+    attributes {
+        ...attributeValuesDetailFragment
+    }
+}

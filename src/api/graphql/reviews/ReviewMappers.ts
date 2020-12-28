@@ -1,25 +1,27 @@
 import {IReview} from "~/interfaces/review";
 import {Review} from "~/api/graphql/types";
 import {Mapper} from "~/api/graphql/interfaces";
+import {userMap} from "~/api/graphql/users/userMappers";
 
 const reviewDefaults = {
     namePlaceholder: 'Private',
     avatarPlaceholder: 'http://placehold.it/50'
 }
 
-const _reviewMapIn = (obj: Review): IReview => {
-    const name = [obj.user.firstName, obj.user.lastName].join(' ')
+const reviewMapIn = (review: Review): IReview => {
     return ({
-        author: name.trim() && name || reviewDefaults.namePlaceholder,
-        avatar: obj.user.avatar || {url: reviewDefaults.avatarPlaceholder},
-        content: obj.content,
-        date: obj.created,
-        id: obj.id,
-        rating: obj.rating
+        author: userMap.in(review.user),
+        avatar: review.user.avatar || {
+            url: reviewDefaults.avatarPlaceholder
+        },
+        content: review.content,
+        date: review.created,
+        id: review.id,
+        rating: review.rating
     });
 }
 
 export const reviewMap = {
-    in: _reviewMapIn
+    in: reviewMapIn
 }
 

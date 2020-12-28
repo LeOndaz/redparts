@@ -9,12 +9,18 @@ fragment attributeDetailsFragment on Attribute {
         key
         value
     }
+    translation(languageCode: $languageCode){
+        name
+    }
 }
 
 fragment attributeValuesFragment on AttributeValue {
     id
     name
     slug
+    translation (languageCode: $languageCode){
+        name
+    }
 }
 
 fragment attributeValuesDetailFragment on SelectedAttribute {

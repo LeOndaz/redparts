@@ -7,6 +7,8 @@ import {
 } from "~/interfaces/product";
 import _ from "lodash"
 import {ApolloQueryResult} from "@apollo/client";
+import {cursorNavigationMap} from "~/api/graphql/misc/mappers/navigation";
+import {ICursorBasedNavigation} from "~/interfaces/list";
 
 export let getProductAttrs = (product: Product) => {
     const attrs: IProductAttribute[] = [];
@@ -109,7 +111,7 @@ export const handleSingleResponse = (config: handlerArgs) => {
 
 export interface RelayedResponse<T> {
     dataList: T[],
-    pageInfo: PageInfo;
+    getNavigation: (first: number) => ICursorBasedNavigation;
     totalCount: number;
     errors: any[];
 }
@@ -125,13 +127,16 @@ export const handleRelayedResponse = (config: handlerArgs): RelayedResponse<any>
         dataList = res.data[dataField].map(inMapper)
     }
 
-    const pageInfo = res.data[dataField].pageInfo
     const totalCount = res.data.totalCount;
+
+    let pageInfo = res.data[dataField].pageInfo
+    let getNavigation = (first: number) => cursorNavigationMap.in(pageInfo, first, totalCount)
+
     const errors = _.defaultTo(res.data[errorsField!], []);
 
     return {
         dataList,
-        pageInfo,
+        getNavigation,
         totalCount,
         errors,
     }

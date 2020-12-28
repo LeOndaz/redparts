@@ -71,7 +71,7 @@ function ProductTabs(props: Props) {
         {
             id: 'product-tab-analogs',
             title: intl.formatMessage({ id: 'TEXT_TAB_ANALOGS' }),
-            content: (<AnalogsTable productId={product.id} />),
+            content: (<AnalogsTable product={product} />),
         },
     ], [layout, product, spec, intl]);
     const [activeTab, setActiveTab] = useState(tabs[0]?.id);

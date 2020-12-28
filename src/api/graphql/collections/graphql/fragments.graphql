@@ -1,0 +1,27 @@
+fragment collectionDetailsFragment on Collection {
+  name
+  description
+  descriptionJson
+  translation (languageCode: $languageCode){
+    name
+  }
+  seoTitle
+  seoDescription
+  backgroundImage {
+    url
+    alt
+  }
+  products (first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy){
+    pageInfo {
+      ...pageInfoFragment
+    }
+    edges {
+      node {
+        ...productDetailFragment
+      }
+      cursor
+    }
+    totalCount
+  }
+
+}

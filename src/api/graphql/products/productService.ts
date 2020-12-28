@@ -5,9 +5,8 @@ import {
     GetProductByIdDocument,
     GetProductBySlugDocument,
     GetProductListDocument,
-    LanguageCodeEnum,
 } from '~/api/graphql/types';
-import {queryById, queryList} from '~/api/graphql/misc/helpers';
+import {queryList} from '~/api/graphql/misc/helpers';
 import {filterDefaultChannel, filterPublished, filterStack} from '~/api/graphql/misc/FilterService';
 import {IBaseModelProps} from '~/api/graphql/interfaces';
 import {handleRelayedResponse, handleSingleResponse} from '~/api/graphql/misc/mappers/utils';
@@ -15,13 +14,13 @@ import {productMap} from '~/api/graphql/products/productMappers';
 import {ILanguage} from "~/interfaces/language";
 import {client} from "~/api";
 
-const handleProductSingleResponse = (res: ApolloQueryResult<any>) => handleSingleResponse({
+export const handleProductSingleResponse = (res: ApolloQueryResult<any>) => handleSingleResponse({
     res,
     dataField: 'product',
     inMapper: productMap.in,
 });
 
-const handleProductRelayedResponse = (res: ApolloQueryResult<any>) => handleRelayedResponse({
+export const handleProductRelayedResponse = (res: ApolloQueryResult<any>) => handleRelayedResponse({
     res,
     dataField: 'products',
     inMapper: productMap.in,
@@ -43,15 +42,17 @@ export const getProductBySlug = (slug: string, language: ILanguage) => client.qu
     }
 }).then(handleProductSingleResponse);
 
-export const getProductList = (variables: IBaseModelProps, language: ILanguage) => queryList(
-    filterStack([
-        filterPublished,
-        filterDefaultChannel,
-    ], {
-        ...variables,
-        languageCode: language.code,
-    }), GetProductListDocument,
-).then(handleProductRelayedResponse);
+export const getProductList = (variables: IBaseModelProps, language: ILanguage) => client.query({
+    query: GetProductListDocument,
+    variables: filterPublished(
+        filterDefaultChannel(
+            {
+                ...variables,
+                languageCode: language.code,
+            }
+        )
+    )
+}).then(handleProductRelayedResponse);
 
 /** exports */
 // export const getProductList = (variables: IBaseModelProps) => wrapService(_getProductList, handleProductRelayedResponse)(variables);

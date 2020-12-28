@@ -218,12 +218,6 @@ function ShopPageProduct(props: Props) {
                             </tr>}
                         </React.Fragment>
                     )}
-                    {/*<tr>*/}
-                    {/*    <th>*/}
-                    {/*        <FormattedMessage id="TABLE_PART_NUMBER" />*/}
-                    {/*    </th>*/}
-                    {/*    <td>{product.partNumber}</td>*/}
-                    {/*</tr>*/}
                     </tbody>
                 </table>
             </div>

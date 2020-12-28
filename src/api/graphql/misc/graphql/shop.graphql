@@ -1,4 +1,4 @@
-query getCountries ($languageCode: LanguageCodeEnum){
+query getCountries ($languageCode: LanguageCodeEnum!){
     shop {
         countries(languageCode: $languageCode){
             country

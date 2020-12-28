@@ -16,8 +16,8 @@ query getProductBySlug($slug: String!, $languageCode: LanguageCodeEnum!, $channe
     }
 }
 
-query getProductList($first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder, $languageCode: LanguageCodeEnum!){
-    products(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy){
+query getProductList($first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder, $languageCode: LanguageCodeEnum!, $channel: String) {
+    products(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy, channel: $channel){
         edges {
             node {
                 ...productDetailFragment
@@ -28,14 +28,14 @@ query getProductList($first: Int, $last: Int, $after: String, $before: String, $
     }
 }
 
-query getTopRatedProducts($first: Int, $last: Int, $after: String, $before: String, $period: ReportingPeriod!, $channel: String!){
-    reportProductSales(first: $first, last: $last, after: $after, before: $before, period: $period, channel: $channel) {
-        totalCount
-        edges{
-            node{
-                ...productVariantDetails
-            }
-            cursor
-        }
-    }
-}
+#query getTopRatedProducts($first: Int, $last: Int, $after: String, $before: String, $period: ReportingPeriod!, $channel: String!){
+#    reportProductSales(first: $first, last: $last, after: $after, before: $before, period: $period, channel: $channel) {
+#        totalCount
+#        edges{
+#            node{
+#                ...productVariantDetails
+#            }
+#            cursor
+#        }
+#    }
+#}

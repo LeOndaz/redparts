@@ -37,7 +37,6 @@ import {
 } from "~/api/graphql/addresses/addressService";
 import {ILanguage} from "~/interfaces/language";
 import {changePassword, signIn, signOut, signUp} from "~/api/graphql/users/authService";
-import {throwAuthError} from "~/api/graphql/misc/helpers";
 
 export class FakeAccountApi extends AccountApi {
     signIn(email: string, password: string): Promise<IUser> {
@@ -64,11 +63,11 @@ export class FakeAccountApi extends AccountApi {
         // return users.addAddress(user, {
         //     defaultShippingAddress:
         // })
-        return addAddress(user.id, data).then()
+        return addAddress(user.id, data)
     }
 
     editAddress(addressId: string, data: IEditAddressData, language: ILanguage): Promise<IAddress> {
-        return updateAddress(addressId, data).then();
+        return updateAddress(addressId, data);
     }
 
     delAddress(addressId: string): Promise<void> {

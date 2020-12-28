@@ -1,17 +1,11 @@
 import {
-    Category,
-    CategoryCountableEdge,
-    GetCategoryByIdDocument,
     GetCategoryBySlugDocument,
-    GetCategoryListDocument, GetProductsByCategoryIdDocument, LanguageCodeEnum, ProductCountableConnection
+    GetCategoryListDocument,
 } from "~/api/graphql/types";
 import {client} from "~/api";
-import {queryById, queryBySlug, queryList} from "~/api/graphql/misc/helpers";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 import {handleRelayedResponse, handleSingleResponse} from "~/api/graphql/misc/mappers/utils";
 import {ApolloQueryResult} from "@apollo/client";
-import {CategoryType, IShopCategoryLayout} from "~/interfaces/category";
-import _ from "lodash";
 import {ILanguage} from "~/interfaces/language";
 import {blogCategoryMap, shopCategoryMap} from "~/api/graphql/categories/categoryMappers";
 

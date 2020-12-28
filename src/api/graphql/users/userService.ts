@@ -16,7 +16,6 @@ export const editProfile = (data: IEditProfileData) => {
     const {phone, ...rest} = data;
 
     return getCurrentAuthUser().then(user => {
-        console.log('curr ', user)
         return withAuth(client.mutate)({
             mutation: UpdateCustomerDocument,
             variables: {

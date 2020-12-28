@@ -16,7 +16,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     const language = getLanguageServerSide(ctx);
     return {
         props: {
-            subcategories: await shopApi.getCategories({depth: 1}, {language}),
+            subcategories: await shopApi.getCategories({depth: 1}, language),
         },
     }
 };

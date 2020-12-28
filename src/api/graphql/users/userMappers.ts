@@ -3,8 +3,8 @@ import {IUser} from "~/interfaces/user";
 import {IImage} from "~/interfaces/product";
 import {getMetadataItem} from "~/api/graphql/misc/helpers";
 
-const userMapIn = (user: User): IUser => {
-    return {
+const userMapIn = (user: User): IUser | null => {
+    return user ? {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -14,7 +14,7 @@ const userMapIn = (user: User): IUser => {
         dateJoined: user.dateJoined,
         lastLogin: user.lastLogin,
         isActive: user.isActive,
-    }
+    } : null
 }
 
 export const userMap = {

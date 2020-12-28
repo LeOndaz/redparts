@@ -4,10 +4,9 @@ import {FakeBlogApi} from './fake-api/fake-blog.api';
 import {FakeCountriesApi} from './fake-api/fake-countries.api';
 import {FakeShopApi} from './fake-api/fake-shop.api';
 import {FakeVehicleApi} from './fake-api/fake-vehicle.api';
-import {BatchHttpLink} from "@apollo/client/link/batch-http";
 
 // this will be federated
-import {API_URL, REVIEWS_PLUGIN_API_URL} from '~/api/graphql/consts';
+import {API_URL} from '~/api/graphql/consts';
 
 // shared cache for the whole project
 export const cache = new InMemoryCache();
@@ -17,17 +16,19 @@ export const client = new ApolloClient<NormalizedCacheObject>({
     // link: new BatchHttpLink({
     //     uri: API_URL,
     // }),
-    link: new HttpLink({uri: API_URL}),
+    link: new HttpLink({
+        uri: API_URL
+    }),
     cache,
 });
 
 
-export const reviewsClient = new ApolloClient<NormalizedCacheObject>({
-    link: new BatchHttpLink({
-        uri: REVIEWS_PLUGIN_API_URL,
-    }),
-    cache,
-})
+// export const reviewsClient = new ApolloClient<NormalizedCacheObject>({
+//     link: new BatchHttpLink({
+//         uri: REVIEWS_PLUGIN_API_URL,
+//     }),
+//     cache,
+// })
 
 
 export * from "~/api/graphql/products/productService"

@@ -1,10 +1,7 @@
-mutation createReview($product: ID!, $rating: Int!, $content: String!) {
-  reviewCreate(input: {product: $product, rating: $rating, content: $content}){
+mutation createReview($productId: ID!, $rating: Int!, $content: String!) {
+  reviewCreate(input: {product: $productId, rating: $rating, content: $content}){
     review {
-      id
-      content
-      rating
-      created
+        ...reviewDetailsFragment
     }
     reviewsErrors {
       field

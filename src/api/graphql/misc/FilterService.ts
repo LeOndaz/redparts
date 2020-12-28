@@ -1,4 +1,4 @@
-import {BADGES, DEFAULT_ATTR_SLUGS, DEFAULT_CHANNEL} from "~/api/graphql/consts";
+import {Badges, DEFAULT_CHANNEL, DefaultAttrSlugs} from "~/api/graphql/consts";
 import {ICustomFields} from "~/interfaces/custom-fields";
 import * as util from "util";
 import {AttributeValue} from "~/api/graphql/types";
@@ -50,6 +50,6 @@ const filterAttribute = (filterable: filterable, slug: string, value?: string, v
     })
 }
 
-export const filterHot = (filterable: filterable) => filterAttribute(filterable, DEFAULT_ATTR_SLUGS.BADGES, BADGES.HOT)
-export const filterSale = (filterable: filterable) => filterAttribute(filterable, DEFAULT_ATTR_SLUGS.BADGES, BADGES.SALE)
-export const filterNew = (filterable: filterable) => filterAttribute(filterable, DEFAULT_ATTR_SLUGS.BADGES, BADGES.NEW)
+export const filterHot = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.Hot)
+export const filterSale = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.Sale)
+export const filterNew = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.New)

@@ -5,14 +5,16 @@ import {userSetCurrent} from "~/store/user/userAction";
 import {renewToken, verifyToken} from "~/api/graphql/users/authService";
 import {loadLocal, saveLocal} from "~/api/graphql/misc/helpers";
 import {getCurrentAuthUser} from "~/api/graphql/users/userService";
+import {AuthError} from "~/api/errors";
+import {useAppRouter} from "~/services/router";
 
 function AuthFlow() {
     const user = useUser()
     const store = useStore()
+    const router = useAppRouter();
 
     function validateTokens() {
         const localTokens = loadLocal('tokens')
-
         if (!localTokens || localTokens.token === null) {
             return Promise.resolve(null)
         }
@@ -34,12 +36,19 @@ function AuthFlow() {
     // validate user, if not, make it valid
     useEffect(() => {
         if (typeof window !== "undefined") {
-            try {
-                getCurrentAuthUser().then(user => {
-                    store.dispatch(userSetCurrent(user))
-                })
-            } catch {
-                console.log('Anonymous session.')
+            const localTokens = loadLocal('tokens')
+            if (localTokens && localTokens.token) {
+                try {
+                    getCurrentAuthUser().then(user => {
+                        store.dispatch(userSetCurrent(user))
+                    })
+                } catch {
+                    try {
+                        validateTokens()
+                    } catch {
+                        console.log('Welcome aboard, anonymous dude.')
+                    }
+                }
             }
         }
     }, [])
@@ -48,7 +57,11 @@ function AuthFlow() {
     useEffect(() => {
         if (typeof window !== "undefined") {
             setInterval(async () => {
-                await validateTokens().catch(err => console.log(err))
+                try {
+                    await validateTokens()
+                } catch {
+                    router.reload()
+                }
             }, 60 * 5 * 1000)
         }
     }, [user])

@@ -1,24 +1,15 @@
 import {
-    GetAttributeByIdDocument,
     GetAttributeBySlugDocument,
-    SelectedAttribute
 } from "~/api/graphql/types";
-import _ from "lodash";
-import {queryBySlug} from "~/api/graphql/misc/helpers";
+import {client} from "~/api";
+import {ILanguage} from "~/interfaces/language";
 
 
-export const attrUtils = {
-    getSelectedAttr(slug: string, selectedAttrs: SelectedAttribute[]) {
-        return _.find(selectedAttrs, (selectedAttr) => selectedAttr.attribute.slug === slug)
+export const getAttributeBySlug = (slug: string, language: ILanguage) => client.query({
+    query: GetAttributeBySlugDocument,
+    variables: {
+        slug,
+        languageCode: language.code
     },
-
-    getAttributeValues(slug: string, selectedAttrs: SelectedAttribute[]) {
-        /** return attr values */
-        return this.getSelectedAttr(slug, selectedAttrs)?.values || []
-    }
-
-}
-
-export const getAttributeBySlug = (slug: string) => queryBySlug(slug, GetAttributeBySlugDocument)
-// export const getAttributeById = (id: string) => queryById(id, GetAttributeByIdDocument)
+})
 

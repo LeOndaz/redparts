@@ -1,11 +1,9 @@
-import {ApolloClient, DocumentNode} from '@apollo/client';
-import {DEFAULT_CHANNEL} from "~/api/graphql/consts";
+import {DocumentNode} from '@apollo/client';
 import {client} from "~/api";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 import {ICustomFields} from "~/interfaces/custom-fields";
-import {string} from "prop-types";
 import {AuthError} from "~/api/errors";
-import {AccountError, AttributeValue, MetadataItem, SelectedAttribute} from "~/api/graphql/types";
+import {Attribute, Category, MetadataItem, Product, SelectedAttribute} from "~/api/graphql/types";
 import _ from "lodash";
 
 interface IAttr {
@@ -91,7 +89,7 @@ export interface userIdArg {
 
 
 export const getMetadataItem = (metadata: MetadataItem[], key: string, defaultTo: any = '') => {
-    const item = metadata.find(item => item.key === key)
+    const item = metadata.find(item => item.key.toLowerCase() === key.toLowerCase())
     return item ? item.value : defaultTo
 }
 
@@ -142,4 +140,14 @@ export const saveLocal = (key: string, value: any) => {
     return localStorage.setItem(key, JSON.stringify(value))
 }
 
+export const clone = (obj: any) => JSON.parse(JSON.stringify(obj))
 
+export const mapTranslatable = (obj: Product | Attribute | Category, attrs: string[]) => {
+    if (obj.translation) {
+        // @ts-ignore
+        return attrs.map(attrName => obj.translation[attrName])
+    } else {
+        // @ts-ignore
+        return attrs.map(attrName => obj[attrName])
+    }
+}

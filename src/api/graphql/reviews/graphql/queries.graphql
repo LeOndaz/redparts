@@ -1,26 +1,12 @@
-query getReviewsList($first: Int!, $after: String, $before: String, $filter: ReviewFilterInput, $sortBy: ReviewSortingInput){
-  reviews(first: $first, after: $after, before: $before, filter: $filter, sortBy: $sortBy){
-    edges {
-      node {
-        id
-        content
-        rating
-        created
-        user {
-          id
-          firstName
-          lastName
-          isActive
-          avatar {
-            url
-            alt
-          }
+query getReviewsList($first: Int, $after: String, $before: String, $filter: ReviewFilterInput, $sortBy: ReviewSortingInput){
+    reviews(first: $first, after: $after, before: $before, filter: $filter, sortBy: $sortBy){
+        edges {
+            node {
+                ...reviewDetailsFragment
+            }
         }
-        metadata {
-          key
-          value
+        pageInfo {
+            ...pageInfoFragment
         }
-      }
     }
-  }
 }

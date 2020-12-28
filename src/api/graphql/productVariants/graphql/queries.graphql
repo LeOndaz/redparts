@@ -1,4 +1,4 @@
-mutation createCheckout($input: CheckoutCreateInput!) {
+mutation createCheckout($input: CheckoutCreateInput!, $languageCode: LanguageCodeEnum!) {
   checkoutCreate (input: $input){
     created
     checkoutErrors {

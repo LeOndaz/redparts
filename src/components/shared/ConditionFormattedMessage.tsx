@@ -1,7 +1,4 @@
-import {StockAvailability} from "~/api/graphql/types";
-import classNames from "classnames";
 import React from "react";
-import {IProduct} from "~/interfaces/product";
 import {FormattedMessage} from "react-intl";
 
 interface Props {

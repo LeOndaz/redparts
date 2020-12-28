@@ -76,17 +76,3 @@ fragment productDetailFragment on Product {
     }
 
 }
-
-fragment productVariantDetails on ProductVariant {
-    id
-    sku
-    name
-    pricing {
-        price {
-            ...taxedMoneyFragment
-        }
-    }
-    attributes {
-        ...attributeValuesDetailFragment
-    }
-}

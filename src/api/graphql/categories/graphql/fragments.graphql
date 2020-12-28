@@ -12,6 +12,7 @@ fragment categoryDetailFragment on Category {
     slug
     level
     description
+    descriptionJson
     seoTitle
     seoDescription
     translation (languageCode: $languageCode){

@@ -13,16 +13,21 @@ export const jwtRenewalInterval = 5 * 60 * 1000; // 5 min
 
 /** ERROR_NAME: [ ERROR_NAME, INTL DISPLAY ID ]*/
 
-export enum BADGES {
-    HOT = "hot",
-    SALE = "sale",
-    NEW = "new"
+export enum Badges {
+    Hot = "hot",
+    Sale = "sale",
+    New = "new"
 }
 
-export enum DEFAULT_ATTR_SLUGS {
-    BRAND = "brand",
-    BADGES = "badges",
-    TAGS = "tags",
+export enum DefaultAttrSlugs {
+    Brand = "brand",
+    Badges = "badges",
+    Tags = "tags",
+}
+
+export enum Collections {
+    Featured = "featured",
+    DealZone = "deal-zone"
 }
 
 export const MAX_BADGES = 3

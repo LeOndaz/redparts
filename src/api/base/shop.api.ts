@@ -62,33 +62,33 @@ export interface ICheckoutData {
 }
 
 export abstract class ShopApi {
-    abstract getCategoryBySlug(slug: string, options?: IGetCategoryBySlugOptions, language?: ILanguage): Promise<ICategory>;
+    abstract getCategoryBySlug(slug: string, options: IGetCategoryBySlugOptions, language: ILanguage): Promise<ICategory>;
 
-    abstract getCategories(options?: IGetCategoriesOptions, language?: ILanguage): Promise<ICategory[]>;
+    abstract getCategories(options: IGetCategoriesOptions, language: ILanguage): Promise<ICategory[]>;
 
-    abstract getBrands(options?: IGetBrandsOptions, language?: ILanguage): Promise<IBrand[]>;
+    abstract getBrands(options: IGetBrandsOptions, language: ILanguage): Promise<IBrand[]>;
 
-    abstract getProductsList(option?: IListOptions, filters?: IFilterValues, language?: ILanguage): Promise<IProductsList>;
+    abstract getProductsList(option: IListOptions, filters: IFilterValues, language: ILanguage): Promise<IProductsList>;
 
-    abstract getProductBySlug(slug: string, language?: ILanguage): Promise<IProduct>;
+    abstract getProductBySlug(slug: string, language: ILanguage): Promise<IProduct>;
 
     abstract getProductReviews(productId: string, options?: IListOptions): Promise<IReviewsList>;
 
     abstract addProductReview(productId: string, data: IAddProductReviewData): Promise<IReview>;
 
-    abstract getProductAnalogs(productId: string): Promise<IProduct[]>;
+    abstract getProductAnalogs(product: IProduct, language: ILanguage): Promise<IProduct[]>;
 
-    abstract getRelatedProducts(productId: string, limit: number, language?: ILanguage): Promise<IProduct[]>;
+    abstract getRelatedProducts(productId: string, limit: number, language: ILanguage): Promise<IProduct[]>;
 
-    abstract getFeaturedProducts(categorySlug: string | null, limit: number, language?: ILanguage): Promise<IProduct[]>;
+    abstract getFeaturedProducts(categorySlug: string | null, limit: number, language: ILanguage): Promise<IProduct[]>;
 
-    abstract getPopularProducts(categorySlug: string | null, limit: number, language?: ILanguage): Promise<IProduct[]>;
+    abstract getPopularProducts(categorySlug: string | null, limit: number, language: ILanguage): Promise<IProduct[]>;
 
-    abstract getTopRatedProducts(categorySlug: string | null, limit: number, language?: ILanguage): Promise<IProduct[]>;
+    abstract getTopRatedProducts(categorySlug: string | null, limit: number, language: ILanguage): Promise<IProduct[]>;
 
-    abstract getSpecialOffers(limit: number, language?: ILanguage): Promise<IProduct[]>;
+    abstract getSpecialOffers(limit: number, language: ILanguage): Promise<IProduct[]>;
 
-    abstract getLatestProducts(limit: number, language?: ILanguage): Promise<IProduct[]>;
+    abstract getLatestProducts(limit: number, language: ILanguage): Promise<IProduct[]>;
 
     abstract getSearchSuggestions(
         query: string,

@@ -12,19 +12,19 @@ import { shopApi } from '~/api';
 import {useLanguage} from "~/services/i18n/hooks";
 
 interface Props {
-    productId: string;
+    product: IProduct;
 }
 
 function AnalogsTable(props: Props) {
     const intl = useIntl();
-    const { productId } = props;
+    const { product } = props;
     const [analogs, setAnalogs] = useState<IProduct[]>([]);
     const language = useLanguage()
 
     useEffect(() => {
         let canceled = false;
 
-        shopApi.getProductAnalogs(productId, language).then((result) => {
+        shopApi.getProductAnalogs(product, language).then((result) => {
             if (canceled) {
                 return;
             }
@@ -35,7 +35,7 @@ function AnalogsTable(props: Props) {
         return () => {
             canceled = true;
         };
-    }, [productId]);
+    }, [product]);
 
     return (
         <div className="analogs-table">

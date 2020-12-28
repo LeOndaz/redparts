@@ -1,0 +1,5 @@
+query getCollectionBySlug ($slug: String!, $languageCode: LanguageCodeEnum!, $first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder) {
+  collection(slug: $slug){
+    ...collectionDetailsFragment
+  }
+}

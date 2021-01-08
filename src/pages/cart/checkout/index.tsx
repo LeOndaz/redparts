@@ -83,7 +83,8 @@ function Page() {
             }
         }
 
-        const order = await shopApi.checkout(checkoutData);
+        const isAnonymous = !user
+        const order = await shopApi.checkout(checkoutData, isAnonymous);
 
         await router.push(...hrefToRouterArgs(url.checkoutSuccess(order)));
     }, [intl, cart, userSignUp, router]);

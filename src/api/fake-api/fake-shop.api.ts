@@ -42,11 +42,14 @@ import {
     RatingFilterBuilder,
 } from "~/api/filters"
 import {ILanguage} from "~/interfaces/language";
-import {getProductsByCollectionSlug} from "~/api/graphql/collections/CollectionService";
+import {getCollectionBySlug} from "~/api/graphql/collections/collectionService";
 import {Badges, Collections} from "~/api/graphql/consts";
 import {reviewMap} from "~/api/graphql/reviews/ReviewMappers";
 import {sortingMap} from "~/api/graphql/misc/mappers/sorting";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
+import {Collection} from "~/api/graphql/types";
+import {ICollection} from "~/api/graphql/collections/collectionMappers";
+import {addressMap} from "~/api/graphql/addresses/addressMappers";
 
 const emptyProductList: IProductsList = {
     navigation: {
@@ -64,15 +67,11 @@ const emptyProductList: IProductsList = {
 }
 
 
-const filterProductsByCategory = (slug: string, products: IProduct[]) => products.filter(product => product.categories!.map(cat => cat.slug).includes(slug))
+export const filterProductsByCategory = (slug: string, products: IProduct[]): IProduct[] => products.filter(product => product.categories!.map(cat => cat.slug).includes(slug))
 
 export class FakeShopApi implements ShopApi {
     getCategoryBySlug(slug: string, options: IGetCategoryBySlugOptions, language: ILanguage): Promise<ICategory> {
-        console.log(slug, '#123')
-        return getShopCategoryBySlugProductsLayout(slug, language).then(r => {
-            console.log('bySlug => \n', r)
-            return r
-        });
+        return getShopCategoryBySlugProductsLayout(slug, language);
     }
 
     getCategories(options: IGetCategoriesOptions, language: ILanguage): Promise<ICategory[]> {
@@ -109,13 +108,13 @@ export class FakeShopApi implements ShopApi {
 
         let categoriesPromise: Promise<ICategory[]> = this.getCategories({}, language)
         let productsPromise = getProductList({
-            first: options.limit,
-            after: options.after,
-            before: options.before,
-            sortBy,
-        },
-        language
-    )
+                first: options.limit,
+                after: options.after,
+                before: options.before,
+                sortBy,
+            },
+            language
+        )
 
         return Promise.all([
             categoriesPromise,
@@ -203,11 +202,14 @@ export class FakeShopApi implements ShopApi {
     }
 
     getFeaturedProducts(categorySlug: string | null, limit: number, language: ILanguage): Promise<IProduct[]> {
-        return getProductsByCollectionSlug(
-            Collections.Featured,
-            {
-                first: limit,
-            }, language).then(r => categorySlug ? filterProductsByCategory(categorySlug, r.dataList) : r.dataList)
+        return this.getFeaturedCollection(limit, language)
+            .then(collection => categorySlug ? filterProductsByCategory(categorySlug, collection.products) : collection.products)
+    }
+
+    getFeaturedCollection(limit: number, language: ILanguage): Promise<ICollection> {
+        return getCollectionBySlug(Collections.Featured, {
+            first: limit,
+        }, language)
     }
 
     getPopularProducts(categorySlug: string | null, limit: number, language: ILanguage): Promise<IProduct[]> {
@@ -222,17 +224,17 @@ export class FakeShopApi implements ShopApi {
     }
 
     getSpecialOffers(limit: number, language: ILanguage): Promise<IProduct[]> {
-        return getProductsByCollectionSlug(
+        return getCollectionBySlug(
             Collections.DealZone,
             {
                 first: limit,
-            }, language).then(r => r.dataList.map(product => {
+            }, language).then(collection => collection ? collection.products.map(product => {
+
             if (!(Badges.Hot in product.badges)) {
                 product.badges.push(Badges.Hot)
             }
-
             return product
-        }))
+        }) : [])
     }
 
     getLatestProducts(limit: number, language: ILanguage): Promise<IProduct[]> {
@@ -266,8 +268,10 @@ export class FakeShopApi implements ShopApi {
         })) as Promise<IGetSearchSuggestionsResult>
     }
 
-    checkout(data: ICheckoutData): Promise<IOrder> {
-        console.log(data.items, '####@')
+    checkout(data: ICheckoutData, isAnonymous: boolean): Promise<IOrder> {
+        /** NOTE: mapped addresses have no email */
+
+
         return checkout(data);
     }
 

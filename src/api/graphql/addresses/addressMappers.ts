@@ -1,9 +1,9 @@
 import {Address, AddressInput, CountryCode} from "~/api/graphql/types";
-import {IAddress} from "~/interfaces/address";
+import {IAddress, IAddressData} from "~/interfaces/address";
 import {IEditAddressData} from "~/api/base";
 
-export const addressMap = {
-    in: (address: Address): IAddress => ({
+const addressMapIn = (address: Address): IAddress => {
+    return {
         id: address.id,
         firstName: address.firstName,
         lastName: address.lastName,
@@ -17,19 +17,25 @@ export const addressMap = {
         default: !!address.isDefaultShippingAddress,
         company: address.companyName,
         email: '',
-    }),
-    // @ts-ignore
-    out: (address: IEditAddressData): AddressInput => ({
-        // id: address.id,
+    }
+}
+
+const addressMapOut = (address: IAddressData): AddressInput => {
+    return {
         firstName: address.firstName,
         lastName: address.lastName,
         companyName: address.company,
         streetAddress1: address.address1,
         streetAddress2: address.address2,
-        country: address.country,
+        country: address.country as CountryCode,
         postalCode: address.postcode,
         city: address.city,
         countryArea: address.state,
         phone: address.phone,
-    })
+    }
+}
+
+export const addressMap = {
+    in: addressMapIn,
+    out: addressMapOut,
 }

@@ -31,24 +31,11 @@ const handleBlogCategorySingleResponse = (res: ApolloQueryResult<any>) =>
 const handleBlogCategoryRelayedResponse = (res: ApolloQueryResult<any>) =>
     handleCategoryRelayedResponse(res, blogCategoryMap.in)
 
-const handleShopCategorySingleResponseProductsLayout = (res: ApolloQueryResult<any>) => {
-    console.log(' #handleShopCategorySingleResponse ')
-    return handleCategorySingleResponse(res, shopCategoryMap.inProductsLayout)
-}
+const handleShopCategorySingleResponseProductsLayout = (res: ApolloQueryResult<any>) =>
+    handleCategorySingleResponse(res, shopCategoryMap.inProductsLayout)
 
-const handleShopCategoryRelayedResponseProductsLayout = (res: ApolloQueryResult<any>) => {
-    console.log(' #handleShopCategoryRelayedResponse ')
-    return handleCategoryRelayedResponse(res, shopCategoryMap.inProductsLayout)
-}
-
-// const _getCategoryById = (id: string) => queryById(id, GetCategoryByIdDocument)
-// const _getCategoryById = (id: string, language: ILanguage) => client.query({
-//     query: GetCategoryByIdDocument,
-//     variables: {
-//         id,
-//         languageCode: language.code,
-//     }
-// })
+const handleShopCategoryRelayedResponseProductsLayout = (res: ApolloQueryResult<any>) =>
+    handleCategoryRelayedResponse(res, shopCategoryMap.inProductsLayout)
 
 const _getCategoryBySlug = (slug: string, language: ILanguage) => client.query({
     query: GetCategoryBySlugDocument,
@@ -70,9 +57,6 @@ const _getCategoryList = (variables: IBaseCategoryProps, language: ILanguage) =>
 export const getShopCategoryBySlugProductsLayout = (slug: string, language: ILanguage) => _getCategoryBySlug(slug, language).then(handleShopCategorySingleResponseProductsLayout)
 export const getShopCategoryListProductsLayout = (variables: IBaseCategoryProps, language: ILanguage) => _getCategoryList(variables, language).then(handleShopCategoryRelayedResponseProductsLayout)
 
-// export const getShopCategoryById = (layout: IShopCategoryLayout) =>
-//     wrapService<string>(_getCategoryById, handleShopCategorySingleResponse, layout)
-
 // const getShopCategoryBySlug = (layout: IShopCategoryLayout) => (slug: string) => {
 //     console.log(layout, ' #getShopCategoryBySlug#')
 //     return _getCategoryBySlug(slug).then()
@@ -93,6 +77,5 @@ export const getShopCategoryListProductsLayout = (variables: IBaseCategoryProps,
 //     asCategories: getShopCategoryBySlug('categories')
 // }
 //
-// export const getBlogCategoryById = (id: string) => wrapService(_getCategoryById, handleBlogCategorySingleResponse)(id)
 // export const getBlogCategoryBySlug = (slug: string) => wrapService(_getCategoryBySlug, handleBlogCategorySingleResponse)(slug)
 // export const getBlogCategoryList = (variables: IBaseCategoryProps) => wrapService(_getCategoryList, handleBlogCategoryRelayedResponse)(variables)

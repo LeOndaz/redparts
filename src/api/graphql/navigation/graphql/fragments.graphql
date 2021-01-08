@@ -1,0 +1,48 @@
+fragment navigationMenuItemChildren on MenuItem{
+    name
+    category {
+        slug
+    }
+    collection {
+        slug
+    }
+    translation(languageCode: $languageCode) {
+        name
+    }
+    url
+}
+
+fragment navigationMenuItemDetail on MenuItem {
+    name
+    url
+    translation(languageCode: $languageCode){
+        name
+    }
+    category {
+        slug
+    }
+    collection {
+        slug
+    }
+    translation(languageCode: $languageCode){
+        name
+    }
+    children {
+        ...navigationMenuItemChildren
+        children {
+            ...navigationMenuItemChildren
+            children {
+                ...navigationMenuItemChildren
+                children {
+                    ...navigationMenuItemChildren
+                    children {
+                        ...navigationMenuItemChildren
+                        children {
+                            ...navigationMenuItemChildren
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

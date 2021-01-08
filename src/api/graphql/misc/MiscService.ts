@@ -7,33 +7,34 @@ import {getMetadataItem, handleMetadataErrors} from "~/api/graphql/misc/helpers"
 import {DefaultAttrSlugs} from "~/api/graphql/consts";
 import {ILanguage} from "~/interfaces/language";
 
-export const getCountries = (languageCode?: LanguageCodeEnum): Promise<ICountry[]> => {
+export const getCountries = (language: ILanguage): Promise<ICountry[]> => {
     return client.query({
         query: GetCountriesDocument,
         variables: {
-            languageCode,
+            languageCode: language.code,
         }
     }).then(r => r.data.shop.countries)
 }
 
 export const getBrands = (language: ILanguage): Promise<IBrand[]> => {
+    /**
+     * IBrands require an image: string and not IImage.
+     * */
     return getAttributeBySlug(DefaultAttrSlugs.Brand, language).then(r => {
         const {attribute} = r.data;
         const images: MetadataItem[] = attribute.metadata
 
         const {values} = attribute;
-        let genericImage = {
-            value: "http://placehold.it/200",
-        }
 
-        genericImage = getMetadataItem(attribute.metadata, 'generic', genericImage)
+        let genericImageUrl = "http://placehold.it/200",
+        genericImage = getMetadataItem(attribute.metadata, 'generic', genericImageUrl)
 
         return values.map((value: IBrand) => {
-            const brandImage = getMetadataItem(images, value.slug)
-            
+            const brandImageUrl = getMetadataItem(images, value.slug)
+
             return {
                 ...value,
-                image: brandImage ? brandImage.value : genericImage.value
+                image: brandImageUrl ? brandImageUrl : genericImage.value
             }
         })
     })

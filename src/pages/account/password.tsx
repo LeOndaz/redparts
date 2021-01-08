@@ -10,6 +10,8 @@ import AccountLayout from '~/components/account/AccountLayout';
 import PageTitle from '~/components/shared/PageTitle';
 import { accountApi } from '~/api';
 import { useAsyncAction } from '~/store/hooks';
+import {useStore} from "react-redux";
+import {useUserSignOut} from "~/store/user/userHooks";
 
 interface IForm {
     currentPassword: string;
@@ -19,6 +21,9 @@ interface IForm {
 
 function Page() {
     const intl = useIntl();
+    const userSignOut = useUserSignOut();
+    const [signOut] = useAsyncAction(userSignOut, [userSignOut])
+
     const [serverError, setServerError] = useState<string | null>(null);
     const {
         register,
@@ -32,6 +37,7 @@ function Page() {
 
         return accountApi.changePassword(data.currentPassword, data.newPassword).then(
             () => {
+                signOut()
                 toast.success(intl.formatMessage({ id: 'TEXT_TOAST_PASSWORD_CHANGED' }));
             },
             (error: Error) => {

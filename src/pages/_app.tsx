@@ -5,6 +5,8 @@ import AppBase, {AppContext, AppProps} from 'next/app';
 import Head from 'next/head';
 import {NextComponentType, NextPageContext} from 'next';
 import {useStore} from 'react-redux';
+import TagManager from "react-gtm-module";
+
 // application
 import config from '~/config';
 import LanguageProvider, {getLanguageInitialProps, ILanguageProviderProps} from '~/services/i18n/provider';

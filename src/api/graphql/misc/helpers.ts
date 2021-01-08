@@ -3,8 +3,16 @@ import {client} from "~/api";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 import {ICustomFields} from "~/interfaces/custom-fields";
 import {AuthError} from "~/api/errors";
-import {Attribute, Category, MetadataItem, Product, SelectedAttribute} from "~/api/graphql/types";
-import _ from "lodash";
+import {
+    Attribute,
+    AttributeValue,
+    Category,
+    Collection,
+    MenuItem,
+    MetadataItem,
+    Product,
+    SelectedAttribute
+} from "~/api/graphql/types";
 
 interface IAttr {
     attr: string
@@ -47,10 +55,6 @@ export const queryBySlug = (slug: string, query: DocumentNode, variables: ICusto
     query: query,
 }, variables);
 
-export const queryList = (variables: IBaseModelProps, query: DocumentNode) => client.query({
-    query,
-    variables,
-})
 
 export const mutateById = (id: string, mutation: DocumentNode, variables: ICustomFields = {}) => mutateByAttr({
     attr: 'id',
@@ -75,19 +79,6 @@ export let throwAuthError = (code: string) => {
 }
 
 
-export interface idArg {
-    id: string
-}
-
-export interface slugArg {
-    slug: string
-}
-
-export interface userIdArg {
-    userId: string
-}
-
-
 export const getMetadataItem = (metadata: MetadataItem[], key: string, defaultTo: any = '') => {
     const item = metadata.find(item => item.key.toLowerCase() === key.toLowerCase())
     return item ? item.value : defaultTo
@@ -99,29 +90,28 @@ export const getAttribute = (slug: string, selectedAttrs: SelectedAttribute[]) =
 export const getAttributeValues = (slug: string, selectedAttrs: SelectedAttribute[], mapTo = 'name') => {
     let result = getAttribute(slug, selectedAttrs).map(sa => sa.values)
 
-    if (_.isEmpty(result)) {
+    if (result.length === 0) {
         return []
     }
 
-    // @ts-ignore
-    return _.flatten(result).map(value => value ? value[mapTo] : null).filter(Boolean)
+    // @ts-ignore value not indexable
+    return result
+        .flat(1)
+        .map(value => value ? value.translation ? value.translation[mapTo] : value[mapTo] : null)
+        .filter(Boolean)
 }
 
 export const getAttributeValue = (slug: string, selectedAttrs: SelectedAttribute[], defaultTo?: string, mapTo?: string) => {
     const result = getAttributeValues(slug, selectedAttrs, mapTo)
 
-    if (!_.isEmpty(result)) {
-        return _.head(result)
-    }
-
-    return defaultTo || ''
+    return result[0] || defaultTo
 }
 
 export const handleAccountErrors = (traverse: string) => {
     return (res: any) => {
         const {accountErrors} = res.data[traverse];
 
-        if (!_.isEmpty(accountErrors)) {
+        if (!isEmpty(accountErrors)) {
             throw new Error(accountErrors[0].code)
         }
 
@@ -132,17 +122,18 @@ export const handleMetadataErrors = (res: any) => {
     return res
 }
 
-export const loadLocal = (key: string) => {
-    return JSON.parse(localStorage.getItem(key) || "null")
-}
+export const loadLocal = (key: string) => JSON.parse(localStorage.getItem(key) || "null")
 
-export const saveLocal = (key: string, value: any) => {
-    return localStorage.setItem(key, JSON.stringify(value))
-}
+
+export const saveLocal = (key: string, value: any) => localStorage.setItem(key, JSON.stringify(value))
+
 
 export const clone = (obj: any) => JSON.parse(JSON.stringify(obj))
+export const removeUndefined = clone;
 
-export const mapTranslatable = (obj: Product | Attribute | Category, attrs: string[]) => {
+type translatable = Product | Attribute | Category | Collection | MenuItem | AttributeValue
+
+export const mapTranslatable = (obj: translatable, attrs: string[]) => {
     if (obj.translation) {
         // @ts-ignore
         return attrs.map(attrName => obj.translation[attrName])
@@ -151,3 +142,14 @@ export const mapTranslatable = (obj: Product | Attribute | Category, attrs: stri
         return attrs.map(attrName => obj[attrName])
     }
 }
+
+/** a hack to create a relay response like object to use handlers on the object */
+export const mockRelayResponse = (obj: any, key: string) => {
+    return {
+        data: {
+            [key]: obj
+        }
+    }
+}
+
+export const isEmpty = (arr: any[]) => arr.length === 0

@@ -40,17 +40,17 @@ function Page() {
         {
             image: '/images/categories/category-overlay-1.jpg',
             mobileImage: '/images/categories/category-overlay-1-mobile.jpg',
-            categorySlug: 'smartphone',
+            categorySlug: 'smartphones',
         },
         {
             image: '/images/categories/category-overlay-2.jpg',
             mobileImage: '/images/categories/category-overlay-2-mobile.jpg',
-            categorySlug: 'smartphone',
+            categorySlug: 'smartphones',
         },
         {
             image: '/images/categories/category-overlay-3.jpg',
             mobileImage: '/images/categories/category-overlay-3-mobile.jpg',
-            categorySlug: 'smartphone',
+            categorySlug: 'smartphones',
         },
     ], []);
 

@@ -11,9 +11,19 @@ import { IMainMenuLink } from '~/interfaces/main-menu-link';
 import { useOptions } from '~/store/options/optionsHooks';
 // data
 import dataHeaderMainMenu from '~/data/headerMainMenu';
+import {useDeferredData} from "~/services/hooks";
+import {getMenuBySlug} from "~/api/graphql/navigation/navigationService";
+import {useLanguage} from "~/services/i18n/hooks";
+import {navigationApi} from "~/api";
 
 function MainMenu() {
-    const items: IMainMenuLink[] = dataHeaderMainMenu;
+    // const items: IMainMenuLink[] = dataHeaderMainMenu;
+
+    const language = useLanguage()
+    const items = useDeferredData(
+        () => navigationApi.getNavigationBarMenus(language), []
+    )
+
     const [currentItem, setCurrentItem] = useState<IMainMenuLink | null>(null);
     const options = useOptions();
     const desktopLayout = options.desktopHeaderLayout;
@@ -35,7 +45,7 @@ function MainMenu() {
     return (
         <div className="main-menu">
             <ul className="main-menu__list">
-                {items.map((item, index) => {
+                {items.data.map((item, index) => {
                     if (item.customFields?.ignoreIn?.includes(desktopLayout)) {
                         return null;
                     }

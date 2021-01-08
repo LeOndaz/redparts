@@ -1,32 +1,61 @@
-import {Product, SelectedAttribute, StockAvailability} from "~/api/graphql/types";
-import {IImage, IProduct, IProductAttribute, IProductAttributeValue, IProductType} from "~/interfaces/product";
-import _ from "lodash";
+import {AttributeValue, Product, ProductVariant, SelectedAttribute, StockAvailability} from "~/api/graphql/types";
+import {
+    IImage,
+    IProduct,
+    IProductAttribute,
+    IProductAttributeValue,
+    IProductType,
+    IProductVariant
+} from "~/interfaces/product";
 import {customEditorjsParser} from "~/components/utils";
 import {mapVariantAttrsToOptions} from "~/api/graphql/misc/mappers/utils";
 import {shopCategoryMap} from "~/api/graphql/categories/categoryMappers";
 import {
-    clone,
-    getAttribute,
     getAttributeValue,
     getAttributeValues,
-    getMetadataItem,
+    getMetadataItem, isEmpty,
     mapTranslatable
 } from "~/api/graphql/misc/helpers";
 import {IBrand} from "~/interfaces/brand";
-import {DefaultAttrSlugs} from "~/api/graphql/consts";
+import {DefaultAttrSlugs, MetadataKeys, Placeholders} from "~/api/graphql/consts";
+
+const selectedAttributeValuesMapIn = (values: AttributeValue[]): IProductAttributeValue[] => {
+    return values.map(value => {
+        let [name] = mapTranslatable(value, ['name'])
+
+        return {
+            name,
+            slug: value.slug as string,
+        }
+    })
+}
 
 const selectedAttrMapIn = (selectedAttr: SelectedAttribute): IProductAttribute => {
+    let [name] = mapTranslatable(selectedAttr.attribute, ['name'])
+
     return {
-        name: selectedAttr.attribute.name as string,
+        name: name,
         slug: selectedAttr.attribute.slug as string,
-        featured: !!getMetadataItem(selectedAttr.attribute.metadata, 'featured', false),
-        values: clone(selectedAttr.values) as IProductAttributeValue[],
+        featured: !!getMetadataItem(selectedAttr.attribute.metadata, MetadataKeys.Featured, false),
+        values: selectedAttributeValuesMapIn(selectedAttr.values),
     }
 }
 
 
-const productAttributesMapIn = (selectedAttrs: SelectedAttribute[]): IProductAttribute[] =>
+const selectedAttributesMapIn = (selectedAttrs: SelectedAttribute[]): IProductAttribute[] =>
     selectedAttrs.map(selectedAttrMapIn)
+
+const mapVariant = (variant: ProductVariant): IProductVariant => {
+    const attrValues = selectedAttributesMapIn(variant.attributes);
+    const price = variant.pricing!.price!.gross.amount;
+
+    return {
+        name: variant.name,
+        sku: variant.sku,
+        price: price,
+        attributes: attrValues,
+    }
+}
 
 
 const getAttrsFromVariants = (product: Product): IProductAttribute[] => {
@@ -35,7 +64,6 @@ const getAttrsFromVariants = (product: Product): IProductAttribute[] => {
     const variantAttrs: IProductAttribute[] = [];
 
     variantAttrSlugs?.forEach(slug => {
-        let resultAttr: IProductAttribute;
 
         variants?.forEach(variant => {
             const selectedAttr = variant!.attributes.find(selectedAttr => selectedAttr.attribute.slug === slug)
@@ -43,8 +71,9 @@ const getAttrsFromVariants = (product: Product): IProductAttribute[] => {
                 // check if it exists in variantAttrs
                 // if it does, add the new values and not the attribute as whole
                 const va = variantAttrs.find(va => va.slug === selectedAttr.attribute.slug)
+
                 if (va) {
-                    va.values = [...va.values, ...selectedAttr.values]
+                    va.values = [...va.values, ...selectedAttributeValuesMapIn(selectedAttr.values)]
                 } else {
                     variantAttrs.push(selectedAttrMapIn(selectedAttr))
                 }
@@ -58,7 +87,7 @@ const getAttrsFromVariants = (product: Product): IProductAttribute[] => {
 
 const productTypeMapIn = (product: Product): IProductType => {
     const productType = product.productType;
-    const variantAttrSlugs = productType.variantAttributes?.map(value => value?.slug) as string[]
+    const variantAttrSlugs = productType.variantAttributes?.map(value => value!.slug) as string[]
     const productTypeAttrSlugs = productType.productAttributes?.map(value => value!.slug) as string[]
 
     return {
@@ -72,7 +101,7 @@ const productTypeMapIn = (product: Product): IProductType => {
             },
             {
                 name: "Specific",
-                slug: "variant-specefic-specs",
+                slug: "variant-specs",
                 attributes: variantAttrSlugs,
             }
         ]
@@ -97,8 +126,8 @@ const productMapIn = (product: Product): IProduct => {
         compareAtPrice = null;
     }
 
-    /** Handle badges */
-    let badgeClasses = getAttributeValues(DefaultAttrSlugs.Badges, product.attributes, 'slug').map(_.toLower)
+    /** Handle badges, hack here, classes are lower case, this is why I'm using the slug */
+    let badgeClasses = getAttributeValues(DefaultAttrSlugs.Badges, product.attributes, 'slug').map(s => s.toLowerCase())
 
     /** Handle tags */
     let tags = getAttributeValues(DefaultAttrSlugs.Tags, product.attributes)
@@ -120,28 +149,40 @@ const productMapIn = (product: Product): IProduct => {
     /** Handle type*/
     const type = productTypeMapIn(product)
 
-    /** Handle excerpt */
+    /** images */
+    let images = product.images || [];
+    if (isEmpty(images)) {
+        images = [{
+            id: 'placeholder',
+            alt: 'Placeholder',
+            url: Placeholders.Product,
+            sortOrder: 1,
+        }]
+    }
 
     /** Handle options */
     const options = mapVariantAttrsToOptions(product)
 
     /** Handle attributes */
+    const variantAttrs = getAttrsFromVariants(product)
     const attributes = [
-        ...productAttributesMapIn(product.attributes),
-        ...getAttrsFromVariants(product),
+        ...selectedAttributesMapIn(product.attributes),
+        ...variantAttrs,
     ]
+
+    const variants: IProductVariant[] = product.variants ? product.variants.map(mapVariant) : [];
 
     return {
         id: product.id,
         name: name,
         slug: product.slug,
         description: description,
-        excerpt: '',
+        excerpt: product.seoDescription || '',
         price: finalPrice,
         compareAtPrice: compareAtPrice,
         stock: product.isAvailable ? StockAvailability.InStock : StockAvailability.OutOfStock,
         availability: "",
-        images: product.images as IImage[],
+        images: images,
         partNumber: "",
         compatibility: "all",
         options: options,
@@ -158,6 +199,7 @@ const productMapIn = (product: Product): IProduct => {
             seoTitle: product.seoTitle,
             seoDescription: product.seoDescription,
         },
+        variants: variants,
     }
 }
 

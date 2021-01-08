@@ -11,6 +11,7 @@ import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
 import { accountApi } from '~/api';
 import { useList } from '~/services/hooks';
+import {isEmpty} from "~/api/graphql/misc/helpers";
 
 function Page() {
     const intl = useIntl();
@@ -21,10 +22,14 @@ function Page() {
             <PageTitle>{intl.formatMessage({ id: 'HEADER_ORDER_HISTORY' })}</PageTitle>
 
             <div className="card-header">
-                <h5><FormattedMessage id="HEADER_ORDER_HISTORY" /></h5>
+                {list && !isEmpty(list.items) &&
+                    (<h5><FormattedMessage id="HEADER_ORDER_HISTORY" /></h5>)
+                        ||
+                    (<h5><FormattedMessage id="HEADER_NO_ORDER_HISTORY"/></h5>)
+                }
             </div>
 
-            {list && (
+            {list && !isEmpty(list.items) && (
                 <React.Fragment>
                     <div className="card-divider" />
 

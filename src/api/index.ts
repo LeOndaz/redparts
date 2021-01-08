@@ -7,6 +7,7 @@ import {FakeVehicleApi} from './fake-api/fake-vehicle.api';
 
 // this will be federated
 import {API_URL} from '~/api/graphql/consts';
+import {NavigationApi} from "~/api/fake-api/navigation.api";
 
 // shared cache for the whole project
 export const cache = new InMemoryCache();
@@ -34,7 +35,7 @@ export const client = new ApolloClient<NormalizedCacheObject>({
 export * from "~/api/graphql/products/productService"
 export * from "~/api/graphql/categories/categoryService"
 export * from "~/api/graphql/attributes/AttributeService"
-export * from "~/api/graphql/orders/OrderService"
+export * from "~/api/graphql/orders/orderService"
 export * from "~/api/graphql/misc/MiscService"
 export * from "~/api/graphql/misc/FilterService"
 export * from "~/api/graphql/reviews/ReviewService"
@@ -45,3 +46,4 @@ export const blogApi = new FakeBlogApi();
 export const countriesApi = new FakeCountriesApi();
 export const shopApi = new FakeShopApi();
 export const vehicleApi = new FakeVehicleApi();
+export const navigationApi = new NavigationApi();

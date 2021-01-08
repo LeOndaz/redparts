@@ -44,7 +44,7 @@ function Page() {
             <div className="dashboard__profile card profile-card">
                 <div className="card-body profile-card__body">
                     <div className="profile-card__avatar">
-                        <AppImage src={user.avatar?.url || "http://placehold.it/100"} alt={user.avatar?.alt} />
+                        <AppImage src={user.avatar.url} alt={user.avatar.alt} />
                     </div>
                     <div className="profile-card__name">
                         {`${user.firstName} ${user.lastName}`}

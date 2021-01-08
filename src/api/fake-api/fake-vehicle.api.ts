@@ -20,7 +20,6 @@ import {ILanguage} from "~/interfaces/language";
 
 export class FakeVehicleApi extends VehicleApi {
     getYears(_: any, language: ILanguage): Promise<ICategory[]> {
-        console.log('languageeeeeee ', language)
         return getShopCategoryListProductsLayout({
             first: 100,
         }, language).then(r => r.dataList)

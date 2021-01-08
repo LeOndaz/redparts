@@ -1,5 +1,6 @@
 import {OrderDirection, ProductOrderField} from "~/api/graphql/types";
-import _ from "lodash";
+
+const title = (word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
 
 const SortingMapOut = (sort: string) => {
     /**
@@ -10,8 +11,8 @@ const SortingMapOut = (sort: string) => {
     const [fieldName, direction] = sort.split('_');
 
     return {
-        field: (<any>ProductOrderField)[_.capitalize(fieldName)],
-        direction: (<any>OrderDirection)[_.capitalize(direction)],
+        field: (<any>ProductOrderField)[title(fieldName)],
+        direction: (<any>OrderDirection)[title(direction)],
     }
 }
 

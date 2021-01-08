@@ -30,7 +30,6 @@ function AuthFlow() {
                 }
             }
         )
-
     }
 
     // validate user, if not, make it valid

@@ -1,27 +1,28 @@
 fragment collectionDetailsFragment on Collection {
-  name
-  description
-  descriptionJson
-  translation (languageCode: $languageCode){
+    id
     name
-  }
-  seoTitle
-  seoDescription
-  backgroundImage {
-    url
-    alt
-  }
-  products (first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy){
-    pageInfo {
-      ...pageInfoFragment
+    description
+    descriptionJson
+    translation (languageCode: $languageCode){
+        name
     }
-    edges {
-      node {
-        ...productDetailFragment
-      }
-      cursor
+    seoTitle
+    seoDescription
+    backgroundImage {
+        url
+        alt
     }
-    totalCount
-  }
+    products (first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy){
+        pageInfo {
+            ...pageInfoFragment
+        }
+        edges {
+            node {
+                ...productDetailFragment
+            }
+            cursor
+        }
+        totalCount
+    }
 
 }

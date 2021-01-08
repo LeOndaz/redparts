@@ -68,9 +68,17 @@ export type IProductStock = 'IN_STOCK' | 'OUT_OF_STOCK' | 'ON_BACKORDER';
 export type IProductCompatibilityResult = 'all' | 'fit' | 'not-fit' | 'unknown';
 
 export interface IImage {
-    url: string,
-    id?: string, /* unimportant for images */
-    alt?: string,
+    url: string;
+    id?: string; /* unimportant for images */
+    alt?: string;
+    sortOrder?: number;
+}
+
+export interface IProductVariant {
+    sku: string;
+    name: string;
+    price: number;
+    attributes: IProductAttribute[];
 }
 
 export interface IProduct {
@@ -87,7 +95,7 @@ export interface IProduct {
     stock: IProductStock;
     price: number;
     compareAtPrice: number|null;
-    images?: IImage[];
+    images: IImage[];
     badges?: string[];
     rating?: number;
     reviews?: number;
@@ -104,6 +112,7 @@ export interface IProduct {
     categories?: IShopCategory[];
     attributes: IProductAttribute[];
     options: IProductOption[];
+    variants: IProductVariant[];
     customFields?: ICustomFields;
 }
 

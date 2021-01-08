@@ -1,14 +1,10 @@
 import {CreateReviewDocument, GetReviewsListDocument, Review} from "~/api/graphql/types";
 import {IAddProductReviewData} from "~/api/base";
-import {queryList} from "~/api/graphql/misc/helpers";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 import {withAuth} from "~/api/graphql/users/authService";
 import {ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject} from "@apollo/client";
 import {REVIEWS_PLUGIN_API_URL} from "~/api/graphql/consts";
-import {cache} from "~/api";
 import {handleRelayedResponse, handleSingleResponse} from "~/api/graphql/misc/mappers/utils";
-import {IReview} from "~/interfaces/review";
-import {userMap} from "~/api/graphql/users/userMappers";
 import {reviewMap} from "~/api/graphql/reviews/ReviewMappers";
 
 

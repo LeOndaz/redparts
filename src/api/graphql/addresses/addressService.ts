@@ -69,8 +69,4 @@ export const addAddress = (userId: string, input: IEditAddressData) => _mutateAd
     .then(addressMap.in)
 
 export const deleteAddress = (id: string) => mutateById(id, DeleteAddressDocument);
-// export const getAddressById = (id: string) => wrapService(_getAddressById, handleSingleAddressResponse)(id);
-// export const updateAddress = (id: string, input: IEditAddressData) => wrapService(_updateAddress, handleSingleAddressResponse)(id, input);
-// export const addAddress = (userId: string, input: IEditAddressData) => wrapService(_addAddress, handleSingleAddressResponse)(userId, input);
-// export const getAddressList = (userId: string) => wrapService(_getAddressList, handleRelayedAddressResponse)(userId); /* user.addresses */
 

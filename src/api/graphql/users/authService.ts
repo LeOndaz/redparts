@@ -6,7 +6,7 @@ import {
     TokenRenewDocument,
     VerifyTokenDocument,
 } from "~/api/graphql/types";
-import {ApolloQueryResult, FetchResult, MutationOptions, QueryOptions} from "@apollo/client";
+import {FetchResult} from "@apollo/client";
 import {load, save} from "~/store/store";
 import {userMap} from "~/api/graphql/users/userMappers";
 import {handleAccountErrors, loadLocal, saveLocal, throwAuthError} from "~/api/graphql/misc/helpers";
@@ -20,7 +20,7 @@ const createTokens = (email: string, password: string) => {
         },
         mutation: CreateUserTokensDocument,
     }).then(handleAccountErrors('tokenCreate')).then(res => {
-        const {token, refreshToken, csrfToken, user } = res.data.tokenCreate;
+        const {token, refreshToken, csrfToken, user} = res.data.tokenCreate;
 
         return {
             token,
@@ -60,12 +60,15 @@ export const signIn = (email: string, password: string) => createTokens(email, p
 
 }).then(userMap.in)
 
-export const signOut = () => {
+export const signOut = (): Promise<void> => {
     const localState = load()
-    return Promise.resolve(save({
-        ...localState,
-        user: null,
-    }))
+    return Promise.resolve((() => {
+        localStorage.removeItem('tokens');
+        return save({
+            ...localState,
+            user: null,
+        })
+    })())
 }
 
 
@@ -77,7 +80,7 @@ export const renewToken = (refreshToken: string, csrfToken: string) => {
         },
         mutation: TokenRenewDocument,
     }).then(handleAccountErrors('tokenRefresh'))
-        .then(r => r.data.tokenRefresh.token)
+        .then(res => res.data.tokenRefresh.token)
 }
 
 export const changePassword = (oldPassword: string, newPassword: string) => {

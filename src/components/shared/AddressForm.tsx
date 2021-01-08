@@ -13,6 +13,7 @@ import { countriesApi } from '~/api';
 import { ICountry } from '~/interfaces/country';
 import { useDetachableForm } from '~/services/hooks';
 import { validateEmail } from '~/services/validators';
+import {useLanguage} from "~/services/i18n/hooks";
 
 export interface IAddressForm {
     firstName: string;
@@ -54,6 +55,8 @@ export function getAddressFormDefaultValue(initialData: IAddressForm | null = nu
 function AddressForm(props: Props) {
     const { namespace, disabled, idPrefix } = props;
     const intl = useIntl();
+    const language = useLanguage();
+
     const formMethods = useFormContext();
     const { errors: errorsProps } = formMethods;
     const errors = namespace ? errorsProps[namespace] : errorsProps;
@@ -66,7 +69,7 @@ function AddressForm(props: Props) {
     useEffect(() => {
         let canceled = false;
 
-        countriesApi.getCountries().then((result) => {
+        countriesApi.getCountries(language).then((result) => {
             if (canceled) {
                 return;
             }

@@ -2,7 +2,8 @@
 
 // application
 import { ICountry } from '~/interfaces/country';
+import {ILanguage} from "~/interfaces/language";
 
 export abstract class CountriesApi {
-    abstract getCountries(): Promise<ICountry[]>;
+    abstract getCountries(language: ILanguage): Promise<ICountry[]>;
 }

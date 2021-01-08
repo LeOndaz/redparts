@@ -4,9 +4,10 @@
 import {CountriesApi} from '~/api/base';
 import {ICountry} from '~/interfaces/country';
 import {getCountries} from "~/api/graphql/misc/MiscService"
+import {ILanguage} from "~/interfaces/language";
 
 export class FakeCountriesApi extends CountriesApi {
-    getCountries(): Promise<ICountry[]> {
-        return getCountries();
+    getCountries(language: ILanguage): Promise<ICountry[]> {
+        return getCountries(language);
     }
 }

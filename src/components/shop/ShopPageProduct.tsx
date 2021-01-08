@@ -1,5 +1,5 @@
 // react
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 // third-party
 import classNames from 'classnames';
 import {Controller, FormProvider} from 'react-hook-form';
@@ -23,7 +23,7 @@ import ShareLinks from '~/components/shared/ShareLinks';
 import StockStatusBadge from '~/components/shared/StockStatusBadge';
 import url from '~/services/url';
 import {getCategoryPath} from '~/services/utils';
-import {IProduct} from '~/interfaces/product';
+import {IProduct, IProductVariant} from '~/interfaces/product';
 import {IProductPageLayout, IProductPageSidebarPosition} from '~/interfaces/pages';
 import {shopApi} from '~/api';
 import {useCompareAddItem} from '~/store/compare/compareHooks';
@@ -43,6 +43,7 @@ import {useLanguage} from "~/services/i18n/hooks";
 
 interface Props {
     product: IProduct;
+    variant: IProductVariant;
     layout: IProductPageLayout;
     sidebarPosition?: IProductPageSidebarPosition;
 }
@@ -50,6 +51,7 @@ interface Props {
 function ShopPageProduct(props: Props) {
     const {
         product,
+        variant,
         layout,
         sidebarPosition = 'start',
     } = props;
@@ -60,6 +62,10 @@ function ShopPageProduct(props: Props) {
     const [relatedProducts, setRelatedProducts] = useState<IProduct[]>([]);
     const productForm = useProductForm(product);
     const language = useLanguage()
+
+    const getVariant = useCallback(() => {
+
+    }, [])
 
     useEffect(() => {
         let canceled = false;
@@ -342,7 +348,7 @@ function ShopPageProduct(props: Props) {
                                     <div className="product__card product__card--two"/>
 
                                     <ProductGallery
-                                        images={product.images || []}
+                                        images={product.images && product.images.sort(image => (image.sortOrder || product.images.length)) || []}
                                         layout={galleryLayout}
                                         className="product__gallery"
                                     />

@@ -1,33 +1,32 @@
 /* eslint-disable import/prefer-default-export,class-methods-use-this */
 
 // application
-import { IAddress } from '~/interfaces/address';
-import { IListOptions, IOrdersList } from '~/interfaces/list';
-import { IOrder } from '~/interfaces/order';
-import { IUser } from '~/interfaces/user';
+import {IAddress} from '~/interfaces/address';
+import {IListOptions, IOrdersList} from '~/interfaces/list';
+import {IOrder} from '~/interfaces/order';
+import {IUser} from '~/interfaces/user';
 import {
     AccountApi,
     IEditAddressData,
     IEditProfileData,
 } from '~/api/base';
 import {
-    accountChangePassword,
-    accountEditProfile,
-    accountSignIn,
-    accountSignOut,
-    accountSignUp, editAddress,
+    // accountChangePassword,
+    // accountEditProfile,
+    // accountSignIn,
+    // accountSignOut,
+    // accountSignUp, editAddress,
     // addAddress,
     // delAddress,
     // editAddress,
     // getAddress,
-    getAddresses,
+    // getAddresses,
     getDefaultAddress,
-    getOrderById,
-    getOrderByToken,
-    getOrdersList,
+    // getOrderById,
+    // getOrderByToken,
+    // getOrdersList,
 } from '~/fake-server/endpoints';
-import _ from "lodash"
-import { editProfile} from "~/api/graphql/users/userService"
+import {editProfile} from "~/api/graphql/users/userService"
 import {
     addAddress,
     deleteAddress,
@@ -37,6 +36,10 @@ import {
 } from "~/api/graphql/addresses/addressService";
 import {ILanguage} from "~/interfaces/language";
 import {changePassword, signIn, signOut, signUp} from "~/api/graphql/users/authService";
+import {getOrderById, getOrderByToken, getOrdersList} from "~/api";
+import {IBaseModelProps} from "~/api/graphql/interfaces";
+import {sortingMap} from "~/api/graphql/misc/mappers/sorting";
+import {removeUndefined} from "~/api/graphql/misc/helpers";
 
 export class FakeAccountApi extends AccountApi {
     signIn(email: string, password: string): Promise<IUser> {
@@ -60,9 +63,6 @@ export class FakeAccountApi extends AccountApi {
     }
 
     addAddress(user: IUser, data: IEditAddressData, language: ILanguage): Promise<IAddress> {
-        // return users.addAddress(user, {
-        //     defaultShippingAddress:
-        // })
         return addAddress(user.id, data)
     }
 
@@ -87,7 +87,21 @@ export class FakeAccountApi extends AccountApi {
     }
 
     getOrdersList(options?: IListOptions): Promise<IOrdersList> {
-        return getOrdersList(options);
+        let variables: IBaseModelProps = {
+            first: options?.limit,
+            after: options?.after,
+            before: options?.before,
+            ...(options?.sort ? {sortBy: sortingMap.out(options?.sort)} : {}),
+        }
+        variables = removeUndefined(variables)
+
+        return getOrdersList(variables).then(res => {
+            return {
+                sort: options?.sort || 'default',
+                items: res.dataList,
+                navigation: res.getNavigation(options?.limit || 8)
+            }
+        });
     }
 
     getOrderById(id: string): Promise<IOrder> {

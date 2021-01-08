@@ -3,14 +3,17 @@ import { IAddress, IAddressData } from '~/interfaces/address';
 import { IListOptions, IOrdersList } from '~/interfaces/list';
 import { IOrder } from '~/interfaces/order';
 import { IUser } from '~/interfaces/user';
-import {IInfo} from "~/store/interfaces";
+
+// just for the sake of muting the error
+interface IInfo {
+
+}
 
 export interface IEditProfileData {
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
-    // avatar: File;
 }
 
 export interface IEditAddressData extends IAddressData {

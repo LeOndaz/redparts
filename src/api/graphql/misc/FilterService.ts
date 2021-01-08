@@ -1,7 +1,7 @@
-import {Badges, DEFAULT_CHANNEL, DefaultAttrSlugs} from "~/api/graphql/consts";
+import {Badges, DEFAULT_CHANNEL, DefaultAttrSlugs, getCurrentChannel, MetadataKeys} from "~/api/graphql/consts";
 import {ICustomFields} from "~/interfaces/custom-fields";
 import * as util from "util";
-import {AttributeValue} from "~/api/graphql/types";
+import {AttributeValue, MetadataItem} from "~/api/graphql/types";
 
 interface filterable {
     filter?: {
@@ -34,7 +34,13 @@ export const filterPublished = (filterable: filterable): filterable => {
 
 export const filterDefaultChannel = (filterable: filterable): filterable => {
     return filter(filterable, {
-        channel: DEFAULT_CHANNEL,
+        channel: getCurrentChannel(),
+    })
+}
+
+export const filterMetadata = (filterable: filterable, obj: MetadataItem): filterable => {
+    return filter(filterable, {
+        metadata: [...filterable.metadata, obj]
     })
 }
 
@@ -50,6 +56,13 @@ const filterAttribute = (filterable: filterable, slug: string, value?: string, v
     })
 }
 
+/** products */
 export const filterHot = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.Hot)
 export const filterSale = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.Sale)
 export const filterNew = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.New)
+
+/** filter featured */
+export const FilterFeatured = (filterable: filterable) => filterMetadata(filterable, {
+    key: MetadataKeys.Featured,
+    value: "On"
+})

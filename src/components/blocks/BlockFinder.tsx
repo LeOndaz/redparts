@@ -10,7 +10,14 @@ import { baseUrl } from '~/services/utils';
 import { hrefToRouterArgs, useAppRouter } from '~/services/router';
 import { IVehicle } from '~/interfaces/vehicle';
 
-function BlockFinder() {
+
+interface props {
+    backgroundUrl?: string
+}
+
+function BlockFinder(props: props) {
+    const {backgroundUrl} = props;
+
     const router = useAppRouter();
     const [vehicle, setVehicle] = useState<IVehicle | null>(null);
 
@@ -24,7 +31,7 @@ function BlockFinder() {
         router.push(
             ...hrefToRouterArgs(url.products({
                 filters: {
-                    filter_vehicle: vehicle.id.toString(),
+                    filter_vehicle: vehicle.id,
                 },
             })),
         ).then();
@@ -35,7 +42,7 @@ function BlockFinder() {
             <Decor className="block-finder__decor" type="bottom" />
             <div
                 className="block-finder__image"
-                style={{ backgroundImage: `url(${baseUrl('/images/finder.jpg')})` }}
+                style={{ backgroundImage: backgroundUrl || `url(${baseUrl('/images/finder.jpg')})` }}
             />
             <div className="block-finder__body container container--max--xl">
                 <div className="block-finder__title">

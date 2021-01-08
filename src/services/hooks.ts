@@ -23,6 +23,8 @@ import {useUser} from "~/store/user/userHooks";
 import {useLanguage, useLocale} from "~/services/i18n/hooks";
 import {useCurrency} from "~/store/currency/currencyHooks";
 import {IInfo} from "~/store/interfaces";
+import {ICollection} from "~/api/graphql/collections/collectionMappers";
+import {getPageBySlug} from "~/api/graphql/pages/pageService";
 
 export function useGlobalMousedown(callback: (event: MouseEvent) => void, deps?: DependencyList) {
     const memoCallback = useCallback(callback, deps || []);
@@ -229,4 +231,26 @@ export function useList<T extends INavigableList<any>>(
         load,
         onNavigate,
     };
+}
+
+// export function useCollection<T extends IProductTab>(
+//     collectionSource: () => Promise<ICollection>,
+//     initialData?: ICollection,
+// ) {
+//     const tabs = [];
+//     const collection = useDeferredData(() => collectionSource(), {})
+//     const products = useProductTabs(tabs, () => Promise.resolve(collection.data.products), [])
+//
+//     return {
+//         ...collection,
+//         tabs: products.tabs,
+//         handleTabChange: products.handleTabChange,
+//     }
+// }
+
+export function usePage(slug: string){
+    const language = useLanguage();
+    const page = useDeferredData(() => getPageBySlug(slug, language), {})
+
+
 }

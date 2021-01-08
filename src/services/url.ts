@@ -8,6 +8,7 @@ import {CategoryType, ICategory, IShopCategory} from '~/interfaces/category';
 import {IOrder} from '~/interfaces/order';
 import {IPost} from '~/interfaces/post';
 import {IProduct} from '~/interfaces/product';
+import {ICollection} from "~/api/graphql/collections/collectionMappers";
 
 const url = {
     // common
@@ -19,14 +20,18 @@ const url = {
 
         return '/';
     },
+    collection: (collection: ICollection) => {
 
+    },
     // shop pages
     shop: () => '/catalog',
-    shopCategory: (category: IShopCategory): IAppLinkHref => ({
-        href: `/catalog/[slug]${category.layout === 'products' ? '/products' : ''}?slug=${category.slug}`,
-        as: `/catalog/${category.slug}${category.layout === 'products' ? '/products' : ''}`,
-    }),
-    products: ({ filters }: { filters?: Record<string, string>} = {}): IAppLinkHref => ({
+    shopCategory: (category: IShopCategory): IAppLinkHref => {
+        return {
+            href: `/catalog/[slug]${category.layout === 'products' ? '/products' : ''}?slug=${category.slug}`,
+            as: `/catalog/${category.slug}${category.layout === 'products' ? '/products' : ''}`,
+        }
+    },
+    products: ({filters}: { filters?: Record<string, string> } = {}): IAppLinkHref => ({
         href: {
             pathname: '/catalog/products',
             query: {

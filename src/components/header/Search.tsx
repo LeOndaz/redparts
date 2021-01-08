@@ -198,21 +198,21 @@ export function Search() {
                     onChange={handleInputChange}
                 />
 
-                <button
-                    type="button"
-                    className={classNames('search__button search__button--start', {
-                        'search__button--hover': vehiclePickerIsOpen,
-                    })}
-                    onClick={handleButtonClick}
-                    ref={selectVehicleButtonRef}
-                >
-                    <span className="search__button-icon">
-                        <Car20Svg />
-                    </span>
-                    <span className="search__button-title">
-                        <FormattedMessage id="BUTTON_SEARCH_SELECT_VEHICLE_DESKTOP" />
-                    </span>
-                </button>
+                {/*<button*/}
+                {/*    type="button"*/}
+                {/*    className={classNames('search__button search__button--start', {*/}
+                {/*        'search__button--hover': vehiclePickerIsOpen,*/}
+                {/*    })}*/}
+                {/*    onClick={handleButtonClick}*/}
+                {/*    ref={selectVehicleButtonRef}*/}
+                {/*>*/}
+                {/*    <span className="search__button-icon">*/}
+                {/*        <Car20Svg />*/}
+                {/*    </span>*/}
+                {/*    <span className="search__button-title">*/}
+                {/*        <FormattedMessage id="BUTTON_SEARCH_SELECT_VEHICLE_DESKTOP" />*/}
+                {/*    </span>*/}
+                {/*</button>*/}
 
                 <button className="search__button search__button--end" type="submit">
                     <span className="search__button-icon">
@@ -298,138 +298,137 @@ export function Search() {
                     )}
                 </div>
 
-                <div
-                    className={classNames('search__dropdown', 'search__dropdown--vehicle-picker', 'vehicle-picker', {
-                        'search__dropdown--open': vehiclePickerIsOpen,
-                    })}
-                    ref={vehiclePickerDropdownRef}
-                >
-                    <div className="search__dropdown-arrow" />
+                {/*<div*/}
+                {/*    className={classNames('search__dropdown', 'search__dropdown--vehicle-picker', 'vehicle-picker', {*/}
+                {/*        'search__dropdown--open': vehiclePickerIsOpen,*/}
+                {/*    })}*/}
+                {/*    ref={vehiclePickerDropdownRef}>*/}
+                {/*    <div className="search__dropdown-arrow" />*/}
 
-                    <div
-                        className={classNames('vehicle-picker__panel', {
-                            'vehicle-picker__panel--active': vehiclePanel === 'list' && hasVehicles,
-                        })}
-                    >
-                        <div className="vehicle-picker__panel-body">
-                            <div className="vehicle-picker__text">
-                                <FormattedMessage id="TEXT_SELECT_VEHICLE_TO_FIND_EXACT_FIT_PARTS" />
-                            </div>
+                {/*    <div*/}
+                {/*        className={classNames('vehicle-picker__panel', {*/}
+                {/*            'vehicle-picker__panel--active': vehiclePanel === 'list' && hasVehicles,*/}
+                {/*        })}*/}
+                {/*    >*/}
+                {/*        <div className="vehicle-picker__panel-body">*/}
+                {/*            <div className="vehicle-picker__text">*/}
+                {/*                <FormattedMessage id="TEXT_SELECT_VEHICLE_TO_FIND_EXACT_FIT_PARTS" />*/}
+                {/*            </div>*/}
 
-                            <div className="vehicles-list">
-                                <div className="vehicles-list__body">
-                                    {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                                    <label className="vehicles-list__item">
-                                        <RadioButton
-                                            className="vehicles-list__item-radio"
-                                            name="header-current-vehicle"
-                                            defaultValue=""
-                                            checked={currentVehicle === null}
-                                            onChange={handleChangeCurrentVehicle}
-                                        />
-                                        <span className=" vehicles-list__item-info">
-                                            <span className=" vehicles-list__item-name">
-                                                <FormattedMessage id="TEXT_ALL_VEHICLES" />
-                                            </span>
-                                        </span>
-                                    </label>
-                                    {vehicles.map((vehicle, index) => (
-                                        <React.Fragment key={index}>
-                                            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                                            <label className="vehicles-list__item">
-                                                <RadioButton
-                                                    className="vehicles-list__item-radio"
-                                                    name="header-current-vehicle"
-                                                    defaultValue={vehicle.id}
-                                                    checked={currentVehicle?.id === vehicle.id}
-                                                    onChange={handleChangeCurrentVehicle}
-                                                />
-                                                <span className="vehicles-list__item-info">
-                                                    <span className="vehicles-list__item-name">
-                                                        {`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                                                    </span>
-                                                    <span className="vehicles-list__item-details">
-                                                        <FormattedMessage
-                                                            id="TEXT_VEHICLE_ENGINE"
-                                                            values={{ engine: vehicle.engine }}
-                                                        />
-                                                    </span>
-                                                </span>
-                                                <AsyncAction
-                                                    action={() => garageRemoveItem(vehicle.id)}
-                                                    render={({ run, loading }) => (
-                                                        <button
-                                                            type="button"
-                                                            className={classNames('vehicles-list__item-remove', {
-                                                                'vehicles-list__item-remove--loading': loading,
-                                                            })}
-                                                            onClick={run}
-                                                        >
-                                                            <RecycleBin16Svg />
-                                                        </button>
-                                                    )}
-                                                />
-                                            </label>
-                                        </React.Fragment>
-                                    ))}
-                                </div>
-                            </div>
+                {/*            <div className="vehicles-list">*/}
+                {/*                <div className="vehicles-list__body">*/}
+                {/*                    /!* eslint-disable-next-line jsx-a11y/label-has-associated-control *!/*/}
+                {/*                    <label className="vehicles-list__item">*/}
+                {/*                        <RadioButton*/}
+                {/*                            className="vehicles-list__item-radio"*/}
+                {/*                            name="header-current-vehicle"*/}
+                {/*                            defaultValue=""*/}
+                {/*                            checked={currentVehicle === null}*/}
+                {/*                            onChange={handleChangeCurrentVehicle}*/}
+                {/*                        />*/}
+                {/*                        <span className=" vehicles-list__item-info">*/}
+                {/*                            <span className=" vehicles-list__item-name">*/}
+                {/*                                <FormattedMessage id="TEXT_ALL_VEHICLES" />*/}
+                {/*                            </span>*/}
+                {/*                        </span>*/}
+                {/*                    </label>*/}
+                {/*                    {vehicles.map((vehicle, index) => (*/}
+                {/*                        <React.Fragment key={index}>*/}
+                {/*                            /!* eslint-disable-next-line jsx-a11y/label-has-associated-control *!/*/}
+                {/*                            <label className="vehicles-list__item">*/}
+                {/*                                <RadioButton*/}
+                {/*                                    className="vehicles-list__item-radio"*/}
+                {/*                                    name="header-current-vehicle"*/}
+                {/*                                    defaultValue={vehicle.id}*/}
+                {/*                                    checked={currentVehicle?.id === vehicle.id}*/}
+                {/*                                    onChange={handleChangeCurrentVehicle}*/}
+                {/*                                />*/}
+                {/*                                <span className="vehicles-list__item-info">*/}
+                {/*                                    <span className="vehicles-list__item-name">*/}
+                {/*                                        {`${vehicle.year} ${vehicle.make} ${vehicle.model}`}*/}
+                {/*                                    </span>*/}
+                {/*                                    <span className="vehicles-list__item-details">*/}
+                {/*                                        <FormattedMessage*/}
+                {/*                                            id="TEXT_VEHICLE_ENGINE"*/}
+                {/*                                            values={{ engine: vehicle.engine }}*/}
+                {/*                                        />*/}
+                {/*                                    </span>*/}
+                {/*                                </span>*/}
+                {/*                                <AsyncAction*/}
+                {/*                                    action={() => garageRemoveItem(vehicle.id)}*/}
+                {/*                                    render={({ run, loading }) => (*/}
+                {/*                                        <button*/}
+                {/*                                            type="button"*/}
+                {/*                                            className={classNames('vehicles-list__item-remove', {*/}
+                {/*                                                'vehicles-list__item-remove--loading': loading,*/}
+                {/*                                            })}*/}
+                {/*                                            onClick={run}*/}
+                {/*                                        >*/}
+                {/*                                            <RecycleBin16Svg />*/}
+                {/*                                        </button>*/}
+                {/*                                    )}*/}
+                {/*                                />*/}
+                {/*                            </label>*/}
+                {/*                        </React.Fragment>*/}
+                {/*                    ))}*/}
+                {/*                </div>*/}
+                {/*            </div>*/}
 
-                            <div className="vehicle-picker__actions">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary btn-sm"
-                                    onClick={() => setVehiclePanel('form')}
-                                >
-                                    <FormattedMessage id="BUTTON_ADD_VEHICLE" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                {/*            <div className="vehicle-picker__actions">*/}
+                {/*                <button*/}
+                {/*                    type="button"*/}
+                {/*                    className="btn btn-primary btn-sm"*/}
+                {/*                    onClick={() => setVehiclePanel('form')}*/}
+                {/*                >*/}
+                {/*                    <FormattedMessage id="BUTTON_ADD_VEHICLE" />*/}
+                {/*                </button>*/}
+                {/*            </div>*/}
+                {/*        </div>*/}
+                {/*    </div>*/}
 
-                    <div
-                        className={classNames('vehicle-picker__panel', {
-                            'vehicle-picker__panel--active': vehiclePanel === 'form' || !hasVehicles,
-                        })}
-                    >
-                        <div className="vehicle-picker__panel-body">
-                            <VehicleForm location="search" onVehicleChange={handleVehicleChange} />
-                            <div className="vehicle-picker__actions">
-                                {hasVehicles && (
-                                    <div className="search__car-selector-link">
-                                        {/* eslint-disable-next-line */}
-                                        <AppLink
-                                            anchor
-                                            onClick={(event) => {
-                                                event.preventDefault();
+                {/*    <div*/}
+                {/*        className={classNames('vehicle-picker__panel', {*/}
+                {/*            'vehicle-picker__panel--active': vehiclePanel === 'form' || !hasVehicles,*/}
+                {/*        })}*/}
+                {/*    >*/}
+                {/*        <div className="vehicle-picker__panel-body">*/}
+                {/*            <VehicleForm location="search" onVehicleChange={handleVehicleChange} />*/}
+                {/*            <div className="vehicle-picker__actions">*/}
+                {/*                {hasVehicles && (*/}
+                {/*                    <div className="search__car-selector-link">*/}
+                {/*                        /!* eslint-disable-next-line *!/*/}
+                {/*                        <AppLink*/}
+                {/*                            anchor*/}
+                {/*                            onClick={(event) => {*/}
+                {/*                                event.preventDefault();*/}
 
-                                                setVehiclePanel('list');
-                                            }}
-                                        >
-                                            <FormattedMessage id="BUTTON_BACK_TO_LIST" />
-                                        </AppLink>
-                                    </div>
-                                )}
+                {/*                                setVehiclePanel('list');*/}
+                {/*                            }}*/}
+                {/*                        >*/}
+                {/*                            <FormattedMessage id="BUTTON_BACK_TO_LIST" />*/}
+                {/*                        </AppLink>*/}
+                {/*                    </div>*/}
+                {/*                )}*/}
 
-                                <AsyncAction
-                                    action={() => (addVehicle ? garageAddItem(addVehicle.id) : Promise.resolve())}
-                                    render={({ run, loading }) => (
-                                        <button
-                                            type="button"
-                                            className={classNames('btn', 'btn-primary', 'btn-sm', {
-                                                'btn-loading': loading,
-                                            })}
-                                            disabled={addVehicle === null}
-                                            onClick={run}
-                                        >
-                                            <FormattedMessage id="BUTTON_ADD_VEHICLE" />
-                                        </button>
-                                    )}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {/*                <AsyncAction*/}
+                {/*                    action={() => (addVehicle ? garageAddItem(addVehicle.id) : Promise.resolve())}*/}
+                {/*                    render={({ run, loading }) => (*/}
+                {/*                        <button*/}
+                {/*                            type="button"*/}
+                {/*                            className={classNames('btn', 'btn-primary', 'btn-sm', {*/}
+                {/*                                'btn-loading': loading,*/}
+                {/*                            })}*/}
+                {/*                            disabled={addVehicle === null}*/}
+                {/*                            onClick={run}*/}
+                {/*                        >*/}
+                {/*                            <FormattedMessage id="BUTTON_ADD_VEHICLE" />*/}
+                {/*                        </button>*/}
+                {/*                    )}*/}
+                {/*                />*/}
+                {/*            </div>*/}
+                {/*        </div>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
             </form>
         </div>
     );

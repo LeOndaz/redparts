@@ -25,6 +25,7 @@ function AppSlickInner(props: Props) {
         beforeChange,
         ...otherProps
     } = props;
+    const { responsive, slidesToShow } = otherProps;
     const direction = useDirection();
     const slickRef = useRef<Slick | null>(null);
     const originalSlickNextRef = useRef<() => void>(() => {});
@@ -106,6 +107,7 @@ function AppSlickInner(props: Props) {
     };
 
     const [preventClick, setPreventClick] = useState(false);
+    const [currentSlidesToShow, setCurrentSlidesToShow] = useState(getSlidesToShow());
     const [activeSlides, setActiveSlides] = useState(getActiveSlides(getStartPosition()));
 
     const onMousedown = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -168,6 +170,64 @@ function AppSlickInner(props: Props) {
 
         slickRef.current = ref;
     }, []);
+
+    useEffect(() => {
+        let unsubscribe = () => {};
+
+        if (responsive && responsive.length > 0) {
+            const subscriptions: Array<() => void> = [];
+
+            const createMedia = (query: string, slidesToShow: number | undefined) => {
+                const media = matchMedia(query);
+
+                const onChange = () => {
+                    const { matches } = media;
+
+                    if (matches && slidesToShow) {
+                        setCurrentSlidesToShow(slidesToShow);
+                    }
+                };
+
+                if (media.addEventListener) {
+                    media.addEventListener('change', onChange);
+                } else {
+                    media.addListener(onChange);
+                }
+
+                subscriptions.push(() => {
+                    if (media.removeEventListener) {
+                        media.removeEventListener('change', onChange);
+                    } else {
+                        media.removeListener(onChange);
+                    }
+                });
+            };
+
+            createMedia(`(min-width: ${responsive[0].breakpoint}.02px)`, slidesToShow || 1);
+
+            responsive.forEach((options, index) => {
+                if (options.settings === 'unslick') {
+                    return;
+                }
+
+                const query = [
+                    `(max-width: ${options.breakpoint}px)`,
+                ];
+
+                if (responsive.length - 1 !== index) {
+                    query.push(`(min-width: ${responsive[index + 1].breakpoint}.02px)`);
+                }
+
+                createMedia(query.join(' and '), options.settings.slidesToShow);
+            });
+
+            unsubscribe = () => {
+                subscriptions.forEach((x) => x());
+            };
+        }
+
+        return unsubscribe;
+    }, [responsive, slidesToShow]);
 
     useEffect(() => {
         slickNextRef.current = () => {
@@ -248,7 +308,13 @@ function AppSlickInner(props: Props) {
             className={classes}
             onMouseDown={onMousedown}
         >
-            <Slick {...otherProps} rtl={direction === 'rtl'} beforeChange={beforeChangeWrapper} ref={setSlickRef}>
+            <Slick
+                {...otherProps}
+                rtl={direction === 'rtl'}
+                beforeChange={beforeChangeWrapper}
+                infinite={otherProps.infinite && React.Children.count(children) > currentSlidesToShow}
+                ref={setSlickRef}
+            >
                 {reversedChildren}
             </Slick>
         </div>

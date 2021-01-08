@@ -6,21 +6,21 @@ import {
     GetProductBySlugDocument,
     GetProductListDocument,
 } from '~/api/graphql/types';
-import {queryList} from '~/api/graphql/misc/helpers';
 import {filterDefaultChannel, filterPublished, filterStack} from '~/api/graphql/misc/FilterService';
 import {IBaseModelProps} from '~/api/graphql/interfaces';
 import {handleRelayedResponse, handleSingleResponse} from '~/api/graphql/misc/mappers/utils';
 import {productMap} from '~/api/graphql/products/productMappers';
 import {ILanguage} from "~/interfaces/language";
 import {client} from "~/api";
+import {getCurrentChannel} from "~/api/graphql/consts";
 
-export const handleProductSingleResponse = (res: ApolloQueryResult<any>) => handleSingleResponse({
+export const handleProductSingleResponse = (res: ApolloQueryResult<any> | any) => handleSingleResponse({
     res,
     dataField: 'product',
     inMapper: productMap.in,
 });
 
-export const handleProductRelayedResponse = (res: ApolloQueryResult<any>) => handleRelayedResponse({
+export const handleProductRelayedResponse = (res: ApolloQueryResult<any> | any) => handleRelayedResponse({
     res,
     dataField: 'products',
     inMapper: productMap.in,
@@ -30,7 +30,8 @@ export const getProductById = (id: string, language: ILanguage) => client.query(
     query: GetProductByIdDocument,
     variables: {
         id,
-        languageCode: language.code
+        channel: getCurrentChannel(),
+        languageCode: language.code,
     }
 }).then(handleProductSingleResponse);
 
@@ -38,20 +39,22 @@ export const getProductBySlug = (slug: string, language: ILanguage) => client.qu
     query: GetProductBySlugDocument,
     variables: {
         slug,
+        channel: getCurrentChannel(),
         languageCode: language.code,
     }
 }).then(handleProductSingleResponse);
 
 export const getProductList = (variables: IBaseModelProps, language: ILanguage) => client.query({
     query: GetProductListDocument,
-    variables: filterPublished(
-        filterDefaultChannel(
-            {
-                ...variables,
-                languageCode: language.code,
-            }
+    variables:
+        filterPublished(
+            filterDefaultChannel(
+                {
+                    ...variables,
+                    languageCode: language.code,
+                }
+            )
         )
-    )
 }).then(handleProductRelayedResponse);
 
 /** exports */

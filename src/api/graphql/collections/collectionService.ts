@@ -1,22 +1,19 @@
 import {client, filterDefaultChannel, filterPublished, handleProductRelayedResponse} from "~/api";
-import {Collection, GetCollectionBySlugDocument} from "~/api/graphql/types";
+import {GetCollectionBySlugDocument} from "~/api/graphql/types";
 import {handleSingleResponse} from "~/api/graphql/misc/mappers/utils";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 import {ILanguage} from "~/interfaces/language";
+import {collectionMap, ICollection} from "~/api/graphql/collections/collectionMappers";
 
 const handleCollectionSingleResponse = (res: any) => handleSingleResponse({
     dataField: 'collection',
     // this is just for creating a response like object so that
     // we can use handleProductRelayedResponse
-    inMapper: (collection: Collection) => ({
-        data: {
-            products: collection.products,
-        },
-    }),
+    inMapper: collectionMap.in,
     res,
 })
 
-const getCollectionBySlug = (slug: string, productVariables: IBaseModelProps, language: ILanguage) => client.query({
+export const getCollectionBySlug = (slug: string, productVariables: IBaseModelProps, language: ILanguage): Promise<ICollection> => client.query({
     query: GetCollectionBySlugDocument,
     variables: {
         slug,
@@ -29,5 +26,3 @@ const getCollectionBySlug = (slug: string, productVariables: IBaseModelProps, la
     }
 }).then(handleCollectionSingleResponse)
 
-export const getProductsByCollectionSlug = (slug: string, productVariables: IBaseModelProps, language: ILanguage) => getCollectionBySlug(slug, productVariables, language)
-    .then(handleProductRelayedResponse)

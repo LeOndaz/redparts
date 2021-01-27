@@ -21,7 +21,7 @@ export interface IOrderTotal {
 }
 
 export interface IOrder {
-    id: number;
+    id: string;
     token: string;
     number: string;
     createdAt: string;

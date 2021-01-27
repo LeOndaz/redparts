@@ -2,7 +2,7 @@ fragment collectionDetailsFragment on Collection {
     id
     name
     description
-    descriptionJson
+    description
     translation (languageCode: $languageCode){
         name
     }
@@ -18,7 +18,7 @@ fragment collectionDetailsFragment on Collection {
         }
         edges {
             node {
-                ...productDetailFragment
+                ...productDetailsFragment
             }
             cursor
         }

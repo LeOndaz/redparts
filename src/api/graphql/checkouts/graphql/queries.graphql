@@ -1,0 +1,5 @@
+query getCheckoutByToken($token: UUID!, $languageCode: LanguageCodeEnum!) {
+    checkout(token: $token) {
+        ...checkoutDetailsFragment
+    }
+}

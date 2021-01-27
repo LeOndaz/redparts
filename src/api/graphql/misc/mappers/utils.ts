@@ -1,4 +1,4 @@
-import {PageInfo, Product} from "~/api/graphql/types";
+import {AttributeValue, PageInfo, Product, SelectedAttribute} from "~/api/graphql/types";
 import {
     IProductAttribute,
     IProductOption,
@@ -8,6 +8,8 @@ import {
 import {ApolloQueryResult} from "@apollo/client";
 import {cursorNavigationMap} from "~/api/graphql/misc/mappers/navigation";
 import {ICursorBasedNavigation} from "~/interfaces/list";
+import {mapTranslatable, removeUndefined} from "~/api/graphql/misc/helpers";
+import {map} from "rxjs/operators";
 
 export let getProductAttrs = (product: Product) => {
     const attrs: IProductAttribute[] = [];
@@ -35,11 +37,11 @@ export let getProductAttrs = (product: Product) => {
 
         attrs.push({
             name: attribute.name,
-            slug: attribute.id, /* can't query by attribute.slug */
+            slug: attribute.slug,
             featured: isFeatured,
             values: values.map(val => ({
                 name: val.name,
-                slug: val.id,
+                slug: val.slug,
             }))
         })
 
@@ -52,60 +54,114 @@ export let getProductAttrs = (product: Product) => {
 }
 
 export let mapVariantAttrsToOptions = (product: Product): IProductOption[] => {
-    let options: IProductOption[] = [];
+    const variants = product.variants || [];
+    const variantAttrs = product.productType.variantAttributes || [];
+    const options: IProductOption[] = [];
 
-    product.defaultVariant!.attributes.map(defVariant => {
+    variantAttrs.forEach(variantAttr => {
+        const [attrName] = mapTranslatable(variantAttr, ['name']);
+        let option: IProductOption;
 
-        let requiredAttr = defVariant.attribute;
-        let requiredValues: IProductOptionValueBase[] = [];
+        const values = variants.map(v => v?.attributes || [])
+            .flat(1)
+            .filter(({attribute}) => attribute.slug === variantAttr?.slug)
+            .map(a => a.values)
+            .flat(1)
 
-        let selectedAttrObjects = product.variants
-            ?.map(variant => variant?.attributes.filter(selectedAttr => selectedAttr.attribute.id == requiredAttr.id))
-            .map(selectedAttrArray => selectedAttrArray?.[0] || null)
+        const existingAttrIdx = options.findIndex((i) => i.slug === variantAttr?.slug)
+        if (existingAttrIdx !== -1) {  // -1 means not found
+            const existingAttr = options[existingAttrIdx];
+            const newValues = [...existingAttr.values];
 
-        selectedAttrObjects?.map(obj => obj?.values).map(values => {
-            values?.forEach(val => {
-                requiredValues.filter(reqVal => reqVal.slug === val?.id).length === 0 && requiredValues.push({
-                    name: val?.name,
-                    slug: val?.id,
+            values.forEach(val => {
+                newValues.push({
+                    name: val.name,
+                    slug: val.slug,
                 })
             })
-        })
 
-        let option: IProductOption = {
-            name: requiredAttr.name,
-            slug: requiredAttr.id,
-            type: 'default',
-            values: requiredValues,
+            // @ts-ignore
+            options[existingAttrIdx] = {
+                ...existingAttr,
+                values: newValues,
+            }
+        } else {
+            option = {
+                name: attrName,
+                slug: variantAttr.slug as string,
+                values: values.map(v => {
+                    let [name] = mapTranslatable(v, ['name'])
+
+                    return {
+                        name,
+                        slug: v!.slug as string
+                    }
+                }),
+                type: "default",
+            }
+
+            options.push(option)
         }
-        requiredValues.length > 0 && options.push(option)
-    });
 
-    /* remove undefined key-vals */
-    return JSON.parse(JSON.stringify(options));
+    })
+    console.log(options)
+    return options
+
+    // let options: IProductOption[] = [];
+    //
+    //
+    // product.defaultVariant!.attributes.map(defVariant => {
+    //
+    //     let requiredAttr = defVariant.attribute;
+    //     let requiredValues: IProductOptionValueBase[] = [];
+    //
+    //     let selectedAttrObjects = product.variants
+    //         ?.map(variant => variant?.attributes.filter(selectedAttr => selectedAttr.attribute.id == requiredAttr.id))
+    //         .map(selectedAttrArray => selectedAttrArray?.[0] || null)
+    //
+    //     selectedAttrObjects?.map(obj => obj?.values).map(values => {
+    //         values?.forEach(val => {
+    //             requiredValues.filter(reqVal => reqVal.slug === val?.id).length === 0 && requiredValues.push({
+    //                 name: val?.name,
+    //                 slug: val?.slug,
+    //             })
+    //         })
+    //     })
+    //
+    //     let option: IProductOption = {
+    //         name: requiredAttr.name,
+    //         slug: requiredAttr.slug,
+    //         type: 'default',
+    //         values: requiredValues,
+    //     }
+    //     requiredValues.length > 0 && options.push(option)
+    // });
+    //
+    // /* remove undefined key-vals */
+    // return removeUndefined(options);
 }
 
 interface handlerArgs {
     res: ApolloQueryResult<any>;
     dataField: string;
     errorsField?: string;
-    inMapper: (arg: any) => any;
+    inMapper?: (arg: any) => any;
     relay?: boolean;
 }
 
 
 export const handleSingleResponse = (config: handlerArgs) => {
-    const {res, dataField, inMapper, errorsField } = config
+    const {res, dataField, inMapper} = config
 
-    const item = res.data[dataField] || null
-    // const errors = errorsField ? res.data[errorsField] : []
+    let item = res.data[dataField] || null
 
-    return item ? inMapper(item) : null
+    if (item) {
+        item = inMapper ? inMapper(item) : item
 
-    // return {
-    //     item,
-    //     errors,
-    // }
+        return item
+    }
+
+    return null
 }
 
 export interface RelayedResponse<T> {
@@ -115,22 +171,21 @@ export interface RelayedResponse<T> {
     errors: any[];
 }
 
+
 export const handleRelayedResponse = (config: handlerArgs): RelayedResponse<any> => {
     const {res, dataField, errorsField, inMapper, relay = true} = config
 
     let dataList: any[];
 
-    if (relay){
+    if (relay) {
         dataList = res.data[dataField].edges.map(edge => edge.node).map(inMapper)
     } else {
         dataList = res.data[dataField].map(inMapper)
     }
 
     const totalCount = res.data.totalCount;
-
-    let pageInfo = res.data[dataField].pageInfo
-    let getNavigation = (first: number) => cursorNavigationMap.in(pageInfo, first, totalCount)
-
+    const pageInfo = res.data[dataField].pageInfo
+    const getNavigation = (first: number) => cursorNavigationMap.in(pageInfo, first, totalCount)
     const errors = res.data[errorsField!] || [];
 
     return {

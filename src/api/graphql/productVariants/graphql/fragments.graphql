@@ -1,5 +1,4 @@
-
-fragment productVariantDetails on ProductVariant {
+fragment productVariantDetailsFragment on ProductVariant {
     id
     sku
     name
@@ -7,8 +6,12 @@ fragment productVariantDetails on ProductVariant {
         price {
             ...taxedMoneyFragment
         }
+        priceUndiscounted {
+            ...taxedMoneyFragment
+        }
     }
     attributes {
         ...attributeValuesDetailFragment
     }
+    quantityAvailable
 }

@@ -67,7 +67,10 @@ function Dropdown<T extends IDropdownItem>(props: Props<T>) {
                     <ArrowDownSm7x5Svg />
                 </span>
             </button>
-            <div className="topbar__menu-body">
+            <div className="topbar__menu-body" style={{
+                maxHeight: '320px',
+                overflowY: 'auto',
+            }}>
                 {items.map((item, index) => (
                     <button
                         key={index}

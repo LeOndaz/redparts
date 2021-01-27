@@ -128,7 +128,7 @@ function ShopPageOrderSuccess(props: Props) {
                                                         >
                                                             <AppImage
                                                                 className="image__tag"
-                                                                src={item.product.images && item.product.images[0]}
+                                                                src={item.product.images && item.product.images[0].url}
                                                             />
                                                         </AppLink>
                                                     </div>

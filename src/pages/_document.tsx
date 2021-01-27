@@ -21,14 +21,6 @@ class MyDocument extends Document {
         return (
             <Html lang={lang} dir={dir}>
                 <Head>
-                    <script dangerouslySetInnerHTML={{
-                        __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NM5236T');`
-                    }}></script>
-
                     <link rel="shortcut icon" href={baseUrl('/images/favicon.png')}/>
 
                     {/* fonts */}
@@ -36,9 +28,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                           href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i"/>
                 </Head>
                 <body>
-                <noscript dangerouslySetInnerHTML={{
-                    __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NM5236T" height="0" width="0" style="display:none;visibility:hidden"></iframe>`
-                }}/>
                 <div className="site-preloader">
                     <style
                         dangerouslySetInnerHTML={{

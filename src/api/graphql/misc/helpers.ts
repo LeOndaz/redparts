@@ -9,7 +9,7 @@ import {
     Category,
     Collection,
     MenuItem,
-    MetadataItem,
+    MetadataItem, PaymentGateway,
     Product,
     SelectedAttribute
 } from "~/api/graphql/types";
@@ -131,14 +131,16 @@ export const saveLocal = (key: string, value: any) => localStorage.setItem(key, 
 export const clone = (obj: any) => JSON.parse(JSON.stringify(obj))
 export const removeUndefined = clone;
 
-type translatable = Product | Attribute | Category | Collection | MenuItem | AttributeValue
+type translatable = Product | Attribute | Category | Collection | MenuItem | AttributeValue | null
 
 export const mapTranslatable = (obj: translatable, attrs: string[]) => {
+    if (obj === null) throw Error('NULL object passed as a translatable.')
+
     if (obj.translation) {
-        // @ts-ignore
+        // @ts-ignore index-error
         return attrs.map(attrName => obj.translation[attrName])
     } else {
-        // @ts-ignore
+        // @ts-ignore index-error
         return attrs.map(attrName => obj[attrName])
     }
 }
@@ -153,3 +155,18 @@ export const mockRelayResponse = (obj: any, key: string) => {
 }
 
 export const isEmpty = (arr: any[]) => arr.length === 0
+
+export const getFieldFromGatewayConfig = (field: string, gateway: PaymentGateway) => gateway.config.find(o => o.field === field)?.value
+
+
+export const getCurrencySymbol = (locale: string, code: string) => {
+    return (0).toLocaleString(
+        locale,
+        {
+            style: 'currency',
+            currency: code,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }
+    ).replace(/\d/g, '').trim()
+}

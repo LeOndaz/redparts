@@ -2,16 +2,15 @@ import {Order} from "~/api/graphql/types";
 import {IOrder} from "~/interfaces/order";
 import {addressMap} from "~/api/graphql/addresses/addressMappers";
 
-
-const getOrderTotal = (order: Order) => {
-    return order.lines.reduce((tot, line) => {
-        tot += line.totalPrice.gross.amount
-    }, 0)
-}
+//
+// const getOrderTotal = (order: Order) => {
+//     return order.lines.reduce((tot, line) => {
+//         tot += line.totalPrice.gross.amount
+//     }, 0)
+// }
 
 
 const orderMapIn = (order: Order): IOrder => {
-
     return {
         id: order.id,
         status: order.status,

@@ -2,8 +2,13 @@
 /**
  * Those services will be fiderated soon, saleor #6439
  * */
-export const API_URL = 'http://localhost:8000/graphql/';
-export const REVIEWS_PLUGIN_API_URL = 'http://localhost:8000/plugins/reviews/';
+
+const BASE_URL = "http://localhost:8000"
+export const API_URL = `${BASE_URL}/graphql/`;
+export const REVIEWS_PLUGIN_API_URL = `${BASE_URL}/plugins/reviews/`;
+export const PLUGIN_GTAG_URL = `${BASE_URL}/plugins/gtag/`
+export const PLUGIN_FACEBOOK_PIXEL_URL = `${BASE_URL}/plugins/facebook-pixel/`
+export const PLUGIN_OPEN_EXCHANGE_URL = `${BASE_URL}/plugins/open-exchange/`
 
 /** */
 export const DEFAULT_CHANNEL = 'default';
@@ -56,6 +61,7 @@ export enum MetadataKeys {
     /** Collections */
     Categories = "categories"
 }
+
 
 export const MAX_BADGES = 3
 export const BASE_CURRENCY = "EUR"

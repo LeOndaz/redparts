@@ -5,7 +5,7 @@ import {mapTranslatable} from "~/api/graphql/misc/helpers";
 
 
 const categoryMapIn = (category: Category, type: CategoryType, layout?: IShopCategoryLayout): ICategory => {
-    let [name, description] = mapTranslatable(category, ['name', 'descriptionJson'])
+    let [name, description] = mapTranslatable(category, ['name', 'description'])
 
     description = JSON.parse(description)
     description = customEditorjsParser.parse(description)
@@ -15,7 +15,7 @@ const categoryMapIn = (category: Category, type: CategoryType, layout?: IShopCat
         slug: category.slug,
         name: name,
         parent: category.parent && categoryMapIn(category.parent, type, layout) || null,
-        children: category.children && category.children.edges.map(e => e.node).map(node => categoryMapIn(node, type, layout)) || [],
+        children: category.children ? category.children.edges.map(e => e.node).map(node => categoryMapIn(node, type, layout)) : [],
         image: category.backgroundImage?.url || null,
         customFields: {
             description: description,

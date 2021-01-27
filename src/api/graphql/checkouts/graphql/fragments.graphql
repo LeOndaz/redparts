@@ -1,0 +1,57 @@
+fragment checkoutDetailsFragment on Checkout {
+    id
+    token
+    created
+    email
+    isShippingRequired
+    shippingAddress {
+        ...addressDetailsFragment
+    }
+    billingAddress {
+        ...addressDetailsFragment
+    }
+    token
+    subtotalPrice {
+        ...taxedMoneyFragment
+    }
+    totalPrice {
+        ...taxedMoneyFragment
+    }
+    lines {
+        id
+        quantity
+        requiresShipping
+        totalPrice {
+            ...taxedMoneyFragment
+        }
+        variant {
+            product {
+                id
+            }
+            attributes {
+                ...attributeValuesDetailFragment
+            }
+        }
+    }
+    availablePaymentGateways {
+        id
+        name
+        currencies
+        config {
+            field
+            value
+        }
+    }
+    availableShippingMethods {
+        id
+        name
+        translation(languageCode: $languageCode){
+            name
+        }
+        maximumDeliveryDays
+        price {
+            amount
+        }
+    }
+}
+

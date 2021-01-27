@@ -1,25 +1,30 @@
 // react
-import React, { useCallback, useRef, useState } from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 // third-party
 import classNames from 'classnames';
 // application
 import AppLink from '~/components/shared/AppLink';
 import Megamenu from '~/components/header/Megamenu';
-import { ArrowRoundedDown9x6Svg, ArrowRoundedRight7x11Svg, Menu16x12Svg } from '~/svg';
-import { IDepartmentsLink } from '~/interfaces/departments-link';
-import { useGlobalMousedown } from '~/services/hooks';
+import {ArrowRoundedDown9x6Svg, ArrowRoundedRight7x11Svg, Menu16x12Svg} from '~/svg';
+import {IDepartmentsLink} from '~/interfaces/departments-link';
+import {useDeferredData, useGlobalMousedown, useHeaderDepartments} from '~/services/hooks';
 // data
 import dataHeaderDepartments from '~/data/headerDepartments';
+import {shopApi} from "~/api";
+import {useLanguage} from "~/services/i18n/hooks";
+import {Spinner} from "reactstrap";
 
 interface Props {
     label: React.ReactNode;
 }
 
 function Departments(props: Props) {
-    const { label } = props;
+    const {label} = props;
     const [isOpen, setIsOpen] = useState(false);
     const [currentItem, setCurrentItem] = useState<IDepartmentsLink | null>(null);
     const rootRef = useRef<HTMLDivElement>(null);
+    const language = useLanguage();
+    const headerDepartments = useHeaderDepartments(language);
 
     const handleButtonClick = () => {
         setIsOpen((state) => !state);
@@ -54,19 +59,23 @@ function Departments(props: Props) {
 
     return (
         <div className={classes} ref={rootRef}>
+            {headerDepartments.isLoading &&
+            <button type="button" className={`btn btn-muted btn-loading btn-sm departments_button`}/>}
+            {!headerDepartments.isLoading &&
             <button className="departments__button" type="button" onClick={handleButtonClick}>
                 <span className="departments__button-icon">
-                    <Menu16x12Svg />
+                    <Menu16x12Svg/>
                 </span>
                 <span className="departments__button-title">
                     {label}
                 </span>
                 <span className="departments__button-arrow">
-                    <ArrowRoundedDown9x6Svg />
+                    <ArrowRoundedDown9x6Svg/>
                 </span>
             </button>
+            }
             <div className="departments__menu">
-                <div className="departments__arrow" />
+                <div className="departments__arrow"/>
                 <div className="departments__body" onMouseLeave={handleBodyMouseLeave}>
                     <ul className="departments__list">
                         <li
@@ -74,7 +83,7 @@ function Departments(props: Props) {
                             role="presentation"
                             onMouseEnter={handleListPaddingMouseEnter}
                         />
-                        {dataHeaderDepartments.map((item, index) => {
+                        {!headerDepartments.isLoading && headerDepartments.data.map((item, index) => {
                             const itemHasSubmenu = !!item.submenu;
                             const itemClasses = classNames('departments__item', {
                                 'departments__item--has-submenu': itemHasSubmenu,
@@ -97,7 +106,7 @@ function Departments(props: Props) {
                                         {item.title}
                                         {itemHasSubmenu && (
                                             <span className="departments__item-arrow">
-                                                <ArrowRoundedRight7x11Svg />
+                                                <ArrowRoundedRight7x11Svg/>
                                             </span>
                                         )}
                                     </AppLink>
@@ -112,7 +121,7 @@ function Departments(props: Props) {
                     </ul>
 
                     <div className="departments__menu-container">
-                        {dataHeaderDepartments.map((item, index) => {
+                        {!headerDepartments.isLoading && headerDepartments.data.map((item, index) => {
                             if (!item.submenu) {
                                 return null;
                             }

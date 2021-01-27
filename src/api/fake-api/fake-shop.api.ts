@@ -29,7 +29,7 @@ import {
 
 import {
     createReview, filterNew,
-    getBrands,
+    getBrands, getPaymentGateways,
     getProductBySlug, getProductList,
     getReviewsList, getShopCategoryBySlugProductsLayout, getShopCategoryListProductsLayout,
 } from "~/api"
@@ -47,9 +47,11 @@ import {Badges, Collections} from "~/api/graphql/consts";
 import {reviewMap} from "~/api/graphql/reviews/ReviewMappers";
 import {sortingMap} from "~/api/graphql/misc/mappers/sorting";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
-import {Collection} from "~/api/graphql/types";
+import {Collection, PaymentGateway} from "~/api/graphql/types";
 import {ICollection} from "~/api/graphql/collections/collectionMappers";
 import {addressMap} from "~/api/graphql/addresses/addressMappers";
+import * as util from "util";
+import {ICurrency} from "~/interfaces/currency";
 
 const emptyProductList: IProductsList = {
     navigation: {
@@ -64,6 +66,12 @@ const emptyProductList: IProductsList = {
     sort: '',
     items: [],
     filters: [],
+}
+
+interface PaymentMethod {
+    name: string;
+    label: string;
+    description: string;
 }
 
 
@@ -93,7 +101,6 @@ export class FakeShopApi implements ShopApi {
             if (parent) {
                 return categoryList.filter((category: ICategory) => category.parent == parent)
             }
-
             return categoryList;
         });
     }
@@ -127,14 +134,13 @@ export class FakeShopApi implements ShopApi {
             }
 
             const navigation = getNavigation(options.limit || 16)
-
-            const filterBuilders = [
+            const filterBuilders = products.length > 0 ? [
                 new CategoryFilterBuilder('category', 'Categories'),
                 new RangeFilterBuilder('price', 'Price range'),
                 new RatingFilterBuilder('rating', 'Rating'),
                 new RadioFilterBuilder('discount', 'On discount'),
                 new CheckFilterBuilder('brand', 'Brand'),
-            ]
+            ] : [];
 
             filterBuilders.forEach(fb => {
                 const items = fb.slug === 'category' ? categories : products
@@ -203,7 +209,17 @@ export class FakeShopApi implements ShopApi {
 
     getFeaturedProducts(categorySlug: string | null, limit: number, language: ILanguage): Promise<IProduct[]> {
         return this.getFeaturedCollection(limit, language)
-            .then(collection => categorySlug ? filterProductsByCategory(categorySlug, collection.products) : collection.products)
+            .then(collection => {
+                if (categorySlug && collection) {
+                    return filterProductsByCategory(categorySlug, collection.products)
+                }
+
+                if (!categorySlug && collection) {
+                    return collection.products
+                }
+
+                return [];
+            })
     }
 
     getFeaturedCollection(limit: number, language: ILanguage): Promise<ICollection> {
@@ -228,13 +244,7 @@ export class FakeShopApi implements ShopApi {
             Collections.DealZone,
             {
                 first: limit,
-            }, language).then(collection => collection ? collection.products.map(product => {
-
-            if (!(Badges.Hot in product.badges)) {
-                product.badges.push(Badges.Hot)
-            }
-            return product
-        }) : [])
+            }, language).then(collection => collection ? collection.products : [])
     }
 
     getLatestProducts(limit: number, language: ILanguage): Promise<IProduct[]> {
@@ -262,38 +272,21 @@ export class FakeShopApi implements ShopApi {
             }
         }, language).then(r => r.dataList)
 
-        return Promise.all([categories, products]).then(r => ({
-            categories: r[0],
-            products: r[1],
+        return Promise.all([categories, products]).then(([categories, products]) => ({
+            categories: categories,
+            products: products,
         })) as Promise<IGetSearchSuggestionsResult>
     }
 
     checkout(data: ICheckoutData, isAnonymous: boolean): Promise<IOrder> {
         /** NOTE: mapped addresses have no email */
 
-
+        console.log(util.inspect(data))
         return checkout(data);
     }
 
-    //
-    // getCurrencies(baseCurrency = BASE_CURRENCY): Promise<ICurrency[]> {
-    //     return Promise.all([
-    //         fetch('https://openexchangerates.org/api/latest.json?app_id=82c358b9713144acb488030de522eb42').then(r => r.json().then()),
-    //         fetch('https://openexchangerates.org/api/currencies.json').then(r => r.json().then())
-    //     ]).then(([latest, currencyNames]) => {
-    //         const {rates, base} = latest;
-    //         return Object.entries(rates).map(([code, rate]) => {
-    //             if(base !== baseCurrency){
-    //                 rate = rate / rates[baseCurrency]
-    //             }
-    //             return {
-    //                 code: code,
-    //                 rate: rate,
-    //                 symbol: '',
-    //                 name: currencyNames[code],
-    //             } as ICurrency
-    //         })
-    //     })
-    // }
-
+    getPaymentMethods(): Promise<PaymentGateway[]> {
+        return getPaymentGateways()
+    }
 }
+

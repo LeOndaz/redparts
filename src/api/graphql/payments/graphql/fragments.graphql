@@ -1,0 +1,17 @@
+fragment paymentDetailsFragment on Payment {
+    id
+    isActive
+    actions
+    availableCaptureAmount {
+        amount
+    }
+    availableRefundAmount {
+        amount
+    }
+    capturedAmount {
+        amount
+    }
+    checkout {
+        ...checkoutDetailsFragment
+    }
+}

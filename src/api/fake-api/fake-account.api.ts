@@ -40,6 +40,8 @@ import {getOrderById, getOrderByToken, getOrdersList} from "~/api";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 import {sortingMap} from "~/api/graphql/misc/mappers/sorting";
 import {removeUndefined} from "~/api/graphql/misc/helpers";
+import {Checkout} from "~/api/graphql/types";
+import {getCheckoutByToken} from "~/api/graphql/checkouts/checkoutService";
 
 export class FakeAccountApi extends AccountApi {
     signIn(email: string, password: string): Promise<IUser> {
@@ -110,5 +112,9 @@ export class FakeAccountApi extends AccountApi {
 
     getOrderByToken(token: string): Promise<IOrder> {
         return getOrderByToken(token);
+    }
+
+    getCheckoutByToken(token: string, language: ILanguage): Promise<Checkout> {
+        return getCheckoutByToken(token, language)
     }
 }

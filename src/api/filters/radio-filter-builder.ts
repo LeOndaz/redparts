@@ -22,7 +22,7 @@ export class RadioFilterBuilder extends AbstractFilterBuilder {
             }
         }));
 
-        this.value = value || this.items[0].slug;
+        this.value = this.items[0].slug
     }
 
     calc(products: IProduct[], filters: AbstractFilterBuilder[]): void {

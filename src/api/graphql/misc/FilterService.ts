@@ -11,9 +11,9 @@ interface filterable {
     [propName: string]: any
 }
 
-export const filterStack = (filterFns: any[], filterable: filterable) => {
-    return filterFns.reduce((acc, filterFn) => filterFn(acc), filterable)
-}
+// export const filterStack = (filterFns: any[], filterable: filterable) => {
+//     return filterFns.reduce((acc, filterFn) => filterFn(acc), filterable)
+// }
 
 const filter = (filterable: filterable, filters: ICustomFields): filterable => {
     /** All filters are stackable, you can filter1(filter(2filterN((filterableObj))) */
@@ -56,7 +56,7 @@ const filterAttribute = (filterable: filterable, slug: string, value?: string, v
     })
 }
 
-/** products */
+
 export const filterHot = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.Hot)
 export const filterSale = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.Sale)
 export const filterNew = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.New)

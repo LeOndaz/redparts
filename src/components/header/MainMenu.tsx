@@ -1,31 +1,24 @@
 // react
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 // third-party
 import classNames from 'classnames';
 // application
 import AppLink from '~/components/shared/AppLink';
 import Megamenu from '~/components/header/Megamenu';
 import Menu from '~/components/header/Menu';
-import { ArrowDownSm7x5Svg } from '~/svg';
-import { IMainMenuLink } from '~/interfaces/main-menu-link';
-import { useOptions } from '~/store/options/optionsHooks';
+import {ArrowDownSm7x5Svg} from '~/svg';
+import {IMainMenuLink} from '~/interfaces/main-menu-link';
+import {useOptions} from '~/store/options/optionsHooks';
 // data
-import dataHeaderMainMenu from '~/data/headerMainMenu';
-import {useDeferredData} from "~/services/hooks";
-import {getMenuBySlug} from "~/api/graphql/navigation/navigationService";
 import {useLanguage} from "~/services/i18n/hooks";
-import {navigationApi} from "~/api";
+import {useNavbarLinks} from "~/services/hooks";
 
 function MainMenu() {
-    // const items: IMainMenuLink[] = dataHeaderMainMenu;
-
     const language = useLanguage()
-    const items = useDeferredData(
-        () => navigationApi.getNavigationBarMenus(language), []
-    )
+    const options = useOptions();
+    const items = useNavbarLinks(language);
 
     const [currentItem, setCurrentItem] = useState<IMainMenuLink | null>(null);
-    const options = useOptions();
     const desktopLayout = options.desktopHeaderLayout;
 
     const handleItemMouseEnter = (item: IMainMenuLink) => {
@@ -72,13 +65,13 @@ function MainMenu() {
                                 {...item.customFields?.anchorProps}
                             >
                                 {item.title}
-                                {itemHasSubmenu && <ArrowDownSm7x5Svg />}
+                                {itemHasSubmenu && <ArrowDownSm7x5Svg/>}
                             </AppLink>
 
                             {itemHasSubmenu && (
                                 <div className="main-menu__submenu">
                                     {item.submenu?.type === 'menu' && (
-                                        <Menu items={item.submenu.links} onItemClick={handleItemClick} />
+                                        <Menu items={item.submenu.links} onItemClick={handleItemClick}/>
                                     )}
                                     {item.submenu?.type === 'megamenu' && (
                                         <div
@@ -87,7 +80,7 @@ function MainMenu() {
                                                 `main-menu__megamenu--size--${item.submenu.size}`,
                                             )}
                                         >
-                                            <Megamenu menu={item.submenu} onItemClick={handleItemClick} />
+                                            <Megamenu menu={item.submenu} onItemClick={handleItemClick}/>
                                         </div>
                                     )}
                                 </div>

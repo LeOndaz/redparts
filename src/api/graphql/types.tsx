@@ -183,7 +183,7 @@ export type Query = {
   translation?: Maybe<TranslatableItem>;
   /** Returns a list of all translatable items of a given kind. */
   translations?: Maybe<TranslatableItemConnection>;
-  /** Look up a user by ID. */
+  /** Look up a user by ID or email address. */
   user?: Maybe<User>;
   /** Look up a voucher by ID. */
   voucher?: Maybe<Voucher>;
@@ -677,7 +677,8 @@ export type QueryTranslationsArgs = {
 
 
 export type QueryUserArgs = {
-  id: Scalars['ID'];
+  id?: Maybe<Scalars['ID']>;
+  email?: Maybe<Scalars['String']>;
 };
 
 
@@ -901,14 +902,18 @@ export enum WebhookSampleEventTypeEnum {
 }
 
 /** Represents warehouse. */
-export type Warehouse = Node & {
+export type Warehouse = Node & ObjectWithMetadata & {
   __typename?: 'Warehouse';
   address: Address;
   companyName: Scalars['String'];
   email: Scalars['String'];
   /** The ID of the object. */
   id: Scalars['ID'];
+  /** List of public metadata items. Can be accessed without permissions. */
+  metadata: Array<Maybe<MetadataItem>>;
   name: Scalars['String'];
+  /** List of private metadata items.Requires proper staff permissions to access. */
+  privateMetadata: Array<Maybe<MetadataItem>>;
   shippingZones: ShippingZoneCountableConnection;
   slug: Scalars['String'];
 };
@@ -958,6 +963,8 @@ export type ShippingZone = Node & ObjectWithMetadata & {
   /** List of countries available for the method. */
   countries?: Maybe<Array<Maybe<CountryDisplay>>>;
   default: Scalars['Boolean'];
+  /** Description of a shipping zone. */
+  description?: Maybe<Scalars['String']>;
   /** The ID of the object. */
   id: Scalars['ID'];
   /** List of public metadata items. Can be accessed without permissions. */
@@ -1261,8 +1268,12 @@ export type Product = Node & ObjectWithMetadata & {
   /** List of collections for the product. */
   collections?: Maybe<Array<Maybe<Collection>>>;
   defaultVariant?: Maybe<ProductVariant>;
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
+  description: Scalars['JSONString'];
+  /**
+   * Description of the product (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `description` field instead.
+   */
+  descriptionJson?: Maybe<Scalars['JSONString']>;
   /** The ID of the object. */
   id: Scalars['ID'];
   /** Get a single product image by ID. */
@@ -1391,6 +1402,8 @@ export type Attribute = Node & ObjectWithMetadata & {
   __typename?: 'Attribute';
   /** Whether the attribute can be displayed in the admin product list. */
   availableInGrid: Scalars['Boolean'];
+  /** The entity type which can be used as a reference. */
+  entityType?: Maybe<AttributeEntityTypeEnum>;
   /** Whether the attribute can be filtered in dashboard. */
   filterableInDashboard: Scalars['Boolean'];
   /** Whether the attribute can be filtered in storefront. */
@@ -1468,7 +1481,14 @@ export type ProductTypeCountableEdge = {
 export enum AttributeInputTypeEnum {
   Dropdown = 'DROPDOWN',
   File = 'FILE',
-  Multiselect = 'MULTISELECT'
+  Multiselect = 'MULTISELECT',
+  Reference = 'REFERENCE'
+}
+
+/** An enumeration. */
+export enum AttributeEntityTypeEnum {
+  Page = 'PAGE',
+  Product = 'PRODUCT'
 }
 
 /** An enumeration. */
@@ -1488,15 +1508,12 @@ export type AttributeValue = Node & {
   inputType?: Maybe<AttributeInputTypeEnum>;
   /** Name of a value displayed in the interface. */
   name?: Maybe<Scalars['String']>;
+  /** The ID of the attribute reference. */
+  reference?: Maybe<Scalars['ID']>;
   /** Internal representation of a value (unique per attribute). */
   slug?: Maybe<Scalars['String']>;
   /** Returns translated attribute value fields for the given language code. */
   translation?: Maybe<AttributeValueTranslation>;
-  /**
-   * Type of value (used only when `value` field is set).
-   * @deprecated Use the `inputType` field to determine the type of attribute's value. This field will be removed after 2020-07-31.
-   */
-  type?: Maybe<AttributeValueType>;
 };
 
 
@@ -1504,13 +1521,6 @@ export type AttributeValue = Node & {
 export type AttributeValueTranslationArgs = {
   languageCode: LanguageCodeEnum;
 };
-
-export enum AttributeValueType {
-  Color = 'COLOR',
-  Gradient = 'GRADIENT',
-  String = 'STRING',
-  Url = 'URL'
-}
 
 export type AttributeValueTranslation = Node & {
   __typename?: 'AttributeValueTranslation';
@@ -1585,8 +1595,12 @@ export type Category = Node & ObjectWithMetadata & {
   backgroundImage?: Maybe<Image>;
   /** List of children of the category. */
   children?: Maybe<CategoryCountableConnection>;
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
+  description: Scalars['JSONString'];
+  /**
+   * Description of the category (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `description` field instead.
+   */
+  descriptionJson?: Maybe<Scalars['JSONString']>;
   /** The ID of the object. */
   id: Scalars['ID'];
   level: Scalars['Int'];
@@ -1678,8 +1692,12 @@ export type Image = {
 
 export type CategoryTranslation = Node & {
   __typename?: 'CategoryTranslation';
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
+  description: Scalars['JSONString'];
+  /**
+   * Translated description of the product (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `description` field instead.
+   */
+  descriptionJson?: Maybe<Scalars['JSONString']>;
   /** The ID of the object. */
   id: Scalars['ID'];
   /** Translation language. */
@@ -2202,8 +2220,12 @@ export type Collection = Node & ObjectWithMetadata & {
   backgroundImage?: Maybe<Image>;
   /** List of channels in which the collection is available. */
   channelListings?: Maybe<Array<CollectionChannelListing>>;
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
+  description: Scalars['JSONString'];
+  /**
+   * Description of the collection (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `description` field instead.
+   */
+  descriptionJson?: Maybe<Scalars['JSONString']>;
   /** The ID of the object. */
   id: Scalars['ID'];
   /** List of public metadata items. Can be accessed without permissions. */
@@ -2338,8 +2360,12 @@ export enum ProductOrderField {
 
 export type CollectionTranslation = Node & {
   __typename?: 'CollectionTranslation';
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
+  description: Scalars['JSONString'];
+  /**
+   * Translated description of the product (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `description` field instead.
+   */
+  descriptionJson?: Maybe<Scalars['JSONString']>;
   /** The ID of the object. */
   id: Scalars['ID'];
   /** Translation language. */
@@ -2361,8 +2387,12 @@ export type CollectionChannelListing = Node & {
 
 export type ProductTranslation = Node & {
   __typename?: 'ProductTranslation';
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
+  description: Scalars['JSONString'];
+  /**
+   * Translated description of the product (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `description` field instead.
+   */
+  descriptionJson?: Maybe<Scalars['JSONString']>;
   /** The ID of the object. */
   id: Scalars['ID'];
   /** Translation language. */
@@ -2455,8 +2485,12 @@ export type ProductTranslatableContent = Node & {
   seoTitle?: Maybe<Scalars['String']>;
   seoDescription?: Maybe<Scalars['String']>;
   name: Scalars['String'];
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
+  description: Scalars['JSONString'];
+  /**
+   * Description of the product (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `description` field instead.
+   */
+  descriptionJson?: Maybe<Scalars['JSONString']>;
   /** Returns translated product fields for the given language code. */
   translation?: Maybe<ProductTranslation>;
   /** Represents an individual item for sale in the storefront. */
@@ -2475,8 +2509,12 @@ export type CollectionTranslatableContent = Node & {
   /** The ID of the object. */
   id: Scalars['ID'];
   name: Scalars['String'];
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
+  description: Scalars['JSONString'];
+  /**
+   * Description of the collection (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `description` field instead.
+   */
+  descriptionJson?: Maybe<Scalars['JSONString']>;
   /** Returns translated collection fields for the given language code. */
   translation?: Maybe<CollectionTranslation>;
   /** Represents a collection of products. */
@@ -2495,8 +2533,12 @@ export type CategoryTranslatableContent = Node & {
   /** The ID of the object. */
   id: Scalars['ID'];
   name: Scalars['String'];
-  description: Scalars['String'];
-  descriptionJson: Scalars['JSONString'];
+  description: Scalars['JSONString'];
+  /**
+   * Description of the category (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `description` field instead.
+   */
+  descriptionJson?: Maybe<Scalars['JSONString']>;
   /** Returns translated category fields for the given language code. */
   translation?: Maybe<CategoryTranslation>;
   /** Represents a single category of products. */
@@ -2563,8 +2605,12 @@ export type PageTranslatableContent = Node & {
   /** The ID of the object. */
   id: Scalars['ID'];
   title: Scalars['String'];
-  content: Scalars['String'];
-  contentJson: Scalars['JSONString'];
+  content: Scalars['JSONString'];
+  /**
+   * Content of the page (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `content` field instead.
+   */
+  contentJson?: Maybe<Scalars['String']>;
   /** Returns translated page fields for the given language code. */
   translation?: Maybe<PageTranslation>;
   /** ('A static page that can be manually added by a shop operator ', 'through the dashboard.') */
@@ -2583,10 +2629,14 @@ export type PageTranslation = Node & {
   /** The ID of the object. */
   id: Scalars['ID'];
   title: Scalars['String'];
-  content: Scalars['String'];
-  contentJson: Scalars['JSONString'];
+  content: Scalars['JSONString'];
   /** Translation language. */
   language: LanguageDisplay;
+  /**
+   * Translated description of the page (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `content` field instead.
+   */
+  contentJson?: Maybe<Scalars['String']>;
 };
 
 /** A static page that can be manually added by a shop operator through the dashboard. */
@@ -2597,8 +2647,7 @@ export type Page = Node & ObjectWithMetadata & {
   /** The ID of the object. */
   id: Scalars['ID'];
   title: Scalars['String'];
-  content: Scalars['String'];
-  contentJson: Scalars['JSONString'];
+  content: Scalars['JSONString'];
   publicationDate?: Maybe<Scalars['Date']>;
   isPublished: Scalars['Boolean'];
   slug: Scalars['String'];
@@ -2608,6 +2657,11 @@ export type Page = Node & ObjectWithMetadata & {
   privateMetadata: Array<Maybe<MetadataItem>>;
   /** List of public metadata items. Can be accessed without permissions. */
   metadata: Array<Maybe<MetadataItem>>;
+  /**
+   * Content of the page (JSON).
+   * @deprecated Will be removed in Saleor 4.0. Use the `content` field instead.
+   */
+  contentJson: Scalars['String'];
   /** Returns translated page fields for the given language code. */
   translation?: Maybe<PageTranslation>;
   /** List of attributes assigned to this product. */
@@ -2927,7 +2981,7 @@ export type MenuItemTranslation = Node & {
 };
 
 /** Represents a single item of the related menu. Can store categories, collection or pages. */
-export type MenuItem = Node & {
+export type MenuItem = Node & ObjectWithMetadata & {
   __typename?: 'MenuItem';
   /** The ID of the object. */
   id: Scalars['ID'];
@@ -2938,6 +2992,10 @@ export type MenuItem = Node & {
   collection?: Maybe<Collection>;
   page?: Maybe<Page>;
   level: Scalars['Int'];
+  /** List of private metadata items.Requires proper staff permissions to access. */
+  privateMetadata: Array<Maybe<MetadataItem>>;
+  /** List of public metadata items. Can be accessed without permissions. */
+  metadata: Array<Maybe<MetadataItem>>;
   children?: Maybe<Array<Maybe<MenuItem>>>;
   /** URL to the menu item. */
   url?: Maybe<Scalars['String']>;
@@ -2952,12 +3010,16 @@ export type MenuItemTranslationArgs = {
 };
 
 /** Represents a single menu - an object that is used to help navigate through the store. */
-export type Menu = Node & {
+export type Menu = Node & ObjectWithMetadata & {
   __typename?: 'Menu';
   /** The ID of the object. */
   id: Scalars['ID'];
   name: Scalars['String'];
   slug: Scalars['String'];
+  /** List of private metadata items.Requires proper staff permissions to access. */
+  privateMetadata: Array<Maybe<MetadataItem>>;
+  /** List of public metadata items. Can be accessed without permissions. */
+  metadata: Array<Maybe<MetadataItem>>;
   items?: Maybe<Array<Maybe<MenuItem>>>;
 };
 
@@ -3401,7 +3463,7 @@ export type Order = Node & ObjectWithMetadata & {
   /** List of order invoices. */
   invoices?: Maybe<Array<Maybe<Invoice>>>;
   /** Informs if an order is fully paid. */
-  isPaid?: Maybe<Scalars['Boolean']>;
+  isPaid: Scalars['Boolean'];
   /** Returns True, if order requires shipping. */
   isShippingRequired: Scalars['Boolean'];
   languageCode: Scalars['String'];
@@ -3412,9 +3474,9 @@ export type Order = Node & ObjectWithMetadata & {
   /** User-friendly number of an order. */
   number?: Maybe<Scalars['String']>;
   /** Internal payment status. */
-  paymentStatus?: Maybe<PaymentChargeStatusEnum>;
+  paymentStatus: PaymentChargeStatusEnum;
   /** User-friendly payment status. */
-  paymentStatusDisplay?: Maybe<Scalars['String']>;
+  paymentStatusDisplay: Scalars['String'];
   /** List of payments for the order. */
   payments?: Maybe<Array<Maybe<Payment>>>;
   /** List of private metadata items.Requires proper staff permissions to access. */
@@ -3424,21 +3486,22 @@ export type Order = Node & ObjectWithMetadata & {
   shippingMethod?: Maybe<ShippingMethod>;
   shippingMethodName?: Maybe<Scalars['String']>;
   /** Total price of shipping. */
-  shippingPrice?: Maybe<TaxedMoney>;
+  shippingPrice: TaxedMoney;
+  shippingTaxRate: Scalars['Float'];
   status: OrderStatus;
   /** User-friendly order status. */
   statusDisplay?: Maybe<Scalars['String']>;
   /** The sum of line prices not including shipping. */
-  subtotal?: Maybe<TaxedMoney>;
+  subtotal: TaxedMoney;
   token: Scalars['String'];
   /** Total amount of the order. */
-  total?: Maybe<TaxedMoney>;
+  total: TaxedMoney;
   /** Amount authorized for the order. */
-  totalAuthorized?: Maybe<Money>;
+  totalAuthorized: Money;
   /** The difference between the paid and the order total amount. */
   totalBalance: Money;
   /** Amount captured by payment. */
-  totalCaptured?: Maybe<Money>;
+  totalCaptured: Money;
   trackingClientId: Scalars['String'];
   translatedDiscountName?: Maybe<Scalars['String']>;
   user?: Maybe<User>;
@@ -3458,6 +3521,10 @@ export enum OrderStatus {
   Fulfilled = 'FULFILLED',
   /** Partially fulfilled */
   PartiallyFulfilled = 'PARTIALLY_FULFILLED',
+  /** Partially returned */
+  PartiallyReturned = 'PARTIALLY_RETURNED',
+  /** Returned */
+  Returned = 'RETURNED',
   /** Unconfirmed */
   Unconfirmed = 'UNCONFIRMED',
   /** Unfulfilled */
@@ -3492,7 +3559,13 @@ export enum FulfillmentStatus {
   /** Fulfilled */
   Fulfilled = 'FULFILLED',
   /** Refunded */
-  Refunded = 'REFUNDED'
+  Refunded = 'REFUNDED',
+  /** Refunded and returned */
+  RefundedAndReturned = 'REFUNDED_AND_RETURNED',
+  /** Replaced */
+  Replaced = 'REPLACED',
+  /** Returned */
+  Returned = 'RETURNED'
 }
 
 /** Represents line of the fulfillment. */
@@ -3521,13 +3594,13 @@ export type OrderLine = Node & {
   /** The main thumbnail for the ordered product. */
   thumbnail?: Maybe<Image>;
   /** Price of the order line. */
-  totalPrice?: Maybe<TaxedMoney>;
+  totalPrice: TaxedMoney;
   /** Product name in the customer's language */
   translatedProductName: Scalars['String'];
   /** Variant name in the customer's language */
   translatedVariantName: Scalars['String'];
   /** Price of the single item in the order line. */
-  unitPrice?: Maybe<TaxedMoney>;
+  unitPrice: TaxedMoney;
   /** A purchased product variant. Note: this field may be null if the variant has been removed from stock at all. */
   variant?: Maybe<ProductVariant>;
   variantName: Scalars['String'];
@@ -3756,6 +3829,8 @@ export type OrderEvent = Node & {
   paymentId?: Maybe<Scalars['String']>;
   /** Number of items. */
   quantity?: Maybe<Scalars['Int']>;
+  /** The order which is related to this order. */
+  relatedOrder?: Maybe<Order>;
   /** Define if shipping costs were included to the refund. */
   shippingCostsIncluded?: Maybe<Scalars['Boolean']>;
   /** The transaction reference of captured payment. */
@@ -3774,13 +3849,16 @@ export enum OrderEventsEnum {
   Confirmed = 'CONFIRMED',
   DraftAddedProducts = 'DRAFT_ADDED_PRODUCTS',
   DraftCreated = 'DRAFT_CREATED',
+  DraftCreatedFromReplace = 'DRAFT_CREATED_FROM_REPLACE',
   DraftRemovedProducts = 'DRAFT_REMOVED_PRODUCTS',
   EmailSent = 'EMAIL_SENT',
   ExternalServiceNotification = 'EXTERNAL_SERVICE_NOTIFICATION',
   FulfillmentCanceled = 'FULFILLMENT_CANCELED',
   FulfillmentFulfilledItems = 'FULFILLMENT_FULFILLED_ITEMS',
   FulfillmentRefunded = 'FULFILLMENT_REFUNDED',
+  FulfillmentReplaced = 'FULFILLMENT_REPLACED',
   FulfillmentRestockedItems = 'FULFILLMENT_RESTOCKED_ITEMS',
+  FulfillmentReturned = 'FULFILLMENT_RETURNED',
   InvoiceGenerated = 'INVOICE_GENERATED',
   InvoiceRequested = 'INVOICE_REQUESTED',
   InvoiceSent = 'INVOICE_SENT',
@@ -3788,6 +3866,7 @@ export enum OrderEventsEnum {
   NoteAdded = 'NOTE_ADDED',
   OrderFullyPaid = 'ORDER_FULLY_PAID',
   OrderMarkedAsPaid = 'ORDER_MARKED_AS_PAID',
+  OrderReplacementCreated = 'ORDER_REPLACEMENT_CREATED',
   Other = 'OTHER',
   OversoldItems = 'OVERSOLD_ITEMS',
   PaymentAuthorized = 'PAYMENT_AUTHORIZED',
@@ -5023,6 +5102,8 @@ export type Mutation = {
   orderFulfillmentCancel?: Maybe<FulfillmentCancel>;
   /** Refund products. */
   orderFulfillmentRefundProducts?: Maybe<FulfillmentRefundProducts>;
+  /** Return products. */
+  orderFulfillmentReturnProducts?: Maybe<FulfillmentReturnProducts>;
   /** Updates a fulfillment for an order. */
   orderFulfillmentUpdateTracking?: Maybe<FulfillmentUpdateTracking>;
   /** Mark order as manually paid. */
@@ -5049,6 +5130,8 @@ export type Mutation = {
   pageCreate?: Maybe<PageCreate>;
   /** Deletes a page. */
   pageDelete?: Maybe<PageDelete>;
+  /** Reorder page attribute values. */
+  pageReorderAttributeValues?: Maybe<PageReorderAttributeValues>;
   /** Creates/Updates translations for Page. */
   pageTranslate?: Maybe<PageTranslate>;
   /** Delete page types. */
@@ -5103,6 +5186,8 @@ export type Mutation = {
   productImageReorder?: Maybe<ProductImageReorder>;
   /** Updates a product image. */
   productImageUpdate?: Maybe<ProductImageUpdate>;
+  /** Reorder product attribute values. */
+  productReorderAttributeValues?: Maybe<ProductReorderAttributeValues>;
   /** Creates/Updates translations for Product. */
   productTranslate?: Maybe<ProductTranslate>;
   /** Deletes product types. */
@@ -5129,6 +5214,8 @@ export type Mutation = {
   productVariantDelete?: Maybe<ProductVariantDelete>;
   /** Reorder the variants of a product. Mutation updates updated_at on product and triggers PRODUCT_UPDATED webhook. */
   productVariantReorder?: Maybe<ProductVariantReorder>;
+  /** Reorder product variant attribute values. */
+  productVariantReorderAttributeValues?: Maybe<ProductVariantReorderAttributeValues>;
   /** Set default variant for a product. Mutation triggers PRODUCT_UPDATED webhook. */
   productVariantSetDefault?: Maybe<ProductVariantSetDefault>;
   /** Creates stocks for product variant. */
@@ -5954,6 +6041,12 @@ export type MutationOrderFulfillmentRefundProductsArgs = {
 };
 
 
+export type MutationOrderFulfillmentReturnProductsArgs = {
+  input: OrderReturnProductsInput;
+  order: Scalars['ID'];
+};
+
+
 export type MutationOrderFulfillmentUpdateTrackingArgs = {
   id: Scalars['ID'];
   input: FulfillmentUpdateTrackingInput;
@@ -6024,6 +6117,13 @@ export type MutationPageCreateArgs = {
 
 export type MutationPageDeleteArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationPageReorderAttributeValuesArgs = {
+  attributeId: Scalars['ID'];
+  moves: Array<Maybe<ReorderInput>>;
+  pageId: Scalars['ID'];
 };
 
 
@@ -6178,6 +6278,13 @@ export type MutationProductImageUpdateArgs = {
 };
 
 
+export type MutationProductReorderAttributeValuesArgs = {
+  attributeId: Scalars['ID'];
+  moves: Array<Maybe<ReorderInput>>;
+  productId: Scalars['ID'];
+};
+
+
 export type MutationProductTranslateArgs = {
   id: Scalars['ID'];
   input: TranslationInput;
@@ -6249,6 +6356,13 @@ export type MutationProductVariantDeleteArgs = {
 export type MutationProductVariantReorderArgs = {
   moves: Array<Maybe<ReorderInput>>;
   productId: Scalars['ID'];
+};
+
+
+export type MutationProductVariantReorderAttributeValuesArgs = {
+  attributeId: Scalars['ID'];
+  moves: Array<Maybe<ReorderInput>>;
+  variantId: Scalars['ID'];
 };
 
 
@@ -7304,6 +7418,8 @@ export type ShippingZoneCreate = {
 export type ShippingZoneCreateInput = {
   /** Shipping zone's name. Visible only to the staff. */
   name?: Maybe<Scalars['String']>;
+  /** Description of the shipping zone. */
+  description?: Maybe<Scalars['String']>;
   /** List of countries in this shipping zone. */
   countries?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** Default shipping zone will be used for countries not covered by other zones. */
@@ -7352,6 +7468,8 @@ export type ShippingZoneUpdate = {
 export type ShippingZoneUpdateInput = {
   /** Shipping zone's name. Visible only to the staff. */
   name?: Maybe<Scalars['String']>;
+  /** Description of the shipping zone. */
+  description?: Maybe<Scalars['String']>;
   /** List of countries in this shipping zone. */
   countries?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** Default shipping zone will be used for countries not covered by other zones. */
@@ -7385,6 +7503,8 @@ export type ProductError = {
   code: ProductErrorCode;
   /** List of attributes IDs which causes the error. */
   attributes?: Maybe<Array<Scalars['ID']>>;
+  /** List of attribute values IDs which causes the error. */
+  values?: Maybe<Array<Scalars['ID']>>;
 };
 
 /** An enumeration. */
@@ -7445,10 +7565,8 @@ export type CategoryCreate = {
 };
 
 export type CategoryInput = {
-  /** Category description (HTML/text). */
-  description?: Maybe<Scalars['String']>;
   /** Category description (JSON). */
-  descriptionJson?: Maybe<Scalars['JSONString']>;
+  description?: Maybe<Scalars['JSONString']>;
   /** Category name. */
   name?: Maybe<Scalars['String']>;
   /** Category slug. */
@@ -7522,8 +7640,7 @@ export type TranslationInput = {
   seoTitle?: Maybe<Scalars['String']>;
   seoDescription?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  descriptionJson?: Maybe<Scalars['JSONString']>;
+  description?: Maybe<Scalars['JSONString']>;
 };
 
 /** Adds products to a collection. */
@@ -7581,10 +7698,8 @@ export type CollectionCreateInput = {
   name?: Maybe<Scalars['String']>;
   /** Slug of the collection. */
   slug?: Maybe<Scalars['String']>;
-  /** Description of the collection (HTML/text). */
-  description?: Maybe<Scalars['String']>;
   /** Description of the collection (JSON). */
-  descriptionJson?: Maybe<Scalars['JSONString']>;
+  description?: Maybe<Scalars['JSONString']>;
   /** Background image file. */
   backgroundImage?: Maybe<Scalars['Upload']>;
   /** Alt text for an image. */
@@ -7674,10 +7789,8 @@ export type CollectionInput = {
   name?: Maybe<Scalars['String']>;
   /** Slug of the collection. */
   slug?: Maybe<Scalars['String']>;
-  /** Description of the collection (HTML/text). */
-  description?: Maybe<Scalars['String']>;
   /** Description of the collection (JSON). */
-  descriptionJson?: Maybe<Scalars['JSONString']>;
+  description?: Maybe<Scalars['JSONString']>;
   /** Background image file. */
   backgroundImage?: Maybe<Scalars['Upload']>;
   /** Alt text for an image. */
@@ -7723,6 +7836,8 @@ export type CollectionChannelListingError = {
   code: ProductErrorCode;
   /** List of attributes IDs which causes the error. */
   attributes?: Maybe<Array<Scalars['ID']>>;
+  /** List of attribute values IDs which causes the error. */
+  values?: Maybe<Array<Scalars['ID']>>;
   /** List of channels IDs which causes the error. */
   channels?: Maybe<Array<Scalars['ID']>>;
 };
@@ -7764,10 +7879,8 @@ export type ProductCreateInput = {
   chargeTaxes?: Maybe<Scalars['Boolean']>;
   /** List of IDs of collections that the product belongs to. */
   collections?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  /** Product description (HTML/text). */
-  description?: Maybe<Scalars['String']>;
   /** Product description (JSON). */
-  descriptionJson?: Maybe<Scalars['JSONString']>;
+  description?: Maybe<Scalars['JSONString']>;
   /** Product name. */
   name?: Maybe<Scalars['String']>;
   /** Product slug. */
@@ -7793,6 +7906,8 @@ export type AttributeValueInput = {
   file?: Maybe<Scalars['String']>;
   /** File content type. */
   contentType?: Maybe<Scalars['String']>;
+  /** List of entity IDs that will be used as references. */
+  references?: Maybe<Array<Scalars['ID']>>;
 };
 
 /** Deletes a product. */
@@ -7841,10 +7956,8 @@ export type ProductInput = {
   chargeTaxes?: Maybe<Scalars['Boolean']>;
   /** List of IDs of collections that the product belongs to. */
   collections?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  /** Product description (HTML/text). */
-  description?: Maybe<Scalars['String']>;
   /** Product description (JSON). */
-  descriptionJson?: Maybe<Scalars['JSONString']>;
+  description?: Maybe<Scalars['JSONString']>;
   /** Product name. */
   name?: Maybe<Scalars['String']>;
   /** Product slug. */
@@ -7894,6 +8007,8 @@ export type ProductChannelListingError = {
   code: ProductErrorCode;
   /** List of attributes IDs which causes the error. */
   attributes?: Maybe<Array<Scalars['ID']>>;
+  /** List of attribute values IDs which causes the error. */
+  values?: Maybe<Array<Scalars['ID']>>;
   /** List of channels IDs which causes the error. */
   channels?: Maybe<Array<Scalars['ID']>>;
 };
@@ -8101,6 +8216,19 @@ export type ProductTypeReorderAttributes = {
   productErrors: Array<ProductError>;
 };
 
+/** Reorder product attribute values. */
+export type ProductReorderAttributeValues = {
+  __typename?: 'ProductReorderAttributeValues';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** Product from which attribute values are reordered. */
+  product?: Maybe<Product>;
+  productErrors: Array<ProductError>;
+};
+
 /** Create new digital content. This mutation must be sent as a `multipart` request. More detailed specs of the upload format can be found here: https://github.com/jaydenseric/graphql-multipart-request-spec */
 export type DigitalContentCreate = {
   __typename?: 'DigitalContentCreate';
@@ -8251,6 +8379,8 @@ export type BulkProductError = {
   code: ProductErrorCode;
   /** List of attributes IDs which causes the error. */
   attributes?: Maybe<Array<Scalars['ID']>>;
+  /** List of attribute values IDs which causes the error. */
+  values?: Maybe<Array<Scalars['ID']>>;
   /** Index of an input list item that caused the error. */
   index?: Maybe<Scalars['Int']>;
   /** List of warehouse IDs which causes the error. */
@@ -8326,6 +8456,8 @@ export type BulkStockError = {
   code: ProductErrorCode;
   /** List of attributes IDs which causes the error. */
   attributes?: Maybe<Array<Scalars['ID']>>;
+  /** List of attribute values IDs which causes the error. */
+  values?: Maybe<Array<Scalars['ID']>>;
   /** Index of an input list item that caused the error. */
   index?: Maybe<Scalars['Int']>;
 };
@@ -8434,6 +8566,19 @@ export type ProductVariantChannelListingUpdate = {
   /** An updated product variant instance. */
   variant?: Maybe<ProductVariant>;
   productChannelListingErrors: Array<ProductChannelListingError>;
+};
+
+/** Reorder product variant attribute values. */
+export type ProductVariantReorderAttributeValues = {
+  __typename?: 'ProductVariantReorderAttributeValues';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** Product variant from which attribute values are reordered. */
+  productVariant?: Maybe<ProductVariant>;
+  productErrors: Array<ProductError>;
 };
 
 /** Assign an image to a product variant. */
@@ -8572,6 +8717,8 @@ export type PageError = {
   code: PageErrorCode;
   /** List of attributes IDs which causes the error. */
   attributes?: Maybe<Array<Scalars['ID']>>;
+  /** List of attribute values IDs which causes the error. */
+  values?: Maybe<Array<Scalars['ID']>>;
 };
 
 /** An enumeration. */
@@ -8590,10 +8737,8 @@ export type PageCreateInput = {
   slug?: Maybe<Scalars['String']>;
   /** Page title. */
   title?: Maybe<Scalars['String']>;
-  /** Page content. May consist of ordinary text, HTML and images. */
-  content?: Maybe<Scalars['String']>;
   /** Page content in JSON format. */
-  contentJson?: Maybe<Scalars['JSONString']>;
+  content?: Maybe<Scalars['JSONString']>;
   /** List of attributes. */
   attributes?: Maybe<Array<AttributeValueInput>>;
   /** Determines if page is visible in the storefront. */
@@ -8661,10 +8806,8 @@ export type PageInput = {
   slug?: Maybe<Scalars['String']>;
   /** Page title. */
   title?: Maybe<Scalars['String']>;
-  /** Page content. May consist of ordinary text, HTML and images. */
-  content?: Maybe<Scalars['String']>;
   /** Page content in JSON format. */
-  contentJson?: Maybe<Scalars['JSONString']>;
+  content?: Maybe<Scalars['JSONString']>;
   /** List of attributes. */
   attributes?: Maybe<Array<AttributeValueInput>>;
   /** Determines if page is visible in the storefront. */
@@ -8691,8 +8834,7 @@ export type PageTranslationInput = {
   seoTitle?: Maybe<Scalars['String']>;
   seoDescription?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
-  content?: Maybe<Scalars['String']>;
-  contentJson?: Maybe<Scalars['JSONString']>;
+  content?: Maybe<Scalars['JSONString']>;
 };
 
 /** Create a new page type. */
@@ -8803,6 +8945,19 @@ export type PageTypeReorderAttributes = {
   pageErrors: Array<PageError>;
 };
 
+/** Reorder page attribute values. */
+export type PageReorderAttributeValues = {
+  __typename?: 'PageReorderAttributeValues';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** Page from which attribute values are reordered. */
+  page?: Maybe<Page>;
+  pageErrors: Array<PageError>;
+};
+
 /** Completes creating an order. */
 export type DraftOrderComplete = {
   __typename?: 'DraftOrderComplete';
@@ -8857,8 +9012,7 @@ export enum OrderErrorCode {
   Unique = 'UNIQUE',
   VoidInactivePayment = 'VOID_INACTIVE_PAYMENT',
   ZeroQuantity = 'ZERO_QUANTITY',
-  InvalidRefundQuantity = 'INVALID_REFUND_QUANTITY',
-  CannotRefundFulfillmentLine = 'CANNOT_REFUND_FULFILLMENT_LINE',
+  InvalidQuantity = 'INVALID_QUANTITY',
   InsufficientStock = 'INSUFFICIENT_STOCK',
   DuplicatedInputItem = 'DUPLICATED_INPUT_ITEM',
   NotAvailableInChannel = 'NOT_AVAILABLE_IN_CHANNEL',
@@ -9203,6 +9357,56 @@ export type OrderRefundFulfillmentLineInput = {
   fulfillmentLineId: Scalars['ID'];
   /** The number of items to be refunded. */
   quantity: Scalars['Int'];
+};
+
+/** Return products. */
+export type FulfillmentReturnProducts = {
+  __typename?: 'FulfillmentReturnProducts';
+  /**
+   * List of errors that occurred executing the mutation.
+   * @deprecated Use typed errors with error codes. This field will be removed after 2020-07-31.
+   */
+  errors: Array<Error>;
+  /** A return fulfillment. */
+  returnFulfillment?: Maybe<Fulfillment>;
+  /** A replace fulfillment. */
+  replaceFulfillment?: Maybe<Fulfillment>;
+  /** Order which fulfillment was returned. */
+  order?: Maybe<Order>;
+  /** A draft order which was created for products with replace flag. */
+  replaceOrder?: Maybe<Order>;
+  orderErrors: Array<OrderError>;
+};
+
+export type OrderReturnProductsInput = {
+  /** List of unfulfilled lines to return. */
+  orderLines?: Maybe<Array<OrderReturnLineInput>>;
+  /** List of fulfilled lines to return. */
+  fulfillmentLines?: Maybe<Array<OrderReturnFulfillmentLineInput>>;
+  /** The total amount of refund when the value is provided manually. */
+  amountToRefund?: Maybe<Scalars['PositiveDecimal']>;
+  /** If true, Saleor will refund shipping costs. If amountToRefund is providedincludeShippingCosts will be ignored. */
+  includeShippingCosts?: Maybe<Scalars['Boolean']>;
+  /** If true, Saleor will call refund action for all lines. */
+  refund?: Maybe<Scalars['Boolean']>;
+};
+
+export type OrderReturnLineInput = {
+  /** The ID of the order line to return. */
+  orderLineId: Scalars['ID'];
+  /** The number of items to be returned. */
+  quantity: Scalars['Int'];
+  /** Determines, if the line should be added to replace order. */
+  replace?: Maybe<Scalars['Boolean']>;
+};
+
+export type OrderReturnFulfillmentLineInput = {
+  /** The ID of the fulfillment line to return. */
+  fulfillmentLineId: Scalars['ID'];
+  /** The number of items to be returned. */
+  quantity: Scalars['Int'];
+  /** Determines, if the line should be added to replace order. */
+  replace?: Maybe<Scalars['Boolean']>;
 };
 
 /** Mark order as manually paid. */
@@ -10670,6 +10874,8 @@ export enum AttributeErrorCode {
 export type AttributeCreateInput = {
   /** The input type to use for entering attribute values in the dashboard. */
   inputType?: Maybe<AttributeInputTypeEnum>;
+  /** The entity type which can be used as a reference. */
+  entityType?: Maybe<AttributeEntityTypeEnum>;
   /** Name of an attribute displayed in the interface. */
   name: Scalars['String'];
   /** Internal representation of an attribute name. */
@@ -11862,7 +12068,7 @@ export type ReviewUpdateInput = {
 
 export type AddressDetailsFragmentFragment = (
   { __typename?: 'Address' }
-  & Pick<Address, 'id' | 'firstName' | 'lastName' | 'streetAddress1' | 'streetAddress2' | 'city' | 'cityArea' | 'postalCode' | 'phone' | 'isDefaultBillingAddress' | 'isDefaultShippingAddress' | 'companyName'>
+  & Pick<Address, 'id' | 'firstName' | 'lastName' | 'streetAddress1' | 'streetAddress2' | 'city' | 'cityArea' | 'postalCode' | 'countryArea' | 'phone' | 'isDefaultBillingAddress' | 'isDefaultShippingAddress' | 'companyName'>
   & { country: (
     { __typename?: 'CountryDisplay' }
     & Pick<CountryDisplay, 'code' | 'country'>
@@ -12018,10 +12224,13 @@ export type CategoryPageInfoFragmentFragment = (
 
 export type CategoryDetailFragmentFragment = (
   { __typename?: 'Category' }
-  & Pick<Category, 'id' | 'name' | 'slug' | 'level' | 'description' | 'descriptionJson' | 'seoTitle' | 'seoDescription'>
-  & { translation?: Maybe<(
+  & Pick<Category, 'id' | 'name' | 'slug' | 'level' | 'description' | 'seoTitle' | 'seoDescription'>
+  & { backgroundImage?: Maybe<(
+    { __typename?: 'Image' }
+    & Pick<Image, 'alt' | 'url'>
+  )>, translation?: Maybe<(
     { __typename?: 'CategoryTranslation' }
-    & Pick<CategoryTranslation, 'name' | 'description' | 'descriptionJson' | 'seoTitle' | 'seoDescription'>
+    & Pick<CategoryTranslation, 'name' | 'description' | 'seoTitle' | 'seoDescription'>
   )> }
 );
 
@@ -12108,9 +12317,118 @@ export type GetCategoryListQuery = (
   )> }
 );
 
+export type CheckoutDetailsFragmentFragment = (
+  { __typename?: 'Checkout' }
+  & Pick<Checkout, 'id' | 'token' | 'created' | 'email' | 'isShippingRequired'>
+  & { shippingAddress?: Maybe<(
+    { __typename?: 'Address' }
+    & AddressDetailsFragmentFragment
+  )>, billingAddress?: Maybe<(
+    { __typename?: 'Address' }
+    & AddressDetailsFragmentFragment
+  )>, subtotalPrice?: Maybe<(
+    { __typename?: 'TaxedMoney' }
+    & TaxedMoneyFragmentFragment
+  )>, totalPrice?: Maybe<(
+    { __typename?: 'TaxedMoney' }
+    & TaxedMoneyFragmentFragment
+  )>, lines?: Maybe<Array<Maybe<(
+    { __typename?: 'CheckoutLine' }
+    & Pick<CheckoutLine, 'id' | 'quantity' | 'requiresShipping'>
+    & { totalPrice?: Maybe<(
+      { __typename?: 'TaxedMoney' }
+      & TaxedMoneyFragmentFragment
+    )>, variant: (
+      { __typename?: 'ProductVariant' }
+      & { product: (
+        { __typename?: 'Product' }
+        & Pick<Product, 'id'>
+      ), attributes: Array<(
+        { __typename?: 'SelectedAttribute' }
+        & AttributeValuesDetailFragmentFragment
+      )> }
+    ) }
+  )>>>, availablePaymentGateways: Array<(
+    { __typename?: 'PaymentGateway' }
+    & Pick<PaymentGateway, 'id' | 'name' | 'currencies'>
+    & { config: Array<(
+      { __typename?: 'GatewayConfigLine' }
+      & Pick<GatewayConfigLine, 'field' | 'value'>
+    )> }
+  )>, availableShippingMethods: Array<Maybe<(
+    { __typename?: 'ShippingMethod' }
+    & Pick<ShippingMethod, 'id' | 'name' | 'maximumDeliveryDays'>
+    & { translation?: Maybe<(
+      { __typename?: 'ShippingMethodTranslation' }
+      & Pick<ShippingMethodTranslation, 'name'>
+    )>, price?: Maybe<(
+      { __typename?: 'Money' }
+      & Pick<Money, 'amount'>
+    )> }
+  )>> }
+);
+
+export type CreateCheckoutMutationVariables = Exact<{
+  input: CheckoutCreateInput;
+  languageCode: LanguageCodeEnum;
+}>;
+
+
+export type CreateCheckoutMutation = (
+  { __typename?: 'Mutation' }
+  & { checkoutCreate?: Maybe<(
+    { __typename?: 'CheckoutCreate' }
+    & Pick<CheckoutCreate, 'created'>
+    & { checkoutErrors: Array<(
+      { __typename?: 'CheckoutError' }
+      & Pick<CheckoutError, 'code' | 'field'>
+    )>, checkout?: Maybe<(
+      { __typename?: 'Checkout' }
+      & CheckoutDetailsFragmentFragment
+    )> }
+  )> }
+);
+
+export type CompleteCheckoutMutationVariables = Exact<{
+  checkoutId: Scalars['ID'];
+  paymentData?: Maybe<Scalars['JSONString']>;
+  redirectUrl?: Maybe<Scalars['String']>;
+  storeSource?: Maybe<Scalars['Boolean']>;
+}>;
+
+
+export type CompleteCheckoutMutation = (
+  { __typename?: 'Mutation' }
+  & { checkoutComplete?: Maybe<(
+    { __typename?: 'CheckoutComplete' }
+    & Pick<CheckoutComplete, 'confirmationNeeded' | 'confirmationData'>
+    & { checkoutErrors: Array<(
+      { __typename?: 'CheckoutError' }
+      & Pick<CheckoutError, 'field' | 'code'>
+    )>, order?: Maybe<(
+      { __typename?: 'Order' }
+      & OrderDetailsFragmentFragment
+    )> }
+  )> }
+);
+
+export type GetCheckoutByTokenQueryVariables = Exact<{
+  token: Scalars['UUID'];
+  languageCode: LanguageCodeEnum;
+}>;
+
+
+export type GetCheckoutByTokenQuery = (
+  { __typename?: 'Query' }
+  & { checkout?: Maybe<(
+    { __typename?: 'Checkout' }
+    & CheckoutDetailsFragmentFragment
+  )> }
+);
+
 export type CollectionDetailsFragmentFragment = (
   { __typename?: 'Collection' }
-  & Pick<Collection, 'id' | 'name' | 'description' | 'descriptionJson' | 'seoTitle' | 'seoDescription'>
+  & Pick<Collection, 'id' | 'name' | 'description' | 'seoTitle' | 'seoDescription'>
   & { translation?: Maybe<(
     { __typename?: 'CollectionTranslation' }
     & Pick<CollectionTranslation, 'name'>
@@ -12128,7 +12446,7 @@ export type CollectionDetailsFragmentFragment = (
       & Pick<ProductCountableEdge, 'cursor'>
       & { node: (
         { __typename?: 'Product' }
-        & ProductDetailFragmentFragment
+        & ProductDetailsFragmentFragment
       ) }
     )> }
   )> }
@@ -12186,6 +12504,39 @@ export type GetCountriesQuery = (
     & { countries: Array<(
       { __typename?: 'CountryDisplay' }
       & Pick<CountryDisplay, 'country' | 'code'>
+    )> }
+  ) }
+);
+
+export type GetPaymentGatewaysQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPaymentGatewaysQuery = (
+  { __typename?: 'Query' }
+  & { shop: (
+    { __typename?: 'Shop' }
+    & { availablePaymentGateways: Array<(
+      { __typename?: 'PaymentGateway' }
+      & Pick<PaymentGateway, 'name' | 'id' | 'currencies'>
+      & { config: Array<(
+        { __typename?: 'GatewayConfigLine' }
+        & Pick<GatewayConfigLine, 'field' | 'value'>
+      )> }
+    )> }
+  ) }
+);
+
+export type GetSiteDetailsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetSiteDetailsQuery = (
+  { __typename?: 'Query' }
+  & { shop: (
+    { __typename?: 'Shop' }
+    & Pick<Shop, 'description'>
+    & { companyAddress?: Maybe<(
+      { __typename?: 'Address' }
+      & AddressDetailsFragmentFragment
     )> }
   ) }
 );
@@ -12269,19 +12620,19 @@ export type OrderDetailsFragmentFragment = (
   & { voucher?: Maybe<(
     { __typename?: 'Voucher' }
     & Pick<Voucher, 'id' | 'discountValue'>
-  )>, total?: Maybe<(
+  )>, total: (
     { __typename?: 'TaxedMoney' }
     & { gross: (
       { __typename?: 'Money' }
       & Pick<Money, 'amount'>
     ) }
-  )>, subtotal?: Maybe<(
+  ), subtotal: (
     { __typename?: 'TaxedMoney' }
     & { net: (
       { __typename?: 'Money' }
       & Pick<Money, 'amount'>
     ) }
-  )>, shippingAddress?: Maybe<(
+  ), shippingAddress?: Maybe<(
     { __typename?: 'Address' }
     & AddressDetailsFragmentFragment
   )> }
@@ -12373,62 +12724,63 @@ export type GetPageBySlugQuery = (
   )> }
 );
 
+export type PaymentDetailsFragmentFragment = (
+  { __typename?: 'Payment' }
+  & Pick<Payment, 'id' | 'isActive' | 'actions'>
+  & { availableCaptureAmount?: Maybe<(
+    { __typename?: 'Money' }
+    & Pick<Money, 'amount'>
+  )>, availableRefundAmount?: Maybe<(
+    { __typename?: 'Money' }
+    & Pick<Money, 'amount'>
+  )>, capturedAmount?: Maybe<(
+    { __typename?: 'Money' }
+    & Pick<Money, 'amount'>
+  )>, checkout?: Maybe<(
+    { __typename?: 'Checkout' }
+    & CheckoutDetailsFragmentFragment
+  )> }
+);
+
+export type CreatePaymentMutationVariables = Exact<{
+  checkoutId: Scalars['ID'];
+  input: PaymentInput;
+  languageCode: LanguageCodeEnum;
+}>;
+
+
+export type CreatePaymentMutation = (
+  { __typename?: 'Mutation' }
+  & { checkoutPaymentCreate?: Maybe<(
+    { __typename?: 'CheckoutPaymentCreate' }
+    & { checkout?: Maybe<(
+      { __typename?: 'Checkout' }
+      & CheckoutDetailsFragmentFragment
+    )>, payment?: Maybe<(
+      { __typename?: 'Payment' }
+      & PaymentDetailsFragmentFragment
+    )>, paymentErrors: Array<(
+      { __typename?: 'PaymentError' }
+      & Pick<PaymentError, 'field' | 'code'>
+    )> }
+  )> }
+);
+
 export type ProductVariantDetailsFragment = (
   { __typename?: 'ProductVariant' }
-  & Pick<ProductVariant, 'id' | 'sku' | 'name'>
+  & Pick<ProductVariant, 'id' | 'sku' | 'name' | 'quantityAvailable'>
   & { pricing?: Maybe<(
     { __typename?: 'VariantPricingInfo' }
     & { price?: Maybe<(
+      { __typename?: 'TaxedMoney' }
+      & TaxedMoneyFragmentFragment
+    )>, priceUndiscounted?: Maybe<(
       { __typename?: 'TaxedMoney' }
       & TaxedMoneyFragmentFragment
     )> }
   )>, attributes: Array<(
     { __typename?: 'SelectedAttribute' }
     & AttributeValuesDetailFragmentFragment
-  )> }
-);
-
-export type CreateCheckoutMutationVariables = Exact<{
-  input: CheckoutCreateInput;
-  languageCode: LanguageCodeEnum;
-}>;
-
-
-export type CreateCheckoutMutation = (
-  { __typename?: 'Mutation' }
-  & { checkoutCreate?: Maybe<(
-    { __typename?: 'CheckoutCreate' }
-    & Pick<CheckoutCreate, 'created'>
-    & { checkoutErrors: Array<(
-      { __typename?: 'CheckoutError' }
-      & Pick<CheckoutError, 'code' | 'field'>
-    )>, checkout?: Maybe<(
-      { __typename?: 'Checkout' }
-      & Pick<Checkout, 'id' | 'quantity' | 'token' | 'note' | 'email'>
-      & { user?: Maybe<(
-        { __typename?: 'User' }
-        & Pick<User, 'id'>
-      )>, totalPrice?: Maybe<(
-        { __typename?: 'TaxedMoney' }
-        & TaxedMoneyFragmentFragment
-      )>, subtotalPrice?: Maybe<(
-        { __typename?: 'TaxedMoney' }
-        & TaxedMoneyFragmentFragment
-      )>, shippingPrice?: Maybe<(
-        { __typename?: 'TaxedMoney' }
-        & TaxedMoneyFragmentFragment
-      )>, lines?: Maybe<Array<Maybe<(
-        { __typename?: 'CheckoutLine' }
-        & Pick<CheckoutLine, 'quantity' | 'requiresShipping'>
-        & { variant: (
-          { __typename?: 'ProductVariant' }
-          & ProductVariantDetailsFragment
-        ), totalPrice?: Maybe<(
-          { __typename?: 'TaxedMoney' }
-          & TaxedMoneyFragmentFragment
-        )> }
-      )>>> }
-    )> }
   )> }
 );
 
@@ -12441,9 +12793,9 @@ export type ProductPageInfoFragmentFragment = (
   ) }
 );
 
-export type ProductDetailFragmentFragment = (
+export type ProductDetailsFragmentFragment = (
   { __typename?: 'Product' }
-  & Pick<Product, 'id' | 'name' | 'slug' | 'descriptionJson' | 'seoTitle' | 'seoDescription' | 'isAvailable' | 'isAvailableForPurchase'>
+  & Pick<Product, 'id' | 'name' | 'slug' | 'description' | 'seoTitle' | 'seoDescription' | 'isAvailable' | 'isAvailableForPurchase'>
   & { pricing?: Maybe<(
     { __typename?: 'ProductPricingInfo' }
     & Pick<ProductPricingInfo, 'onSale'>
@@ -12485,6 +12837,10 @@ export type ProductDetailFragmentFragment = (
     & { variantAttributes?: Maybe<Array<Maybe<(
       { __typename?: 'Attribute' }
       & Pick<Attribute, 'name' | 'slug'>
+      & { translation?: Maybe<(
+        { __typename?: 'AttributeTranslation' }
+        & Pick<AttributeTranslation, 'name'>
+      )> }
     )>>>, productAttributes?: Maybe<Array<Maybe<(
       { __typename?: 'Attribute' }
       & Pick<Attribute, 'name' | 'slug'>
@@ -12494,7 +12850,7 @@ export type ProductDetailFragmentFragment = (
     & CategoryDetailFragmentFragment
   )>, translation?: Maybe<(
     { __typename?: 'ProductTranslation' }
-    & Pick<ProductTranslation, 'seoTitle' | 'seoDescription' | 'name' | 'description' | 'descriptionJson'>
+    & Pick<ProductTranslation, 'seoTitle' | 'seoDescription' | 'name' | 'description'>
     & { language: (
       { __typename?: 'LanguageDisplay' }
       & Pick<LanguageDisplay, 'code' | 'language'>
@@ -12517,7 +12873,7 @@ export type GetProductByIdQuery = (
       { __typename?: 'ProductVariant' }
       & ProductVariantDetailsFragment
     )>>> }
-    & ProductDetailFragmentFragment
+    & ProductDetailsFragmentFragment
   )> }
 );
 
@@ -12536,7 +12892,7 @@ export type GetProductBySlugQuery = (
       { __typename?: 'ProductVariant' }
       & ProductVariantDetailsFragment
     )>>> }
-    & ProductDetailFragmentFragment
+    & ProductDetailsFragmentFragment
   )> }
 );
 
@@ -12561,7 +12917,7 @@ export type GetProductListQuery = (
       & Pick<ProductCountableEdge, 'cursor'>
       & { node: (
         { __typename?: 'Product' }
-        & ProductDetailFragmentFragment
+        & ProductDetailsFragmentFragment
       ) }
     )> }
     & ProductPageInfoFragmentFragment
@@ -12786,6 +13142,12 @@ export type UpdateMetadataMutation = (
         & Pick<MetadataItem, 'key' | 'value'>
       )>> }
     ) | (
+      { __typename?: 'Warehouse' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
       { __typename?: 'ShippingZone' }
       & { metadata: Array<Maybe<(
         { __typename?: 'MetadataItem' }
@@ -12847,6 +13209,18 @@ export type UpdateMetadataMutation = (
       )>> }
     ) | (
       { __typename?: 'PageType' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'MenuItem' }
+      & { metadata: Array<Maybe<(
+        { __typename?: 'MetadataItem' }
+        & Pick<MetadataItem, 'key' | 'value'>
+      )>> }
+    ) | (
+      { __typename?: 'Menu' }
       & { metadata: Array<Maybe<(
         { __typename?: 'MetadataItem' }
         & Pick<MetadataItem, 'key' | 'value'>
@@ -12925,13 +13299,17 @@ export const CategoryDetailFragmentFragmentDoc = gql`
   slug
   level
   description
-  descriptionJson
+  backgroundImage {
+    alt
+    url
+  }
+  description
   seoTitle
   seoDescription
   translation(languageCode: $languageCode) {
     name
     description
-    descriptionJson
+    description
     seoTitle
     seoDescription
   }
@@ -13016,19 +13394,23 @@ export const ProductVariantDetailsFragmentDoc = gql`
     price {
       ...taxedMoneyFragment
     }
+    priceUndiscounted {
+      ...taxedMoneyFragment
+    }
   }
   attributes {
     ...attributeValuesDetailFragment
   }
+  quantityAvailable
 }
     ${TaxedMoneyFragmentFragmentDoc}
 ${AttributeValuesDetailFragmentFragmentDoc}`;
-export const ProductDetailFragmentFragmentDoc = gql`
-    fragment productDetailFragment on Product {
+export const ProductDetailsFragmentFragmentDoc = gql`
+    fragment productDetailsFragment on Product {
   id
   name
   slug
-  descriptionJson
+  description
   seoTitle
   seoDescription
   pricing {
@@ -13073,6 +13455,9 @@ export const ProductDetailFragmentFragmentDoc = gql`
     variantAttributes {
       name
       slug
+      translation(languageCode: $languageCode) {
+        name
+      }
     }
     productAttributes {
       name
@@ -13087,7 +13472,7 @@ export const ProductDetailFragmentFragmentDoc = gql`
     seoDescription
     name
     description
-    descriptionJson
+    description
     language {
       code
       language
@@ -13103,7 +13488,7 @@ export const CollectionDetailsFragmentFragmentDoc = gql`
   id
   name
   description
-  descriptionJson
+  description
   translation(languageCode: $languageCode) {
     name
   }
@@ -13119,7 +13504,7 @@ export const CollectionDetailsFragmentFragmentDoc = gql`
     }
     edges {
       node {
-        ...productDetailFragment
+        ...productDetailsFragment
       }
       cursor
     }
@@ -13127,7 +13512,7 @@ export const CollectionDetailsFragmentFragmentDoc = gql`
   }
 }
     ${PageInfoFragmentFragmentDoc}
-${ProductDetailFragmentFragmentDoc}`;
+${ProductDetailsFragmentFragmentDoc}`;
 export const NavigationMenuItemChildrenFragmentDoc = gql`
     fragment navigationMenuItemChildren on MenuItem {
   name
@@ -13193,6 +13578,7 @@ export const AddressDetailsFragmentFragmentDoc = gql`
     code
     country
   }
+  countryArea
   phone
   isDefaultBillingAddress
   isDefaultShippingAddress
@@ -13226,6 +13612,85 @@ export const OrderDetailsFragmentFragmentDoc = gql`
   }
 }
     ${AddressDetailsFragmentFragmentDoc}`;
+export const CheckoutDetailsFragmentFragmentDoc = gql`
+    fragment checkoutDetailsFragment on Checkout {
+  id
+  token
+  created
+  email
+  isShippingRequired
+  shippingAddress {
+    ...addressDetailsFragment
+  }
+  billingAddress {
+    ...addressDetailsFragment
+  }
+  token
+  subtotalPrice {
+    ...taxedMoneyFragment
+  }
+  totalPrice {
+    ...taxedMoneyFragment
+  }
+  lines {
+    id
+    quantity
+    requiresShipping
+    totalPrice {
+      ...taxedMoneyFragment
+    }
+    variant {
+      product {
+        id
+      }
+      attributes {
+        ...attributeValuesDetailFragment
+      }
+    }
+  }
+  availablePaymentGateways {
+    id
+    name
+    currencies
+    config {
+      field
+      value
+    }
+  }
+  availableShippingMethods {
+    id
+    name
+    translation(languageCode: $languageCode) {
+      name
+    }
+    maximumDeliveryDays
+    price {
+      amount
+    }
+  }
+}
+    ${AddressDetailsFragmentFragmentDoc}
+${TaxedMoneyFragmentFragmentDoc}
+${AttributeValuesDetailFragmentFragmentDoc}`;
+export const PaymentDetailsFragmentFragmentDoc = gql`
+    fragment paymentDetailsFragment on Payment {
+  id
+  isActive
+  actions
+  availableCaptureAmount {
+    amount
+  }
+  availableRefundAmount {
+    amount
+  }
+  capturedAmount {
+    amount
+  }
+  checkout {
+    ...checkoutDetailsFragment
+  }
+}
+    ${CheckoutDetailsFragmentFragmentDoc}`;
 export const ProductPageInfoFragmentFragmentDoc = gql`
     fragment productPageInfoFragment on ProductCountableConnection {
   pageInfo {
@@ -13616,6 +14081,123 @@ export function useGetCategoryListLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
 export type GetCategoryListQueryHookResult = ReturnType<typeof useGetCategoryListQuery>;
 export type GetCategoryListLazyQueryHookResult = ReturnType<typeof useGetCategoryListLazyQuery>;
 export type GetCategoryListQueryResult = Apollo.QueryResult<GetCategoryListQuery, GetCategoryListQueryVariables>;
+export const CreateCheckoutDocument = gql`
+    mutation createCheckout($input: CheckoutCreateInput!, $languageCode: LanguageCodeEnum!) {
+  checkoutCreate(input: $input) {
+    created
+    checkoutErrors {
+      code
+      field
+    }
+    checkout {
+      ...checkoutDetailsFragment
+    }
+  }
+}
+    ${CheckoutDetailsFragmentFragmentDoc}`;
+export type CreateCheckoutMutationFn = Apollo.MutationFunction<CreateCheckoutMutation, CreateCheckoutMutationVariables>;
+
+/**
+ * __useCreateCheckoutMutation__
+ *
+ * To run a mutation, you first call `useCreateCheckoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCheckoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCheckoutMutation, { data, loading, error }] = useCreateCheckoutMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *      languageCode: // value for 'languageCode'
+ *   },
+ * });
+ */
+export function useCreateCheckoutMutation(baseOptions?: Apollo.MutationHookOptions<CreateCheckoutMutation, CreateCheckoutMutationVariables>) {
+        return Apollo.useMutation<CreateCheckoutMutation, CreateCheckoutMutationVariables>(CreateCheckoutDocument, baseOptions);
+      }
+export type CreateCheckoutMutationHookResult = ReturnType<typeof useCreateCheckoutMutation>;
+export type CreateCheckoutMutationResult = Apollo.MutationResult<CreateCheckoutMutation>;
+export type CreateCheckoutMutationOptions = Apollo.BaseMutationOptions<CreateCheckoutMutation, CreateCheckoutMutationVariables>;
+export const CompleteCheckoutDocument = gql`
+    mutation completeCheckout($checkoutId: ID!, $paymentData: JSONString, $redirectUrl: String, $storeSource: Boolean) {
+  checkoutComplete(checkoutId: $checkoutId, paymentData: $paymentData, redirectUrl: $redirectUrl, storeSource: $storeSource) {
+    checkoutErrors {
+      field
+      code
+    }
+    confirmationNeeded
+    confirmationData
+    order {
+      ...orderDetailsFragment
+    }
+  }
+}
+    ${OrderDetailsFragmentFragmentDoc}`;
+export type CompleteCheckoutMutationFn = Apollo.MutationFunction<CompleteCheckoutMutation, CompleteCheckoutMutationVariables>;
+
+/**
+ * __useCompleteCheckoutMutation__
+ *
+ * To run a mutation, you first call `useCompleteCheckoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteCheckoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeCheckoutMutation, { data, loading, error }] = useCompleteCheckoutMutation({
+ *   variables: {
+ *      checkoutId: // value for 'checkoutId'
+ *      paymentData: // value for 'paymentData'
+ *      redirectUrl: // value for 'redirectUrl'
+ *      storeSource: // value for 'storeSource'
+ *   },
+ * });
+ */
+export function useCompleteCheckoutMutation(baseOptions?: Apollo.MutationHookOptions<CompleteCheckoutMutation, CompleteCheckoutMutationVariables>) {
+        return Apollo.useMutation<CompleteCheckoutMutation, CompleteCheckoutMutationVariables>(CompleteCheckoutDocument, baseOptions);
+      }
+export type CompleteCheckoutMutationHookResult = ReturnType<typeof useCompleteCheckoutMutation>;
+export type CompleteCheckoutMutationResult = Apollo.MutationResult<CompleteCheckoutMutation>;
+export type CompleteCheckoutMutationOptions = Apollo.BaseMutationOptions<CompleteCheckoutMutation, CompleteCheckoutMutationVariables>;
+export const GetCheckoutByTokenDocument = gql`
+    query getCheckoutByToken($token: UUID!, $languageCode: LanguageCodeEnum!) {
+  checkout(token: $token) {
+    ...checkoutDetailsFragment
+  }
+}
+    ${CheckoutDetailsFragmentFragmentDoc}`;
+
+/**
+ * __useGetCheckoutByTokenQuery__
+ *
+ * To run a query within a React component, call `useGetCheckoutByTokenQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCheckoutByTokenQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCheckoutByTokenQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *      languageCode: // value for 'languageCode'
+ *   },
+ * });
+ */
+export function useGetCheckoutByTokenQuery(baseOptions?: Apollo.QueryHookOptions<GetCheckoutByTokenQuery, GetCheckoutByTokenQueryVariables>) {
+        return Apollo.useQuery<GetCheckoutByTokenQuery, GetCheckoutByTokenQueryVariables>(GetCheckoutByTokenDocument, baseOptions);
+      }
+export function useGetCheckoutByTokenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCheckoutByTokenQuery, GetCheckoutByTokenQueryVariables>) {
+          return Apollo.useLazyQuery<GetCheckoutByTokenQuery, GetCheckoutByTokenQueryVariables>(GetCheckoutByTokenDocument, baseOptions);
+        }
+export type GetCheckoutByTokenQueryHookResult = ReturnType<typeof useGetCheckoutByTokenQuery>;
+export type GetCheckoutByTokenLazyQueryHookResult = ReturnType<typeof useGetCheckoutByTokenLazyQuery>;
+export type GetCheckoutByTokenQueryResult = Apollo.QueryResult<GetCheckoutByTokenQuery, GetCheckoutByTokenQueryVariables>;
 export const GetCollectionBySlugDocument = gql`
     query getCollectionBySlug($slug: String!, $languageCode: LanguageCodeEnum!, $first: Int, $last: Int, $after: String, $before: String, $filter: ProductFilterInput, $sortBy: ProductOrder) {
   collection(slug: $slug) {
@@ -13692,6 +14274,81 @@ export function useGetCountriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type GetCountriesQueryHookResult = ReturnType<typeof useGetCountriesQuery>;
 export type GetCountriesLazyQueryHookResult = ReturnType<typeof useGetCountriesLazyQuery>;
 export type GetCountriesQueryResult = Apollo.QueryResult<GetCountriesQuery, GetCountriesQueryVariables>;
+export const GetPaymentGatewaysDocument = gql`
+    query getPaymentGateways {
+  shop {
+    availablePaymentGateways {
+      name
+      id
+      config {
+        field
+        value
+      }
+      currencies
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPaymentGatewaysQuery__
+ *
+ * To run a query within a React component, call `useGetPaymentGatewaysQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPaymentGatewaysQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPaymentGatewaysQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPaymentGatewaysQuery(baseOptions?: Apollo.QueryHookOptions<GetPaymentGatewaysQuery, GetPaymentGatewaysQueryVariables>) {
+        return Apollo.useQuery<GetPaymentGatewaysQuery, GetPaymentGatewaysQueryVariables>(GetPaymentGatewaysDocument, baseOptions);
+      }
+export function useGetPaymentGatewaysLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPaymentGatewaysQuery, GetPaymentGatewaysQueryVariables>) {
+          return Apollo.useLazyQuery<GetPaymentGatewaysQuery, GetPaymentGatewaysQueryVariables>(GetPaymentGatewaysDocument, baseOptions);
+        }
+export type GetPaymentGatewaysQueryHookResult = ReturnType<typeof useGetPaymentGatewaysQuery>;
+export type GetPaymentGatewaysLazyQueryHookResult = ReturnType<typeof useGetPaymentGatewaysLazyQuery>;
+export type GetPaymentGatewaysQueryResult = Apollo.QueryResult<GetPaymentGatewaysQuery, GetPaymentGatewaysQueryVariables>;
+export const GetSiteDetailsDocument = gql`
+    query getSiteDetails {
+  shop {
+    companyAddress {
+      ...addressDetailsFragment
+    }
+    description
+  }
+}
+    ${AddressDetailsFragmentFragmentDoc}`;
+
+/**
+ * __useGetSiteDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetSiteDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSiteDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSiteDetailsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetSiteDetailsQuery(baseOptions?: Apollo.QueryHookOptions<GetSiteDetailsQuery, GetSiteDetailsQueryVariables>) {
+        return Apollo.useQuery<GetSiteDetailsQuery, GetSiteDetailsQueryVariables>(GetSiteDetailsDocument, baseOptions);
+      }
+export function useGetSiteDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSiteDetailsQuery, GetSiteDetailsQueryVariables>) {
+          return Apollo.useLazyQuery<GetSiteDetailsQuery, GetSiteDetailsQueryVariables>(GetSiteDetailsDocument, baseOptions);
+        }
+export type GetSiteDetailsQueryHookResult = ReturnType<typeof useGetSiteDetailsQuery>;
+export type GetSiteDetailsLazyQueryHookResult = ReturnType<typeof useGetSiteDetailsLazyQuery>;
+export type GetSiteDetailsQueryResult = Apollo.QueryResult<GetSiteDetailsQuery, GetSiteDetailsQueryVariables>;
 export const GetMenuDocument = gql`
     query getMenu($slug: String, $name: String, $languageCode: LanguageCodeEnum!, $channel: String!) {
   menu(slug: $slug, name: $name, channel: $channel) {
@@ -13903,83 +14560,60 @@ export function useGetPageBySlugLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
 export type GetPageBySlugQueryHookResult = ReturnType<typeof useGetPageBySlugQuery>;
 export type GetPageBySlugLazyQueryHookResult = ReturnType<typeof useGetPageBySlugLazyQuery>;
 export type GetPageBySlugQueryResult = Apollo.QueryResult<GetPageBySlugQuery, GetPageBySlugQueryVariables>;
-export const CreateCheckoutDocument = gql`
-    mutation createCheckout($input: CheckoutCreateInput!, $languageCode: LanguageCodeEnum!) {
-  checkoutCreate(input: $input) {
-    created
-    checkoutErrors {
-      code
-      field
-    }
+export const CreatePaymentDocument = gql`
+    mutation createPayment($checkoutId: ID!, $input: PaymentInput!, $languageCode: LanguageCodeEnum!) {
+  checkoutPaymentCreate(checkoutId: $checkoutId, input: $input) {
     checkout {
-      id
-      user {
-        id
-      }
-      quantity
-      token
-      totalPrice {
-        ...taxedMoneyFragment
-      }
-      subtotalPrice {
-        ...taxedMoneyFragment
-      }
-      note
-      email
-      shippingPrice {
-        ...taxedMoneyFragment
-      }
-      lines {
-        variant {
-          ...productVariantDetails
-        }
-        quantity
-        totalPrice {
-          ...taxedMoneyFragment
-        }
-        requiresShipping
-      }
+      ...checkoutDetailsFragment
+    }
+    payment {
+      ...paymentDetailsFragment
+    }
+    paymentErrors {
+      field
+      code
     }
   }
 }
-    ${TaxedMoneyFragmentFragmentDoc}
-${ProductVariantDetailsFragmentDoc}`;
-export type CreateCheckoutMutationFn = Apollo.MutationFunction<CreateCheckoutMutation, CreateCheckoutMutationVariables>;
+    ${CheckoutDetailsFragmentFragmentDoc}
+${PaymentDetailsFragmentFragmentDoc}`;
+export type CreatePaymentMutationFn = Apollo.MutationFunction<CreatePaymentMutation, CreatePaymentMutationVariables>;
 
 /**
- * __useCreateCheckoutMutation__
+ * __useCreatePaymentMutation__
  *
- * To run a mutation, you first call `useCreateCheckoutMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateCheckoutMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreatePaymentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePaymentMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createCheckoutMutation, { data, loading, error }] = useCreateCheckoutMutation({
+ * const [createPaymentMutation, { data, loading, error }] = useCreatePaymentMutation({
  *   variables: {
+ *      checkoutId: // value for 'checkoutId'
  *      input: // value for 'input'
  *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
-export function useCreateCheckoutMutation(baseOptions?: Apollo.MutationHookOptions<CreateCheckoutMutation, CreateCheckoutMutationVariables>) {
-        return Apollo.useMutation<CreateCheckoutMutation, CreateCheckoutMutationVariables>(CreateCheckoutDocument, baseOptions);
+export function useCreatePaymentMutation(baseOptions?: Apollo.MutationHookOptions<CreatePaymentMutation, CreatePaymentMutationVariables>) {
+        return Apollo.useMutation<CreatePaymentMutation, CreatePaymentMutationVariables>(CreatePaymentDocument, baseOptions);
       }
-export type CreateCheckoutMutationHookResult = ReturnType<typeof useCreateCheckoutMutation>;
-export type CreateCheckoutMutationResult = Apollo.MutationResult<CreateCheckoutMutation>;
-export type CreateCheckoutMutationOptions = Apollo.BaseMutationOptions<CreateCheckoutMutation, CreateCheckoutMutationVariables>;
+export type CreatePaymentMutationHookResult = ReturnType<typeof useCreatePaymentMutation>;
+export type CreatePaymentMutationResult = Apollo.MutationResult<CreatePaymentMutation>;
+export type CreatePaymentMutationOptions = Apollo.BaseMutationOptions<CreatePaymentMutation, CreatePaymentMutationVariables>;
 export const GetProductByIdDocument = gql`
     query getProductById($id: ID!, $languageCode: LanguageCodeEnum!, $channel: String) {
   product(id: $id, channel: $channel) {
-    ...productDetailFragment
+    ...productDetailsFragment
     variants {
       ...productVariantDetails
     }
   }
 }
-    ${ProductDetailFragmentFragmentDoc}
+    ${ProductDetailsFragmentFragmentDoc}
 ${ProductVariantDetailsFragmentDoc}`;
 
 /**
@@ -14012,13 +14646,13 @@ export type GetProductByIdQueryResult = Apollo.QueryResult<GetProductByIdQuery, 
 export const GetProductBySlugDocument = gql`
     query getProductBySlug($slug: String!, $languageCode: LanguageCodeEnum!, $channel: String) {
   product(slug: $slug, channel: $channel) {
-    ...productDetailFragment
+    ...productDetailsFragment
     variants {
       ...productVariantDetails
     }
   }
 }
-    ${ProductDetailFragmentFragmentDoc}
+    ${ProductDetailsFragmentFragmentDoc}
 ${ProductVariantDetailsFragmentDoc}`;
 
 /**
@@ -14053,14 +14687,14 @@ export const GetProductListDocument = gql`
   products(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy, channel: $channel) {
     edges {
       node {
-        ...productDetailFragment
+        ...productDetailsFragment
       }
       cursor
     }
     ...productPageInfoFragment
   }
 }
-    ${ProductDetailFragmentFragmentDoc}
+    ${ProductDetailsFragmentFragmentDoc}
 ${ProductPageInfoFragmentFragmentDoc}`;
 
 /**

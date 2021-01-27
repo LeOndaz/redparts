@@ -6,7 +6,7 @@ import {
     GetProductBySlugDocument,
     GetProductListDocument,
 } from '~/api/graphql/types';
-import {filterDefaultChannel, filterPublished, filterStack} from '~/api/graphql/misc/FilterService';
+import {filterDefaultChannel, filterPublished} from '~/api/graphql/misc/FilterService';
 import {IBaseModelProps} from '~/api/graphql/interfaces';
 import {handleRelayedResponse, handleSingleResponse} from '~/api/graphql/misc/mappers/utils';
 import {productMap} from '~/api/graphql/products/productMappers';

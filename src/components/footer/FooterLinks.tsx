@@ -4,12 +4,12 @@ import React from 'react';
 import AppLink from '~/components/shared/AppLink';
 import { ILink } from '~/interfaces/link';
 
-interface Props extends React.HTMLAttributes<HTMLElement> {
+export interface IFooterLinks extends React.HTMLAttributes<HTMLElement> {
     header: React.ReactNode;
     links: ILink[];
 }
 
-function FooterLinks(props: Props) {
+function FooterLinks(props: IFooterLinks) {
     const { header, links } = props;
 
     return (

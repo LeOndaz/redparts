@@ -5,7 +5,6 @@ import AppBase, {AppContext, AppProps} from 'next/app';
 import Head from 'next/head';
 import {NextComponentType, NextPageContext} from 'next';
 import {useStore} from 'react-redux';
-import TagManager from "react-gtm-module";
 
 // application
 import config from '~/config';
@@ -14,7 +13,7 @@ import Layout from '~/components/Layout';
 import PageTitle from '~/components/shared/PageTitle';
 import {AppDispatch} from '~/store/types';
 import {CurrentVehicleGarageProvider} from '~/services/current-vehicle';
-import {getLanguageByLocale, getLanguageByPath, getDefaultLanguage} from '~/services/i18n/utils';
+import {getLanguageByLocale, getLanguageByPath, getDefaultLanguage, getLanguageServerSide} from '~/services/i18n/utils';
 import {load, save, wrapper} from '~/store/store';
 import {optionsSetAll} from '~/store/options/optionsActions';
 import {useApplyClientState} from '~/store/client';
@@ -34,6 +33,8 @@ import '../scss/style.mobile-header-variant-two.scss';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import AuthFlow from "~/components/auth/AuthFlow";
 import {languageSet} from "~/store/language/languageActions";
+import {GoogleTagManager} from "~/components/site/GoogleTagManager";
+import FacebookPixel from "~/components/site/FacebookPixel";
 
 interface Props extends AppProps {
     languageInitialProps: ILanguageProviderProps;
@@ -97,16 +98,20 @@ function App({Component, pageProps, languageInitialProps}: Props) {
     // noinspection HtmlRequiredTitleElement
     return (
         <LanguageProvider {...languageInitialProps}>
-            <AuthFlow/>
-            <CurrentVehicleGarageProvider>
-                <PageTitle/>
+            <GoogleTagManager>
+                <FacebookPixel>
+                    <AuthFlow/>
+                    <CurrentVehicleGarageProvider>
+                        <PageTitle/>
 
-                <Head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-                </Head>
+                        <Head>
+                            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                        </Head>
 
-                {page}
-            </CurrentVehicleGarageProvider>
+                        {page}
+                    </CurrentVehicleGarageProvider>
+                </FacebookPixel>
+            </GoogleTagManager>
         </LanguageProvider>
     );
 }

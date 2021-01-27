@@ -75,9 +75,12 @@ export interface IImage {
 }
 
 export interface IProductVariant {
+    id: string;
     sku: string;
     name: string;
     price: number;
+    compareAtPrice: number | null;
+    stock: IProductStock;
     attributes: IProductAttribute[];
 }
 

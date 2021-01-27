@@ -1,10 +1,6 @@
-import {AttributeValue, Product, ProductVariant, SelectedAttribute, StockAvailability} from "~/api/graphql/types";
+import {Product, StockAvailability} from "~/api/graphql/types";
 import {
-    IImage,
     IProduct,
-    IProductAttribute,
-    IProductAttributeValue,
-    IProductType,
     IProductVariant
 } from "~/interfaces/product";
 import {customEditorjsParser} from "~/components/utils";
@@ -13,107 +9,23 @@ import {shopCategoryMap} from "~/api/graphql/categories/categoryMappers";
 import {
     getAttributeValue,
     getAttributeValues,
-    getMetadataItem, isEmpty,
+    isEmpty,
     mapTranslatable
 } from "~/api/graphql/misc/helpers";
 import {IBrand} from "~/interfaces/brand";
-import {DefaultAttrSlugs, MetadataKeys, Placeholders} from "~/api/graphql/consts";
+import {DefaultAttrSlugs, Placeholders} from "~/api/graphql/consts";
+import {selectedAttributesMapIn} from "~/api/graphql/attributes/attributeMappers";
+import {getAttrsFromVariants} from "~/api/graphql/attributes/utils";
+import {variantMap} from "~/api/graphql/productVariants/variantMappers";
+import {productTypeMap} from "~/api/graphql/productTypes/productTypeMappers";
 
-const selectedAttributeValuesMapIn = (values: AttributeValue[]): IProductAttributeValue[] => {
-    return values.map(value => {
-        let [name] = mapTranslatable(value, ['name'])
-
-        return {
-            name,
-            slug: value.slug as string,
-        }
-    })
-}
-
-const selectedAttrMapIn = (selectedAttr: SelectedAttribute): IProductAttribute => {
-    let [name] = mapTranslatable(selectedAttr.attribute, ['name'])
-
-    return {
-        name: name,
-        slug: selectedAttr.attribute.slug as string,
-        featured: !!getMetadataItem(selectedAttr.attribute.metadata, MetadataKeys.Featured, false),
-        values: selectedAttributeValuesMapIn(selectedAttr.values),
-    }
-}
-
-
-const selectedAttributesMapIn = (selectedAttrs: SelectedAttribute[]): IProductAttribute[] =>
-    selectedAttrs.map(selectedAttrMapIn)
-
-const mapVariant = (variant: ProductVariant): IProductVariant => {
-    const attrValues = selectedAttributesMapIn(variant.attributes);
-    const price = variant.pricing!.price!.gross.amount;
-
-    return {
-        name: variant.name,
-        sku: variant.sku,
-        price: price,
-        attributes: attrValues,
-    }
-}
-
-
-const getAttrsFromVariants = (product: Product): IProductAttribute[] => {
-    const variants = product.variants;
-    const variantAttrSlugs = product.productType.variantAttributes?.map(va => va!.slug)
-    const variantAttrs: IProductAttribute[] = [];
-
-    variantAttrSlugs?.forEach(slug => {
-
-        variants?.forEach(variant => {
-            const selectedAttr = variant!.attributes.find(selectedAttr => selectedAttr.attribute.slug === slug)
-            if (selectedAttr) {
-                // check if it exists in variantAttrs
-                // if it does, add the new values and not the attribute as whole
-                const va = variantAttrs.find(va => va.slug === selectedAttr.attribute.slug)
-
-                if (va) {
-                    va.values = [...va.values, ...selectedAttributeValuesMapIn(selectedAttr.values)]
-                } else {
-                    variantAttrs.push(selectedAttrMapIn(selectedAttr))
-                }
-            }
-        })
-    })
-
-    return variantAttrs
-
-}
-
-const productTypeMapIn = (product: Product): IProductType => {
-    const productType = product.productType;
-    const variantAttrSlugs = productType.variantAttributes?.map(value => value!.slug) as string[]
-    const productTypeAttrSlugs = productType.productAttributes?.map(value => value!.slug) as string[]
-
-    return {
-        name: productType.name,
-        slug: productType.slug,
-        attributeGroups: [
-            {
-                name: 'General',
-                slug: 'general-specs',
-                attributes: productTypeAttrSlugs,
-            },
-            {
-                name: "Specific",
-                slug: "variant-specs",
-                attributes: variantAttrSlugs,
-            }
-        ]
-    }
-}
 
 const productMapIn = (product: Product): IProduct => {
     if (!product.pricing?.priceRange?.start) {
         throw Error('Default channel slug is not specified or not correct. ')
     }
 
-    let [name, description] = mapTranslatable(product, ['name', 'descriptionJson'])
+    let [name, description] = mapTranslatable(product, ['name', 'description'])
 
     /** Handle markdown description */
     description = JSON.parse(description)
@@ -147,7 +59,7 @@ const productMapIn = (product: Product): IProduct => {
     }
 
     /** Handle type*/
-    const type = productTypeMapIn(product)
+    const type = productTypeMap.in(product)
 
     /** images */
     let images = product.images || [];
@@ -164,23 +76,26 @@ const productMapIn = (product: Product): IProduct => {
     const options = mapVariantAttrsToOptions(product)
 
     /** Handle attributes */
-    const variantAttrs = getAttrsFromVariants(product)
     const attributes = [
         ...selectedAttributesMapIn(product.attributes),
-        ...variantAttrs,
+        ...getAttrsFromVariants(product),
     ]
 
-    const variants: IProductVariant[] = product.variants ? product.variants.map(mapVariant) : [];
+    const variants: IProductVariant[] = product.variants ? product.variants.map(variantMap.in) : [];
+    console.log(variants)
+
+    /** handle stocks */
+    const stock = product.isAvailable ? StockAvailability.InStock : StockAvailability.OutOfStock
 
     return {
         id: product.id,
-        name: name,
+        name,
+        stock,
         slug: product.slug,
         description: description,
         excerpt: product.seoDescription || '',
         price: finalPrice,
         compareAtPrice: compareAtPrice,
-        stock: product.isAvailable ? StockAvailability.InStock : StockAvailability.OutOfStock,
         availability: "",
         images: images,
         partNumber: "",

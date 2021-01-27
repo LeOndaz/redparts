@@ -7,7 +7,6 @@ import {REVIEWS_PLUGIN_API_URL} from "~/api/graphql/consts";
 import {handleRelayedResponse, handleSingleResponse} from "~/api/graphql/misc/mappers/utils";
 import {reviewMap} from "~/api/graphql/reviews/ReviewMappers";
 
-
 const reviewsClient = new ApolloClient<NormalizedCacheObject>({
     link: new HttpLink({
         uri: REVIEWS_PLUGIN_API_URL

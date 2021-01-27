@@ -1,4 +1,5 @@
 import {ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client';
+import {onError} from "@apollo/client/link/error";
 import {FakeAccountApi} from './fake-api/fake-account.api';
 import {FakeBlogApi} from './fake-api/fake-blog.api';
 import {FakeCountriesApi} from './fake-api/fake-countries.api';
@@ -7,19 +8,59 @@ import {FakeVehicleApi} from './fake-api/fake-vehicle.api';
 
 // this will be federated
 import {API_URL} from '~/api/graphql/consts';
-import {NavigationApi} from "~/api/fake-api/navigation.api";
+import {loadLocal} from "~/api/graphql/misc/helpers";
+import {CmsApi} from "~/api/fake-api/cms.api";
 
 // shared cache for the whole project
 export const cache = new InMemoryCache();
+
+const httpLink = new HttpLink({
+    uri: API_URL,
+})
+
+const errorLink = onError(({graphQLErrors, networkError, operation, forward}) => {
+    if (graphQLErrors) {
+        for (let err of graphQLErrors) {
+            switch (err.extensions?.code) {
+                case 'PermissionDenied':
+                    // error code is set to UNAUTHENTICATED
+                    // when AuthenticationError thrown in resolver
+                    const tokens = loadLocal('token')
+                    if (!tokens || !tokens.token) {
+                        return forward(operation)
+                    }
+                    // modify the operation context with a new token
+                    const oldHeaders = operation.getContext().headers;
+                    operation.setContext({
+                        headers: {
+                            ...oldHeaders,
+                            authorization: loadLocal('tokens').token,
+                        },
+                    });
+                    // retry the request, returning the new observable
+                    return forward(operation);
+                case "JWT_SIGNATURE_EXPIRED":
+                    console.log(err)
+                    return forward(operation)
+            }
+        }
+    }
+    if (networkError) {
+        console.log(`[Network error]: ${networkError}`);
+        // if you would also like to retry automatically on
+        // network errors, we recommend that you use
+        // @apollo/client/link/retry
+    }
+});
+
 
 // shared client across all resolvers
 export const client = new ApolloClient<NormalizedCacheObject>({
     // link: new BatchHttpLink({
     //     uri: API_URL,
     // }),
-    link: new HttpLink({
-        uri: API_URL
-    }),
+    link: errorLink.concat(httpLink),
+    ssrMode: typeof window === "undefined",
     cache,
 });
 
@@ -46,4 +87,4 @@ export const blogApi = new FakeBlogApi();
 export const countriesApi = new FakeCountriesApi();
 export const shopApi = new FakeShopApi();
 export const vehicleApi = new FakeVehicleApi();
-export const navigationApi = new NavigationApi();
+export const cmsApi = new CmsApi()

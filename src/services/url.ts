@@ -9,6 +9,7 @@ import {IOrder} from '~/interfaces/order';
 import {IPost} from '~/interfaces/post';
 import {IProduct} from '~/interfaces/product';
 import {ICollection} from "~/api/graphql/collections/collectionMappers";
+import {Checkout} from "~/api/graphql/types";
 
 const url = {
     // common
@@ -46,8 +47,10 @@ const url = {
     brand: (brand: IBrand) => '/',
     cart: () => '/cart',
     checkout: () => '/cart/checkout',
+    shipping: (checkout: Checkout, method: string) => `/cart/checkout/${checkout.id}/shipping?with=${method}`,
+    pay: (checkout: Checkout, method: string) => `/cart/checkout/${checkout.id}/pay?with=${method}`,
     checkoutSuccess: (order: IOrder): IAppLinkHref => ({
-        href: `/cart/checkout/[token]?token=${order.token}`,
+        href: `/cart/checkout/[id]?token=${order.token}`,
         as: `/cart/checkout/${order.token}`,
     }),
     wishlist: () => '/wishlist',

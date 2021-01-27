@@ -5,11 +5,11 @@ fragment productPageInfoFragment on ProductCountableConnection {
     totalCount
 }
 
-fragment productDetailFragment on Product {
+fragment productDetailsFragment on Product {
     id
     name
     slug
-    descriptionJson
+    description
     seoTitle
     seoDescription
     pricing {
@@ -40,7 +40,7 @@ fragment productDetailFragment on Product {
         ...attributeValuesDetailFragment
     }
     variants {
-        ...productVariantDetails
+        ...productVariantDetailsFragment
     }
     defaultVariant {
         sku
@@ -54,6 +54,10 @@ fragment productDetailFragment on Product {
         variantAttributes {
             name
             slug
+            translation(languageCode: $languageCode){
+                name
+            }
+
         }
         productAttributes {
             name
@@ -68,7 +72,7 @@ fragment productDetailFragment on Product {
         seoDescription
         name
         description
-        descriptionJson
+        description
         language {
             code
             language

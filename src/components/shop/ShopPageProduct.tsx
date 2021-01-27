@@ -29,6 +29,7 @@ import {shopApi} from '~/api';
 import {useCompareAddItem} from '~/store/compare/compareHooks';
 import {useProductForm} from '~/services/forms/product';
 import {useWishlistAddItem} from '~/store/wishlist/wishlistHooks';
+import {ProductSetVariantContext, ProductVariantContext} from "~/services/shop/context"
 import {
     Compare16Svg,
     Fi24Hours48Svg,
@@ -37,13 +38,11 @@ import {
     FiTag48Svg,
     Wishlist16Svg,
 } from '~/svg';
-import {StockAvailability} from "~/api/graphql/types";
-import ConditionFormattedMessage from "~/components/shared/ConditionFormattedMessage";
 import {useLanguage} from "~/services/i18n/hooks";
+import ProductInfoCardForm from "~/components/shop/productInfoCard";
 
 interface Props {
     product: IProduct;
-    variant: IProductVariant;
     layout: IProductPageLayout;
     sidebarPosition?: IProductPageSidebarPosition;
 }
@@ -51,21 +50,14 @@ interface Props {
 function ShopPageProduct(props: Props) {
     const {
         product,
-        variant,
         layout,
         sidebarPosition = 'start',
     } = props;
     const intl = useIntl();
-    const wishlistAddItem = useWishlistAddItem();
-    const compareAddItem = useCompareAddItem();
+
     const galleryLayout = `product-${layout}` as IProductGalleryLayout;
     const [relatedProducts, setRelatedProducts] = useState<IProduct[]>([]);
-    const productForm = useProductForm(product);
     const language = useLanguage()
-
-    const getVariant = useCallback(() => {
-
-    }, [])
 
     useEffect(() => {
         let canceled = false;
@@ -162,170 +154,9 @@ function ShopPageProduct(props: Props) {
         </div>
     );
 
-    const productInfoBody = (
-        <div className="product__info-body">
-            {product.compareAtPrice && (
-                <div className="product__badge tag-badge tag-badge--sale">
-                    <FormattedMessage id="TEXT_BADGE_SALE"/>
-                </div>
-            )}
-
-            <div className="product__prices-stock">
-                <div className="product__prices">
-                    {product.compareAtPrice && (
-                        <React.Fragment>
-                            <div className="product__price product__price--old">
-                                <CurrencyFormat value={product.compareAtPrice}/>
-                            </div>
-                            <div className="product__price product__price--new">
-                                <CurrencyFormat value={product.price}/>
-                            </div>
-                        </React.Fragment>
-                    )}
-                    {!product.compareAtPrice && (
-                        <div className="product__price product__price--current">
-                            <CurrencyFormat value={product.price}/>
-                        </div>
-                    )}
-                </div>
-                <StockStatusBadge className="product__stock" stock={product.stock}/>
-            </div>
-
-            <div className="product__meta">
-                <table>
-                    <tbody>
-                    <tr>
-                        <th>
-                            <FormattedMessage id="TABLE_SKU"/>
-                        </th>
-                        <td>{product.sku}</td>
-                    </tr>
-                    {product.brand && (
-                        <React.Fragment>
-                            <tr>
-                                <th>
-                                    <FormattedMessage id="TABLE_BRAND"/>
-                                </th>
-                                <td>
-                                    <AppLink href={url.brand(product.brand)}>
-                                        {product.brand.name}
-                                    </AppLink>
-                                </td>
-                            </tr>
-
-                            {product.brand.country &&
-                            <tr>
-                                <th>
-                                    <FormattedMessage id="TABLE_COUNTRY"/>
-                                </th>
-                                <td>
-                                    <FormattedMessage id={`COUNTRY_NAME_${product.brand.country}`}/>
-                                </td>
-                            </tr>}
-                        </React.Fragment>
-                    )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-
-    const productActions = (
-        <div className="product__actions">
-            <React.Fragment>
-                {product.stock !== StockAvailability.OutOfStock && (
-                    <div className="product__actions-item product__actions-item--quantity">
-                        <Controller
-                            name="quantity"
-                            rules={{
-                                required: true,
-                            }}
-                            render={({value, onChange, onBlur}) => (
-                                <InputNumber
-                                    size="lg"
-                                    min={1}
-                                    value={value}
-                                    onChange={onChange}
-                                    onBlur={onBlur}
-                                />
-                            )}
-                        />
-                    </div>
-                )}
-                <div className="product__actions-item product__actions-item--addtocart">
-                    <button
-                        disabled={product.stock === StockAvailability.OutOfStock}
-                        type="submit"
-                        className={classNames('btn', 'btn-primary', 'btn-lg', 'btn-block', {
-                            'btn-loading': productForm.submitInProgress,
-                        })}
-                    >
-                        <ConditionFormattedMessage
-                            onSuccessId="BUTTON_ADD_TO_CART"
-                            onFailId="BUTTON_OUT_OF_STOCK"
-                            condition={product.stock !== StockAvailability.OutOfStock}
-                        />
-                    </button>
-                </div>
-                <div className="product__actions-divider"/>
-            </React.Fragment>
-
-            <AsyncAction
-                action={() => wishlistAddItem(product)}
-                render={({run, loading}) => (
-                    <button
-                        type="button"
-                        className={classNames('product__actions-item', 'product__actions-item--wishlist', {
-                            'product__actions-item--loading': loading,
-                        })}
-                        onClick={run}
-                    >
-                        <Wishlist16Svg/>
-                        <span>
-                            <FormattedMessage id="BUTTON_ADD_TO_WISHLIST"/>
-                        </span>
-                    </button>
-                )}
-            />
-            <AsyncAction
-                action={() => compareAddItem(product)}
-                render={({run, loading}) => (
-                    <button
-                        type="button"
-                        className={classNames('product__actions-item', 'product__actions-item--compare', {
-                            'product__actions-item--loading': loading,
-                        })}
-                        onClick={run}
-                    >
-                        <Compare16Svg/>
-                        <span>
-                            <FormattedMessage id="BUTTON_ADD_TO_COMPARE"/>
-                        </span>
-                    </button>
-                )}
-            />
-        </div>
-    );
-
-    const productTagsAndShareLinks = (
-        <div className="product__tags-and-share-links">
-            {product.tags && product.tags.length > 0 && (
-                <div className="product__tags tags tags--sm">
-                    <div className="tags__list">
-                        {product.tags.map((tag, index) => (
-                            <AppLink href="/" key={index}>
-                                {tag}
-                            </AppLink>
-                        ))}
-                    </div>
-                </div>
-            )}
-            <ShareLinks className="product__share-links"/>
-        </div>
-    );
 
     return (
-        <React.Fragment>
+        <>
             <PageTitle>{product.name}</PageTitle>
 
             <BlockHeader
@@ -417,23 +248,28 @@ function ShopPageProduct(props: Props) {
                                     )}
 
                                     <div className="product__info">
-                                        <FormProvider {...productForm.methods}>
-                                            <form onSubmit={productForm.submit} className="product__info-card">
-                                                {productInfoBody}
+                                        <ProductInfoCardForm product={product}/>
+                                        {/*<ProductVariantContext.Provider value={currentVariant}>*/}
+                                        {/*    <ProductSetVariantContext.Provider*/}
+                                        {/*        value={(variant: IProductVariant | null) => setCurrentVariant(variant)}>*/}
 
-                                                {product.options.length > 0 && (
-                                                    <ProductForm
-                                                        options={product.options}
-                                                        className="product__form"
-                                                        namespace="options"
-                                                    />
-                                                )}
+                                        {/*        <FormProvider {...productForm.methods}>*/}
+                                        {/*            <form onSubmit={productForm.submit} className="product__info-card">*/}
+                                        {/*                {productInfoBody}*/}
 
-                                                {productActions}
+                                        {/*                {product.options.length > 0 && (*/}
+                                        {/*                    <ProductForm*/}
+                                        {/*                        options={product.options}*/}
+                                        {/*                        className="product__form"*/}
+                                        {/*                        namespace="options"*/}
+                                        {/*                    />*/}
+                                        {/*                )}*/}
 
-                                                {productTagsAndShareLinks}
-                                            </form>
-                                        </FormProvider>
+
+                                        {/*            </form>*/}
+                                        {/*        </FormProvider>*/}
+                                        {/*    </ProductSetVariantContext.Provider>*/}
+                                        {/*</ProductVariantContext.Provider>*/}
 
                                         {shopFeatures}
                                     </div>
@@ -465,7 +301,7 @@ function ShopPageProduct(props: Props) {
             </div>
 
             <BlockSpace layout="before-footer"/>
-        </React.Fragment>
+        </>
     );
 }
 

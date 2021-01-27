@@ -8,6 +8,7 @@ import { ICurrency } from '~/interfaces/currency';
 import { useCurrency, useCurrencyChange } from '~/store/currency/currencyHooks';
 // data
 import dataShopCurrencies from '~/data/shopCurrencies';
+import {useAvailableCurrencies} from "~/services/hooks";
 
 interface Item extends IDropdownItem {
     currency: ICurrency;
@@ -16,17 +17,18 @@ interface Item extends IDropdownItem {
 function DropdownCurrency() {
     const currency = useCurrency();
     const currencyChange = useCurrencyChange();
+    const currencies = useAvailableCurrencies();
 
     const handleItemClick = (item: Item) => {
         currencyChange(item.currency);
     };
 
     const items: Item[] = useMemo(() => (
-        dataShopCurrencies.map(((eachCurrency) => ({
-            title: `${eachCurrency.symbol} ${eachCurrency.name}`,
+        currencies.data.map(((eachCurrency) => ({
+            title: `${eachCurrency.name}`,
             currency: eachCurrency,
         })))
-    ), []);
+    ), [currencies.isLoading]);
 
     const label = (
         <React.Fragment>

@@ -1,6 +1,5 @@
 import {Address, AddressInput, CountryCode} from "~/api/graphql/types";
 import {IAddress, IAddressData} from "~/interfaces/address";
-import {IEditAddressData} from "~/api/base";
 
 const addressMapIn = (address: Address): IAddress => {
     return {

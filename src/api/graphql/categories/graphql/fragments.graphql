@@ -12,13 +12,17 @@ fragment categoryDetailFragment on Category {
     slug
     level
     description
-    descriptionJson
+    backgroundImage {
+        alt
+        url
+    }
+    description
     seoTitle
     seoDescription
     translation (languageCode: $languageCode){
         name
         description
-        descriptionJson
+        description
         seoTitle
         seoDescription
     }

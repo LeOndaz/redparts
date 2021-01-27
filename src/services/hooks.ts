@@ -22,9 +22,14 @@ import {useIsUnmountedRef} from '~/store/hooks';
 import {useUser} from "~/store/user/userHooks";
 import {useLanguage, useLocale} from "~/services/i18n/hooks";
 import {useCurrency} from "~/store/currency/currencyHooks";
-import {IInfo} from "~/store/interfaces";
 import {ICollection} from "~/api/graphql/collections/collectionMappers";
 import {getPageBySlug} from "~/api/graphql/pages/pageService";
+import {cmsApi, getPaymentGateways, shopApi} from "~/api";
+import {ILanguage} from "~/interfaces/language";
+import {headerMap} from "~/api/graphql/navigation/navigationMappers";
+import {ICurrency} from "~/interfaces/currency";
+import {PLUGIN_OPEN_EXCHANGE_URL} from "~/api/graphql/consts";
+import {getCurrencySymbol} from "~/api/graphql/misc/helpers";
 
 export function useGlobalMousedown(callback: (event: MouseEvent) => void, deps?: DependencyList) {
     const memoCallback = useCallback(callback, deps || []);
@@ -248,9 +253,101 @@ export function useList<T extends INavigableList<any>>(
 //     }
 // }
 
-export function usePage(slug: string){
+// export function usePage(slug: string){
+//     const language = useLanguage();
+//     const page = useDeferredData(() => getPageBySlug(slug, language), {})
+//
+//
+// }
+
+export const useNetworkStatus = (callBack?: (online?: boolean) => void) => {
+    const [online, setOnline] = useState(
+        "onLine" in navigator ? navigator.onLine : true
+    );
+
+    const updateOnlineStatus = () => {
+        const status = navigator.onLine;
+
+        if (callBack) {
+            callBack(status);
+        }
+        setOnline(navigator.onLine);
+    };
+
+    useEffect(() => {
+        addEventListener("offline", updateOnlineStatus);
+        addEventListener("online", updateOnlineStatus);
+
+        return () => {
+            removeEventListener("offline", updateOnlineStatus);
+            removeEventListener("online", updateOnlineStatus);
+        };
+    }, []);
+
+    return {online};
+};
+
+
+export function useSiteDetails() {
+    return useDeferredData(() => cmsApi.getSiteDetails(), null)
+}
+
+export function useNavbarLinks(language: ILanguage) {
+    return useDeferredData(() => cmsApi.getNavbarLinks(language), [], undefined, [language])
+}
+
+export function useFooterLinks(language: ILanguage) {
+    return useDeferredData(() => cmsApi.getFooterLinks(language), [], undefined, [language])
+}
+
+export function useHeaderDepartments(language: ILanguage) {
+    const categories = useDeferredData(() => shopApi.getCategories({}, language), [], undefined, [language])
+    return useMemo(() => ({
+        ...categories,
+        data: headerMap.in(categories.data),
+    }), [language, categories.isLoading])
+}
+
+
+
+export function useAvailableCurrencies() {
+    const activeCurrency = useCurrency();
     const language = useLanguage();
-    const page = useDeferredData(() => getPageBySlug(slug, language), {})
 
+    // get all available currency names as {code: name}
+    const availableCurrencyNames = useDeferredData(() => cmsApi.getCurrencyNames(), null)
 
+    // get all currency rates as { rates: { code: rate } }
+    const response = useDeferredData(() => cmsApi.getCurrencyRates(), null)
+
+    return useMemo(() => {
+        const data: ICurrency[] = [];
+
+        // if any of them is loading, useAvailableCurrencies is loading
+        const isLoading = response.isLoading || availableCurrencyNames.isLoading;
+
+        if (isLoading) return {
+            isLoading,
+            data,
+        };
+
+        const rates = response.data.rates;
+        const entries = Object.entries(rates);
+
+        // create ICurrency objects out of the data provided
+        entries.map(entry => {
+            const [code, rate] = entry;
+            data.push({
+                name: availableCurrencyNames.data[code],
+                code,
+                rate: rate / rates[activeCurrency.code],
+                symbol: getCurrencySymbol(language.locale, code)
+            })
+        })
+
+        return {
+            isLoading: false,
+            data,
+        };
+    }, [response.isLoading, availableCurrencyNames.isLoading, language])
 }

@@ -1,0 +1,26 @@
+mutation createCheckout($input: CheckoutCreateInput!, $languageCode: LanguageCodeEnum!) {
+    checkoutCreate (input: $input){
+        created
+        checkoutErrors {
+            code
+            field
+        }
+        checkout {
+            ...checkoutDetailsFragment
+        }
+    }
+}
+
+mutation completeCheckout($checkoutId: ID!, $paymentData: JSONString, $redirectUrl: String, $storeSource: Boolean) {
+    checkoutComplete(checkoutId: $checkoutId, paymentData: $paymentData, redirectUrl: $redirectUrl, storeSource: $storeSource){
+        checkoutErrors {
+            field
+            code
+        }
+        confirmationNeeded
+        confirmationData
+        order {
+            ...orderDetailsFragment
+        }
+    }
+}

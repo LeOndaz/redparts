@@ -1,12 +1,12 @@
-import React, {useEffect} from "react";
+import React, {PropsWithChildren, useEffect} from "react";
 import {useUser} from "~/store/user/userHooks";
 import {useStore} from "react-redux";
 import {userSetCurrent} from "~/store/user/userAction";
 import {renewToken, verifyToken} from "~/api/graphql/users/authService";
-import {loadLocal, saveLocal} from "~/api/graphql/misc/helpers";
 import {getCurrentAuthUser} from "~/api/graphql/users/userService";
-import {AuthError} from "~/api/errors";
 import {useAppRouter} from "~/services/router";
+import Cookies from "js-cookie";
+
 
 function AuthFlow() {
     const user = useUser()
@@ -14,19 +14,16 @@ function AuthFlow() {
     const router = useAppRouter();
 
     function validateTokens() {
-        const localTokens = loadLocal('tokens')
-        if (!localTokens || localTokens.token === null) {
-            return Promise.resolve(null)
-        }
+        const jwtToken = Cookies.get('jwt')
+        if (!jwtToken) return Promise.resolve(null)
 
-        return verifyToken(localTokens.token).then(async (isValid: boolean) => {
+        return verifyToken(jwtToken).then(async (isValid: boolean) => {
                 if (!isValid) {
-                    return await renewToken(localTokens.refreshToken, localTokens.csrfToken).then(token => {
-                        saveLocal('tokens', {
-                            ...localTokens,
-                            token,
-                        })
-                    })
+                    const csrf = Cookies.get('csrf')
+                    return await renewToken(undefined, csrf).then(token => Cookies.set('jwt', token, {
+                        expires: new Date(Date.now() + 1000 * 60 * 5), // 5 min
+                        // secure: true,
+                    }))
                 }
             }
         )
@@ -35,20 +32,15 @@ function AuthFlow() {
     // validate user, if not, make it valid
     useEffect(() => {
         if (typeof window !== "undefined") {
-            const localTokens = loadLocal('tokens')
-            if (localTokens && localTokens.token) {
-                try {
-                    getCurrentAuthUser().then(user => {
-                        store.dispatch(userSetCurrent(user))
-                    })
-                } catch {
-                    try {
-                        validateTokens()
-                    } catch {
-                        console.log('Welcome aboard, anonymous dude.')
-                    }
-                }
+            // const localTokens = loadLocal('tokens')
+            const jwtToken = Cookies.get('jwt')
+            // if (localTokens && localTokens.token) {
+            if (jwtToken) {
+                getCurrentAuthUser().then(user => {
+                    store.dispatch(userSetCurrent(user))
+                })
             }
+            validateTokens().then()
         }
     }, [])
 

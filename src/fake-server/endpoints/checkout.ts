@@ -15,7 +15,7 @@ import {
 export function checkout(data: ICheckoutData): Promise<IOrder> {
     const id = getNextOrderId();
     const items: IOrderItem[] = data.items.map((x) => {
-        const product = products.find((p) => p.id === x.productId);
+        const product = products.find((p) => p.id === x.product.id);
 
         if (!product) {
             throw new Error('Product not found');

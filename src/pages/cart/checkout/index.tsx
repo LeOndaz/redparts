@@ -24,6 +24,9 @@ import { shopApi } from '~/api';
 import { useAsyncAction } from '~/store/hooks';
 import { useCart } from '~/store/cart/cartHooks';
 import { useUser, useUserSignUp } from '~/store/user/userHooks';
+import {checkout} from "~/fake-server/endpoints";
+import {xcheckout} from "~/api/graphql/checkouts/checkoutService";
+import {useLanguage} from "~/services/i18n/hooks";
 
 interface IForm {
     billingAddress: IAddressForm;
@@ -42,6 +45,8 @@ function Page() {
     const user = useUser();
     const userSignUp = useUserSignUp();
     const cart = useCart();
+    const language = useLanguage();
+
     const formMethods = useForm<IForm>({
         defaultValues: {
             billingAddress: getAddressFormDefaultValue(),
@@ -57,11 +62,10 @@ function Page() {
     const [checkout, checkoutInProgress] = useAsyncAction(async (data: IForm) => {
         const { billingAddress } = data;
         const shippingAddress = data.shipToDifferentAddress ? data.shippingAddress : data.billingAddress;
-
         const checkoutData: ICheckoutData = {
             payment: data.payment,
             items: cart.items.map((item) => ({
-                productId: item.product.id,
+                product: item.product,
                 options: item.options.map((option) => ({
                     name: option.name,
                     value: option.value,
@@ -84,9 +88,13 @@ function Page() {
         }
 
         const isAnonymous = !user
-        const order = await shopApi.checkout(checkoutData, isAnonymous);
+        // const order = await shopApi.checkout(checkoutData, isAnonymous);
 
-        await router.push(...hrefToRouterArgs(url.checkoutSuccess(order)));
+        const checkout = await xcheckout(checkoutData, isAnonymous, language)
+        console.log(checkout)
+        await router.push(...hrefToRouterArgs(url.pay(checkout, data.payment)))
+
+        // await router.push(...hrefToRouterArgs(url.checkoutSuccess(order)));
     }, [intl, cart, userSignUp, router]);
 
     useEffect(() => {

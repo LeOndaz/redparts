@@ -7,8 +7,27 @@ query getCountries ($languageCode: LanguageCodeEnum!){
     }
 }
 
-#query testError {
-#  user(id: "VXNlcjox" ){
-#    id
-#  }
-#}
+
+query getPaymentGateways {
+    shop {
+        availablePaymentGateways {
+            name
+            id
+            config {
+                field
+                value
+            }
+            currencies
+        }
+    }
+}
+
+query getSiteDetails {
+    shop {
+        companyAddress {
+            ...addressDetailsFragment
+        }
+        description
+    }
+}
+

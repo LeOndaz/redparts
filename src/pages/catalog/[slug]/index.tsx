@@ -20,7 +20,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
 
     const language = getLanguageServerSide(ctx)
 
-    const slug = typeof params?.slug === 'string' ? params?.slug : null;
+    const slug = typeof params?.slug === 'string' ? params.slug : null;
     const [category, subcategories] = await Promise.all([
         slug ? shopApi.getCategoryBySlug(slug, { depth: 2 }, language) : null,
         slug ? [] : shopApi.getCategories({ depth: 1 }, language),

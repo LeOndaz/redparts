@@ -1,10 +1,10 @@
 import {client, filterDefaultChannel} from "~/api";
 import {
-    Checkout, CheckoutCreateInput,
+    Checkout, CheckoutCreateInput, CheckoutLineInput,
     CreateCheckoutDocument,
     GetOrderByIdDocument,
     GetOrderByTokenDocument,
-    GetOrderListDocument
+    GetOrderListDocument, Order, PaymentInput
 } from "~/api/graphql/types";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 import {handleRelayedResponse, handleSingleResponse} from "~/api/graphql/misc/mappers/utils";
@@ -13,6 +13,8 @@ import {DEFAULT_CHANNEL, getCurrentChannel} from "~/api/graphql/consts";
 import {withAuth} from "~/api/graphql/users/authService";
 import {ICheckoutData} from "~/api/base";
 import {addressMap} from "~/api/graphql/addresses/addressMappers";
+import {IOrder} from "~/interfaces/order";
+import {getVariantByOptions} from "~/api/graphql/productVariants/utils";
 
 
 const handleOrderSingleResponse = (res: any) => handleSingleResponse({
@@ -49,30 +51,3 @@ export const getOrdersList = (variables: IBaseModelProps) => withAuth(client.que
         ...variables,
     },
 }).then(handleOrderRelayedResponse)
-
-
-export const checkout = (data: ICheckoutData, isAnonymous: boolean): unknown => {
-    const shippingAddress = addressMap.out(data.shippingAddress)
-    const billingAddress = addressMap.out(data.billingAddress)
-    const customerNote = data.comment
-
-    const variables: CheckoutCreateInput = {
-        billingAddress,
-        shippingAddress,
-        channel: getCurrentChannel(),
-        lines: [{
-
-        }],
-    }
-
-    if (isAnonymous){
-        /** Anonymous checkouts require user email */
-        /** NOTE: mapped addresses have no email */
-        variables.email = data.shippingAddress.email
-    }
-
-    return client.mutate({
-        mutation: CreateCheckoutDocument,
-        variables,
-    })
-}

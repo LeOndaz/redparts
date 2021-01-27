@@ -24,7 +24,7 @@ export function useProductForm(product: IProduct | null) {
             quantity: 1,
         },
     });
-    const { handleSubmit } = methods;
+    const { handleSubmit, getValues } = methods;
     const { submitCount } = methods.formState;
     const prevSubmitCount = useRef(0);
 
@@ -73,5 +73,6 @@ export function useProductForm(product: IProduct | null) {
         register: methods.register,
         watch: methods.watch,
         methods,
+        getValues,
     };
 }

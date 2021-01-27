@@ -1,27 +1,47 @@
 // react
-import React, { useMemo } from 'react';
+import React, {SyntheticEvent, useCallback, useMemo, useState} from 'react';
 // third-party
 import classNames from 'classnames';
-import { UncontrolledTooltip } from 'reactstrap';
-import { useFormContext } from 'react-hook-form';
+import {UncontrolledTooltip} from 'reactstrap';
+import {useFormContext} from 'react-hook-form';
 // application
-import { colorType } from '~/services/color';
-import { IProductOption } from '~/interfaces/product';
+import {colorType} from '~/services/color';
+import {IProduct, IProductOption, IProductOptionValueBase, IProductVariant} from '~/interfaces/product';
+import {useSetVariant, useVariant} from "~/services/shop/hooks";
+import {ICheckoutItemOptionData} from "~/api/base";
+import {getVariantByOptions} from "~/api/graphql/productVariants/utils";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
-    options: IProductOption[];
+    product: IProduct;
     namespace?: string;
 }
 
 function ProductForm(props: Props) {
     const {
-        options,
+        product,
         namespace,
         className,
         ...rootProps
     } = props;
-    const { register } = useFormContext();
+
+    const {options} = product;
+
+    const {register, getValues} = useFormContext();
     const ns = useMemo(() => (namespace ? `${namespace}.` : ''), [namespace]);
+    const setVariant = useSetVariant()
+
+    const handleOptionChange = (evt: SyntheticEvent) => {
+        const cartOptions = Object.entries(getValues().options).map(opt => {
+            const [name, value] = opt as [string, string];
+
+            return {
+                name,
+                value,
+            }
+        })
+
+        setVariant(getVariantByOptions(product, cartOptions))
+    };
 
     const optionsTemplate = options.map((option, optionIdx) => (
         <div key={optionIdx} className="product-form__row">
@@ -37,7 +57,8 @@ function ProductForm(props: Props) {
                                         name={`${ns}${option.slug}`}
                                         className="input-radio-label__input"
                                         value={value.slug}
-                                        ref={register({ required: true })}
+                                        ref={register({required: true})}
+                                        onChange={handleOptionChange}
                                     />
 
                                     <span className="input-radio-label__title">{value.name}</span>
@@ -56,22 +77,23 @@ function ProductForm(props: Props) {
                                             'input-radio-color__item--white': colorType(value.color) === 'white',
                                         })}
                                         id={`product-option-${optionIdx}-${valueIdx}`}
-                                        style={{ color: value.color }}
+                                        style={{color: value.color}}
                                         title={value.name}
                                     >
                                         <input
                                             type="radio"
                                             name={`${ns}${option.slug}`}
                                             value={value.slug}
-                                            ref={register({ required: true })}
+                                            ref={register({required: true})}
+                                            onChange={handleOptionChange}
                                         />
-                                        <span />
+                                        <span/>
                                     </label>
 
                                     <UncontrolledTooltip
                                         target={`product-option-${optionIdx}-${valueIdx}`}
                                         fade={false}
-                                        delay={{ show: 0, hide: 0 }}
+                                        delay={{show: 0, hide: 0}}
                                     >
                                         {value.name}
                                     </UncontrolledTooltip>

@@ -48,7 +48,7 @@ export interface ICheckoutItemOptionData {
 }
 
 export interface ICheckoutItemData {
-    productId: number;
+    product: IProduct;
     options: ICheckoutItemOptionData[];
     quantity: number;
 }

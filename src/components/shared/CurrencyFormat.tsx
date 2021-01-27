@@ -16,7 +16,8 @@ function CurrencyFormat(props: Props) {
 
     return (
         <React.Fragment>
-            {currency.symbol}
+            {currency.symbol.length === 1 && currency.symbol}
+            {currency.symbol.length > 1 && `${currency.symbol} `}
             {(value * currency.rate).toFixed(2)}
         </React.Fragment>
     );

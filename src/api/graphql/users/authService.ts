@@ -10,7 +10,7 @@ import {FetchResult} from "@apollo/client";
 import {load, save} from "~/store/store";
 import {userMap} from "~/api/graphql/users/userMappers";
 import {handleAccountErrors, loadLocal, saveLocal, throwAuthError} from "~/api/graphql/misc/helpers";
-import {AuthError} from "~/api/errors";
+import Cookies from "js-cookie"
 
 const createTokens = (email: string, password: string) => {
     return client.mutate({
@@ -21,6 +21,12 @@ const createTokens = (email: string, password: string) => {
         mutation: CreateUserTokensDocument,
     }).then(handleAccountErrors('tokenCreate')).then(res => {
         const {token, refreshToken, csrfToken, user} = res.data.tokenCreate;
+
+        Cookies.set('jwt', token, {
+            expires: new Date(Date.now() + 1000 * 60 * 5), // 5 min
+            // secure: true,
+        })
+
 
         return {
             token,
@@ -46,14 +52,14 @@ export const signUp = (email: string, password: string) => {
 }
 
 export const signIn = (email: string, password: string) => createTokens(email, password).then(res => {
-    const {token, refreshToken, csrfToken, user} = res;
+    const {token, csrfToken, user} = res;
 
     if (typeof window !== "undefined") {
-        saveLocal('tokens', {
-            token,
-            refreshToken,
-            csrfToken,
+        Cookies.set('jwt', token, {
+            expires: new Date(Date.now() + 1000 * 60 * 5), // 5 min
+            // secure: true,
         })
+        Cookies.set('csrf', csrfToken)
     }
 
     return user
@@ -63,7 +69,7 @@ export const signIn = (email: string, password: string) => createTokens(email, p
 export const signOut = (): Promise<void> => {
     const localState = load()
     return Promise.resolve((() => {
-        localStorage.removeItem('tokens');
+        Cookies.remove('jwt')
         return save({
             ...localState,
             user: null,
@@ -72,7 +78,7 @@ export const signOut = (): Promise<void> => {
 }
 
 
-export const renewToken = (refreshToken: string, csrfToken: string) => {
+export const renewToken = (refreshToken?: string, csrfToken?: string) => {
     return client.mutate({
         variables: {
             refreshToken,
@@ -103,13 +109,12 @@ export const verifyToken = (token: string) => {
 }
 
 export const withAuth = <T>(func: (opts: T) => Promise<FetchResult>): (opts: T) => any => {
-    let tokens = loadLocal('tokens')
+    let accessToken = Cookies.get('jwt')
 
-    if (!tokens || !tokens.token) {
-        throwAuthError(AuthError.INVALID)
+    if (typeof window === "undefined" || !accessToken) {
+        return func
     }
 
-    const accessToken = tokens.token
     return (opts: T) => func({
         ...opts,
         context: {
@@ -120,31 +125,3 @@ export const withAuth = <T>(func: (opts: T) => Promise<FetchResult>): (opts: T) 
         }
     })
 }
-
-// const authQuery = (queryOptions: QueryOptions) => {
-//     /* do authorized query */
-//     return client.query({
-//         ...queryOptions,
-//         context: {
-//             headers: {
-//                 Authorization: `JWT ${load().user.current.tokens.access}`
-//             }
-//         }
-//     })
-// }
-//
-// const authMutate = (mutationOptions: MutationOptions) => {
-//     /* do authorized mutation */
-//     const tokens = localStorage.getItem('tokens')
-//     if (tokens) {
-//         return client.mutate({
-//             ...mutationOptions,
-//             context: {
-//                 headers: {
-//                     Authorization: `JWT ${load().user.current.tokens.access}`
-//                 }
-//             }
-//         })
-//     }
-// }
-//

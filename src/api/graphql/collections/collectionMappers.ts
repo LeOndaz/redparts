@@ -25,7 +25,7 @@ const collectionMapIn = (collection: Collection): ICollection => {
         )
     )
 
-    let [name, description] = mapTranslatable(collection, ['name', 'descriptionJson'])
+    let [name, description] = mapTranslatable(collection, ['name', 'description'])
     description = JSON.parse(description)
     description = customEditorjsParser.parse(description)
 

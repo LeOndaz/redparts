@@ -128,7 +128,7 @@ function Quickview() {
             </div>
 
             <ProductForm
-                options={product.options}
+                product={product}
                 className="quickview__product-form"
                 namespace="options"
             />

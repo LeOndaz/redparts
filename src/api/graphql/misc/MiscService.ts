@@ -1,11 +1,25 @@
-import {GetCountriesDocument, LanguageCodeEnum, MetadataItem, UpdateMetadataDocument} from "~/api/graphql/types";
+import {
+    Channel,
+    GetCountriesDocument,
+    GetPaymentGatewaysDocument, GetSiteDetailsDocument,
+    MetadataItem, PaymentGateway,
+    UpdateMetadataDocument
+} from "~/api/graphql/types";
 import {client, getAttributeBySlug} from "~/api";
 import {IBrand} from "~/interfaces/brand";
 import {ICountry} from "~/interfaces/country";
 import {withAuth} from "~/api/graphql/users/authService";
 import {getMetadataItem, handleMetadataErrors} from "~/api/graphql/misc/helpers";
-import {DefaultAttrSlugs} from "~/api/graphql/consts";
+import {
+    DefaultAttrSlugs,
+    PLUGIN_FACEBOOK_PIXEL_URL,
+    PLUGIN_GTAG_URL,
+    PLUGIN_OPEN_EXCHANGE_URL
+} from "~/api/graphql/consts";
 import {ILanguage} from "~/interfaces/language";
+import {IAddress} from "~/interfaces/address";
+import {addressMap} from "~/api/graphql/addresses/addressMappers";
+import {ICurrency} from "~/interfaces/currency";
 
 export const getCountries = (language: ILanguage): Promise<ICountry[]> => {
     return client.query({
@@ -22,12 +36,14 @@ export const getBrands = (language: ILanguage): Promise<IBrand[]> => {
      * */
     return getAttributeBySlug(DefaultAttrSlugs.Brand, language).then(r => {
         const {attribute} = r.data;
-        const images: MetadataItem[] = attribute.metadata
 
+        if (!attribute) return [];
+
+        const images: MetadataItem[] = attribute.metadata
         const {values} = attribute;
 
         let genericImageUrl = "http://placehold.it/200",
-        genericImage = getMetadataItem(attribute.metadata, 'generic', genericImageUrl)
+            genericImage = getMetadataItem(attribute.metadata, 'generic', genericImageUrl)
 
         return values.map((value: IBrand) => {
             const brandImageUrl = getMetadataItem(images, value.slug)
@@ -48,4 +64,38 @@ export const updateMetadata = (id: string, input: MetadataItem[]) => {
             input,
         }
     }).then(handleMetadataErrors).then(res => res.data.updateMetadata.item.metadata)
+}
+
+export const getPaymentGateways = (): Promise<PaymentGateway[]> => {
+    return client.query({
+        query: GetPaymentGatewaysDocument,
+    }).then(res => res.data.shop.availablePaymentGateways)
+}
+
+
+export const getGoogleTagManagerId = (): Promise<{ gtag: string }> => {
+    return fetch(PLUGIN_GTAG_URL).then(r => r.json())
+}
+
+export const getFacebookPixelId = (): Promise<{ pixelId: string }> => {
+    return fetch(PLUGIN_FACEBOOK_PIXEL_URL).then(r => r.json())
+}
+
+export const getOpenExchangeAppId = (): Promise<{ appId: string }> => {
+    return fetch(PLUGIN_OPEN_EXCHANGE_URL).then(r => r.json())
+}
+
+export const getSiteDetails = (): Promise<{ address: IAddress | null, description: string | null }> => {
+    return client.query({
+        query: GetSiteDetailsDocument,
+    }).then(r => r.data.shop)
+        .then(shop => {
+            const address = shop.companyAddress ? addressMap.in(shop.companyAddress) : null
+            const description = shop.description;
+
+            return {
+                address,
+                description
+            }
+        })
 }

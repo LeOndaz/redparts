@@ -35,12 +35,15 @@ import AuthFlow from "~/components/auth/AuthFlow";
 import {languageSet} from "~/store/language/languageActions";
 import {GoogleTagManager} from "~/components/site/GoogleTagManager";
 import FacebookPixel from "~/components/site/FacebookPixel";
+import {ICurrency} from "~/interfaces/currency";
+import {useCurrencyChange} from "~/store/currency/currencyHooks";
 
 interface Props extends AppProps {
     languageInitialProps: ILanguageProviderProps;
     Component: NextComponentType<NextPageContext, any> & {
         Layout: ComponentType,
-    }
+    };
+    defaultCurrency: ICurrency;
 }
 
 function App({Component, pageProps, languageInitialProps}: Props) {
@@ -133,7 +136,6 @@ App.getInitialProps = async (context: AppContext) => {
     }
 
     dispatch(languageSet(language || getDefaultLanguage()));
-
 
     return {
         ...(await AppBase.getInitialProps(context)),

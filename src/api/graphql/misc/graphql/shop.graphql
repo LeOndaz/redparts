@@ -22,6 +22,14 @@ query getPaymentGateways {
     }
 }
 
+#query getShippingMethods ($channel: String!, $address: AddressInput){
+#    shop {
+#        availableShippingMethods(channel: $channel, address: $address){
+#
+#        }
+#    }
+#}
+
 query getSiteDetails {
     shop {
         companyAddress {

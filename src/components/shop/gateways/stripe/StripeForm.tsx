@@ -5,18 +5,14 @@ import {
     CardCvcElement,
     CardExpiryElement,
 } from "@stripe/react-stripe-js";
-import React, {SyntheticEvent, useMemo, useState} from "react";
+import React, {SyntheticEvent, } from "react";
 import classNames from "classnames";
-import {useAppRouter} from "~/services/router";
-import {Checkout} from "~/api/graphql/types";
-import {completeCheckout, createPayment} from "~/api/graphql/checkouts/checkoutService";
-import {ToastContainer, useToast} from "react-toastify";
 import {Row} from "reactstrap"
-import {useLanguage} from "~/services/i18n/hooks";
-import {PaymentGatewayEnum} from "~/pages/cart/checkout/[id]/pay";
+import {IStripeResponse} from "~/components/shop/gateways/stripe/StripeGateway";
 
 interface Props {
-    checkoutId: string
+    onSubmit: (data: IStripeResponse) => void;
+    isLoading: boolean
 }
 
 const style = {
@@ -35,60 +31,27 @@ const style = {
     }
 };
 
-function StripeForm({checkoutId}: Props) {
+function StripeForm({onSubmit, isLoading}: Props) {
     const stripe = useStripe()
     const elements = useElements()
-    const language = useLanguage()
-
-    const [stripeError, setStripeError] = useState<any>(null);
 
     const handleSubmit = async (evt: SyntheticEvent) => {
         evt.preventDefault();
 
         if (!stripe || !elements) {
-            return null;
+            return;
         }
 
         const cardElement = elements.getElement('cardNumber')
+        if(!cardElement) return;
+
         const result = await stripe.createToken(cardElement)
-
-        if (result.error) {
-            setStripeError(result.error)
-        } else {
-            // const {payment, checkout: updatedCheckout, paymentErrors} = await createPayment(checkoutId, {
-            //     token: result.token!.id,
-            //     returnUrl: 'http://localhost:3000/',
-            //     gateway: PaymentGatewayEnum.Stripe,
-            // }, language)
-
-            // console.log(payment, updatedCheckout, paymentErrors)
-            // const shit = await completeCheckout(
-            //     updatedCheckout!.id,
-            //     "",
-            //     "http://localhost:3000/",
-            //     true,
-            //     language,
-            // )
-            // console.log(shit.data)
-        }
+        onSubmit(result)
     }
+
 
     return (
         <React.Fragment>
-            {stripeError && <ToastContainer
-                position="top-right"
-                autoClose={4000}
-                hideProgressBar={true}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            > {stripeError.message}
-            </ToastContainer>
-            }
-
             <form onSubmit={handleSubmit} style={{
                 minWidth: "300px",
                 maxWidth: "500px",
@@ -103,7 +66,7 @@ function StripeForm({checkoutId}: Props) {
                         id="cne"
                         options={{style}}
                         className={classNames('form-control')}
-                        onChange={() => setStripeError(null)}
+                        // onChange={() => setStripeError(null)}
                     />
                 </Row>
 
@@ -118,7 +81,7 @@ function StripeForm({checkoutId}: Props) {
                             id="cee"
                             options={{style}}
                             className={classNames('form-control')}
-                            onChange={() => setStripeError(null)}
+                            // onChange={() => setStripeError(null)}
                         />
                     </div>
 
@@ -133,11 +96,13 @@ function StripeForm({checkoutId}: Props) {
                             id="cce"
                             options={{style,}}
                             className={classNames('form-control')}
-                            onChange={() => setStripeError(null)}
+                            // onChange={() => setStripeError(null)}
                         />
                     </div>
                 </Row>
-                <button className={classNames('btn', 'btn-primary')} role="link" disabled={!stripe}>
+                <button className={classNames('btn', 'btn-primary', {
+                    'btn-loading': isLoading
+                })} role="link" disabled={!stripe}>
                     Pay
                 </button>
             </form>

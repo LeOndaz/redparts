@@ -21,12 +21,15 @@ import { getRegisterFormDefaultValue, IRegisterForm } from '~/components/shared/
 import { hrefToRouterArgs, useAppRouter } from '~/services/router';
 import { ICheckoutData } from '~/api/base';
 import { shopApi } from '~/api';
-import { useAsyncAction } from '~/store/hooks';
+import {useAppAction, useAsyncAction} from '~/store/hooks';
 import { useCart } from '~/store/cart/cartHooks';
 import { useUser, useUserSignUp } from '~/store/user/userHooks';
 import {checkout} from "~/fake-server/endpoints";
-import {xcheckout} from "~/api/graphql/checkouts/checkoutService";
 import {useLanguage} from "~/services/i18n/hooks";
+import {saveLocal} from "~/api/graphql/misc/helpers";
+import {useStore} from "react-redux";
+import {checkoutSet} from "~/store/checkout/checkoutActions";
+import {useSetCheckout, useSetPayment} from "~/store/checkout/checkoutHooks";
 
 interface IForm {
     billingAddress: IAddressForm;
@@ -46,6 +49,8 @@ function Page() {
     const userSignUp = useUserSignUp();
     const cart = useCart();
     const language = useLanguage();
+    const setCheckout = useSetCheckout();
+    const setPayment = useSetPayment();
 
     const formMethods = useForm<IForm>({
         defaultValues: {
@@ -90,12 +95,14 @@ function Page() {
         const isAnonymous = !user
         // const order = await shopApi.checkout(checkoutData, isAnonymous);
 
-        const checkout = await xcheckout(checkoutData, isAnonymous, language)
-        console.log(checkout)
-        await router.push(...hrefToRouterArgs(url.pay(checkout, data.payment)))
+        const checkout = await shopApi.checkout(checkoutData, isAnonymous, language)
+        setCheckout(checkout);
+        setPayment(data.payment);
+
+        await router.push(...hrefToRouterArgs(url.shipping(checkout, data.payment)))
 
         // await router.push(...hrefToRouterArgs(url.checkoutSuccess(order)));
-    }, [intl, cart, userSignUp, router]);
+    }, [intl, cart, userSignUp, router, setCheckout]);
 
     useEffect(() => {
         if (cart.stateFrom === 'client' && cart.items.length < 1) {

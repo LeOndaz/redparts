@@ -1,5 +1,5 @@
 import {
-    Checkout, CheckoutCreate,
+    Checkout, CheckoutComplete, CheckoutCreate,
     CheckoutCreateInput,
     CheckoutLineInput, CheckoutPaymentCreate, CompleteCheckoutDocument,
     CreateCheckoutDocument, CreatePaymentDocument, GetCheckoutByTokenDocument, Payment,
@@ -51,7 +51,7 @@ export const getCheckoutByToken = (token: string, language: ILanguage, context?:
 //     }
 // }).then(handleCheckoutSingleResponse)
 
-export const xcheckout = (data: ICheckoutData, isAnonymous: boolean, language: ILanguage): Promise<Checkout> => {
+export const checkout = (data: ICheckoutData, isAnonymous: boolean, language: ILanguage): Promise<Checkout> => {
     const billingAddress = addressMap.out(data.billingAddress);
     const shippingAddress = data.shippingAddress ? addressMap.out(data.shippingAddress) : billingAddress;
 
@@ -99,14 +99,15 @@ export const createPayment = (checkoutId: string, input: PaymentInput, language:
         checkoutId,
         input,
     }
-}).then(r => r.data)
+}).then(r => r.data.checkoutPaymentCreate)
 
-export const completeCheckout = (checkoutId: string, paymentData: string, redirectUrl: string, storeSource: boolean, language: ILanguage) => client.mutate({
+export const completeCheckout = (checkoutId: string, redirectUrl: string, storeSource: boolean, language: ILanguage, paymentData?: string,): Promise<CheckoutComplete> => client.mutate({
     mutation: CompleteCheckoutDocument,
     variables: {
         checkoutId,
-        paymentData,
         redirectUrl,
         storeSource,
+        languageCode: language.code,
+        ...(paymentData ? {paymentData} : {}),
     }
-})
+}).then(r => r.data.checkoutComplete)

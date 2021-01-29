@@ -1,0 +1,27 @@
+mutation applyVoucher ($checkoutId: ID!, $voucher: String!, $languageCode: LanguageCodeEnum!) {
+    checkoutAddPromoCode(checkoutId: $checkoutId, promoCode: $voucher){
+        checkout {
+            ...checkoutDetailsFragment
+        }
+        checkoutErrors{
+            code
+            field
+            variants
+        }
+    }
+}
+
+mutation removeVoucher ($checkoutId: ID!, $voucher: String!, $languageCode: LanguageCodeEnum!) {
+    checkoutRemovePromoCode(checkoutId: $checkoutId, promoCode: $voucher){
+        checkout {
+            ...checkoutDetailsFragment
+        }
+        checkoutErrors{
+            code
+            field
+            variants
+        }
+    }
+}
+
+

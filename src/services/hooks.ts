@@ -30,6 +30,7 @@ import {headerMap} from "~/api/graphql/navigation/navigationMappers";
 import {ICurrency} from "~/interfaces/currency";
 import {PLUGIN_OPEN_EXCHANGE_URL} from "~/api/graphql/consts";
 import {getCurrencySymbol} from "~/api/graphql/misc/helpers";
+import {parseSelectionSet} from "@graphql-tools/utils";
 
 export function useGlobalMousedown(callback: (event: MouseEvent) => void, deps?: DependencyList) {
     const memoCallback = useCallback(callback, deps || []);
@@ -308,34 +309,34 @@ export function useHeaderDepartments(language: ILanguage) {
     }), [language, categories.isLoading])
 }
 
-
-
 export function useAvailableCurrencies() {
     const activeCurrency = useCurrency();
     const language = useLanguage();
 
-    // get all available currency names as {code: name}
+    // get all available currency names as {code1: name1, code2: name2, ...}
     const availableCurrencyNames = useDeferredData(() => cmsApi.getCurrencyNames(), null)
 
-    // get all currency rates as { rates: { code: rate } }
+    // get all currency rates as { rates: { code1: rate1, code2: name2, ... } }
     const response = useDeferredData(() => cmsApi.getCurrencyRates(), null)
 
+    const isLoading = availableCurrencyNames.isLoading || response.isLoading
+    const [state, setState] = useState<{
+        data: ICurrency[],
+        isLoading: boolean;
+    }>({
+        data: [],
+        isLoading,
+    })
+
     return useMemo(() => {
+        if (isLoading) return state;
+
         const data: ICurrency[] = [];
-
-        // if any of them is loading, useAvailableCurrencies is loading
-        const isLoading = response.isLoading || availableCurrencyNames.isLoading;
-
-        if (isLoading) return {
-            isLoading,
-            data,
-        };
-
         const rates = response.data.rates;
         const entries = Object.entries(rates);
 
         // create ICurrency objects out of the data provided
-        entries.map(entry => {
+        entries.forEach(entry => {
             const [code, rate] = entry;
             data.push({
                 name: availableCurrencyNames.data[code],
@@ -345,9 +346,11 @@ export function useAvailableCurrencies() {
             })
         })
 
-        return {
-            isLoading: false,
+        setState({
             data,
-        };
-    }, [response.isLoading, availableCurrencyNames.isLoading, language])
+            isLoading: false,
+        })
+
+        return state
+    }, [availableCurrencyNames.isLoading, response.isLoading, language])
 }

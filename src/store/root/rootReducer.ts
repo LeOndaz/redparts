@@ -14,10 +14,12 @@ import shopReducer from '~/store/shop/shopReducer';
 import userReducer, { USER_NAMESPACE } from '~/store/user/userReducer';
 import wishlistReducer, { WISHLIST_NAMESPACE } from '~/store/wishlist/wishlistReducer';
 import { SHOP_NAMESPACE } from '~/store/shop/shopTypes';
+import checkoutReducer, {CHECKOUT_NAMESPACE} from "~/store/checkout/checkoutReducers";
 
 export default combineReducers({
     version: (state: number = version) => state,
     [CART_NAMESPACE]: cartReducer,
+    [CHECKOUT_NAMESPACE]: checkoutReducer,
     [COMPARE_NAMESPACE]: compareReducer,
     [CURRENCY_NAMESPACE]: currencyReducer,
     [GARAGE_NAMESPACE]: garageReducer,

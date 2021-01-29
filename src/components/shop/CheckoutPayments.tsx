@@ -59,11 +59,11 @@ function CheckoutPayments() {
                                         {payment.name}
                                     </span>
                                 </label>
-                                {/*<div className="payment-methods__item-container" ref={setContentRef}>*/}
-                                {/*    <div className="payment-methods__item-details text-muted">*/}
-                                {/*        {payment.name}*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
+                                <div className="payment-methods__item-container" ref={setContentRef}>
+                                    <div className="payment-methods__item-details text-muted">
+                                        {payment.name}
+                                    </div>
+                                </div>
                             </li>
                         )}
                     />

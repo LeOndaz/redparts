@@ -1,79 +1,87 @@
-import React, {useMemo} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import StripeGateway from "~/components/shop/gateways/stripe/StripeGateway";
-import {Checkout, GatewayConfigLine, PaymentGateway} from "~/api/graphql/types";
-import {GetServerSideProps} from "next";
-import SitePageNotFound from "~/components/site/SitePageNotFound";
 import {getFieldFromGatewayConfig} from "~/api/graphql/misc/helpers";
-import {getPaymentGateways} from "~/api";
 import PageTitle from "~/components/shared/PageTitle";
 import BlockHeader from "~/components/blocks/BlockHeader";
 import {FormattedMessage, useIntl} from "react-intl";
 import url from "~/services/url";
 import {PaymentMethodUnavailable} from "~/components/site/PaymentMethodUnavailable";
-
-interface Props {
-    checkoutId: string;
-    gatewayId: string;
-    gateway: PaymentGateway
-}
+import {useCheckout, usePaymentMethod, useSetCheckout} from "~/store/checkout/checkoutHooks";
+import {useAppRouter} from "~/services/router";
+import {useAsyncAction} from "~/store/hooks";
+import {useLanguage} from "~/services/i18n/hooks";
+import {shopApi} from "~/api";
 
 export enum PaymentGatewayEnum {
     Stripe = 'mirumee.payments.stripe',
 }
 
-function Page({gatewayId, gateway, checkoutId}: Props) {
+function Page() {
     const intl = useIntl();
-
-    if (!gatewayId || !gateway) return <PaymentMethodUnavailable/>
-    if (!gatewayId || !gateway) console.log('ABCD')
+    const checkout = useCheckout();
+    const setCheckout = useSetCheckout();
+    const paymentMethod = usePaymentMethod();
+    const router = useAppRouter();
+    const language = useLanguage();
+    const [errors, setErrors] = useState<any[]>([]);
 
     const apiKey = useMemo(() => {
+        if (!checkout) return null
+
+        const gateway = checkout.availablePaymentGateways.find(gateway => gateway.id === paymentMethod)
+
+        if (!gateway) return null
+
         return getFieldFromGatewayConfig('api_key', gateway)
-    }, [gateway])
+    }, [checkout])
 
-    if (!apiKey) return <PaymentMethodUnavailable/>
-    if (!apiKey) return console.log('!apiKey')
+    const [checkoutPay, payingInProgress] = useAsyncAction(async (data: any) => {
+        const {payment, checkout: updatedCheckout, paymentErrors} = await shopApi.createPayment(checkout!.id, {
+            gateway: paymentMethod,
+            returnUrl: window.location.href + url.home(),
+            token: data.token.id,
+        }, language)
 
-    const gatewayBody = (
-        <>
-            {gatewayId === PaymentGatewayEnum.Stripe &&
-            <StripeGateway checkoutId={checkoutId} apiKey={apiKey}/>
-            }
+        if (!updatedCheckout || paymentErrors.length !== 0) {
+            setErrors(paymentErrors)
+        } else {
+            setCheckout(updatedCheckout);
+            const data = await shopApi.completeCheckout(
+                updatedCheckout.id,
+                window.location.href,
+                true,
+                language,
+            )
 
-            {/*    more cases */}
-        </>)
-
-    console.info('Payment with:', gateway.name)
-    return (<>
-        <PageTitle>{intl.formatMessage({id: 'HEADER_PAYMENT'})}</PageTitle>
-        <BlockHeader
-            pageTitle={<FormattedMessage id="HEADER_PAYMENT"/>}
-            breadcrumb={[
-                {title: (<FormattedMessage id="LINK_HOME"/>), url: url.home()},
-                {title: (<FormattedMessage id="LINK_CART"/>), url: url.cart()},
-                {title: (<FormattedMessage id="LINK_CHECKOUT"/>), url: url.checkout()},
-                {title: (<FormattedMessage id="LINK_PAYMENT"/>)},
-            ]}
-        />
-        {gatewayBody}
-    </>)
-}
-
-export const getServerSideProps: GetServerSideProps<Props> = async ({query, params}) => {
-    const checkoutId = typeof params?.id === 'string' ? params.id : null;
-    const gatewayId = typeof query?.with === 'string' ? query.with : null;
-
-    const availablePaymentMethods = await getPaymentGateways()
-    const gateway = availablePaymentMethods.find(gateway => gateway.id === gatewayId)
-
-
-    return {
-        props: {
-            checkoutId,
-            gatewayId,
-            gateway,
+        console.log(data)
         }
+
+    }, [])
+
+    if (!paymentMethod) {
+        router.push(url.checkout()).then()
     }
+
+    console.info('Payment with:', paymentMethod)
+
+    return (<>
+        {!apiKey || !checkout && <PaymentMethodUnavailable/>}
+        {apiKey && <>
+            <PageTitle>{intl.formatMessage({id: 'HEADER_PAYMENT'})}</PageTitle>
+            <BlockHeader
+                pageTitle={<FormattedMessage id="HEADER_PAYMENT"/>}
+                breadcrumb={[
+                    {title: (<FormattedMessage id="LINK_HOME"/>), url: url.home()},
+                    {title: (<FormattedMessage id="LINK_CART"/>), url: url.cart()},
+                    {title: (<FormattedMessage id="LINK_CHECKOUT"/>), url: url.checkout()},
+                    {title: (<FormattedMessage id="LINK_PAYMENT"/>)},
+                ]}
+            />
+            {paymentMethod === PaymentGatewayEnum.Stripe &&
+            <StripeGateway apiKey={apiKey} onSubmit={checkoutPay} isLoading={payingInProgress}/>
+            }
+        </>}
+    </>)
 }
 
 export default Page;

@@ -19,7 +19,7 @@ import {
 } from '~/api/base';
 import {
     addProductReview,
-    checkout,
+    // checkout,
     getFeaturedProducts,
     getLatestProducts,
     getPopularProducts,
@@ -29,9 +29,9 @@ import {
 
 import {
     createReview, filterNew,
-    getBrands, getPaymentGateways,
+    getBrands,
     getProductBySlug, getProductList,
-    getReviewsList, getShopCategoryBySlugProductsLayout, getShopCategoryListProductsLayout,
+    getReviewsList, getShopCategoryBySlugProductsLayout, getShopCategoryListProductsLayout, setShippingMethod,
 } from "~/api"
 
 import {
@@ -47,11 +47,20 @@ import {Badges, Collections} from "~/api/graphql/consts";
 import {reviewMap} from "~/api/graphql/reviews/ReviewMappers";
 import {sortingMap} from "~/api/graphql/misc/mappers/sorting";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
-import {Collection, PaymentGateway} from "~/api/graphql/types";
+import {
+    Checkout,
+    CheckoutAddPromoCode, CheckoutComplete, CheckoutPaymentCreate, CheckoutRemovePromoCode,
+    CheckoutShippingMethodUpdate,
+    Collection,
+    PaymentGateway, PaymentInput
+} from "~/api/graphql/types";
 import {ICollection} from "~/api/graphql/collections/collectionMappers";
 import {addressMap} from "~/api/graphql/addresses/addressMappers";
 import * as util from "util";
 import {ICurrency} from "~/interfaces/currency";
+import {getPaymentGateways} from "~/api/graphql/payments/paymentService";
+import {applyVoucher, removeVoucher} from "~/api/graphql/vouchers/vouchersService";
+import {checkout, completeCheckout, createPayment} from "~/api/graphql/checkouts/checkoutService";
 
 const emptyProductList: IProductsList = {
     navigation: {
@@ -278,15 +287,32 @@ export class FakeShopApi implements ShopApi {
         })) as Promise<IGetSearchSuggestionsResult>
     }
 
-    checkout(data: ICheckoutData, isAnonymous: boolean): Promise<IOrder> {
-        /** NOTE: mapped addresses have no email */
+    checkout(data: ICheckoutData, isAnonymous: boolean, language: ILanguage): Promise<Checkout> {
+        return checkout(data, isAnonymous, language)
+    }
 
-        console.log(util.inspect(data))
-        return checkout(data);
+    createPayment(checkoutId: string, input: PaymentInput, language: ILanguage): Promise<CheckoutPaymentCreate> {
+        return createPayment(checkoutId, input, language)
+    }
+
+    completeCheckout(checkoutId: string, redirectUrl: string, storeSource: boolean, language: ILanguage, paymentData?: string): Promise<CheckoutComplete> {
+        return completeCheckout(checkoutId, redirectUrl, storeSource, language, paymentData)
     }
 
     getPaymentMethods(): Promise<PaymentGateway[]> {
         return getPaymentGateways()
+    }
+
+    setShippingMethod(checkoutId: string, shippingMethodId: string, language: ILanguage): Promise<CheckoutShippingMethodUpdate> {
+        return setShippingMethod(checkoutId, shippingMethodId, language)
+    }
+
+    applyVoucher(checkoutId: string, voucher: string, language: ILanguage): Promise<CheckoutAddPromoCode> {
+        return applyVoucher(checkoutId, voucher, language)
+    }
+
+    removeVoucher(checkoutId: string, voucher: string, language: ILanguage): Promise<CheckoutRemovePromoCode> {
+        return removeVoucher(checkoutId, voucher, language)
     }
 }
 

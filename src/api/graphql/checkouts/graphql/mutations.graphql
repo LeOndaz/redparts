@@ -11,7 +11,7 @@ mutation createCheckout($input: CheckoutCreateInput!, $languageCode: LanguageCod
     }
 }
 
-mutation completeCheckout($checkoutId: ID!, $paymentData: JSONString, $redirectUrl: String, $storeSource: Boolean) {
+mutation completeCheckout($checkoutId: ID!, $paymentData: JSONString, $redirectUrl: String, $storeSource: Boolean, $languageCode: LanguageCodeEnum) {
     checkoutComplete(checkoutId: $checkoutId, paymentData: $paymentData, redirectUrl: $redirectUrl, storeSource: $storeSource){
         checkoutErrors {
             field
@@ -21,6 +21,18 @@ mutation completeCheckout($checkoutId: ID!, $paymentData: JSONString, $redirectU
         confirmationData
         order {
             ...orderDetailsFragment
+        }
+    }
+}
+
+mutation setShippingMethod($checkoutId: ID!, $shippingMethodId: ID!, $languageCode: LanguageCodeEnum!){
+    checkoutShippingMethodUpdate(checkoutId: $checkoutId,shippingMethodId: $shippingMethodId){
+        checkout {
+            ...checkoutDetailsFragment
+        }
+        checkoutErrors {
+            field
+            message
         }
     }
 }

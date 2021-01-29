@@ -52,6 +52,7 @@ fragment checkoutDetailsFragment on Checkout {
         price {
             amount
         }
+        type
     }
 }
 

@@ -9,7 +9,6 @@ import {ApolloQueryResult} from "@apollo/client";
 import {cursorNavigationMap} from "~/api/graphql/misc/mappers/navigation";
 import {ICursorBasedNavigation} from "~/interfaces/list";
 import {mapTranslatable, removeUndefined} from "~/api/graphql/misc/helpers";
-import {map} from "rxjs/operators";
 
 export let getProductAttrs = (product: Product) => {
     const attrs: IProductAttribute[] = [];

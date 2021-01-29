@@ -1,8 +1,9 @@
 import {
-    Channel,
+    AddressInput,
+    Channel, CheckoutAddPromoCode, CheckoutShippingMethodUpdate,
     GetCountriesDocument,
     GetPaymentGatewaysDocument, GetSiteDetailsDocument,
-    MetadataItem, PaymentGateway,
+    MetadataItem, PaymentGateway, SetShippingMethodDocument, ShippingMethod,
     UpdateMetadataDocument
 } from "~/api/graphql/types";
 import {client, getAttributeBySlug} from "~/api";
@@ -66,13 +67,6 @@ export const updateMetadata = (id: string, input: MetadataItem[]) => {
     }).then(handleMetadataErrors).then(res => res.data.updateMetadata.item.metadata)
 }
 
-export const getPaymentGateways = (): Promise<PaymentGateway[]> => {
-    return client.query({
-        query: GetPaymentGatewaysDocument,
-    }).then(res => res.data.shop.availablePaymentGateways)
-}
-
-
 export const getGoogleTagManagerId = (): Promise<{ gtag: string }> => {
     return fetch(PLUGIN_GTAG_URL).then(r => r.json())
 }
@@ -98,4 +92,15 @@ export const getSiteDetails = (): Promise<{ address: IAddress | null, descriptio
                 description
             }
         })
+}
+
+export const setShippingMethod = (checkoutId: string, shippingMethodId: string, language: ILanguage): Promise<CheckoutShippingMethodUpdate> => {
+    return client.mutate({
+        mutation: SetShippingMethodDocument,
+        variables: {
+            checkoutId,
+            shippingMethodId,
+            languageCode: language.code
+        }
+    }).then(r => r.data.checkoutShippingMethodUpdate)
 }

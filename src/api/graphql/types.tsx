@@ -12357,7 +12357,7 @@ export type CheckoutDetailsFragmentFragment = (
     )> }
   )>, availableShippingMethods: Array<Maybe<(
     { __typename?: 'ShippingMethod' }
-    & Pick<ShippingMethod, 'id' | 'name' | 'maximumDeliveryDays'>
+    & Pick<ShippingMethod, 'id' | 'name' | 'maximumDeliveryDays' | 'type'>
     & { translation?: Maybe<(
       { __typename?: 'ShippingMethodTranslation' }
       & Pick<ShippingMethodTranslation, 'name'>
@@ -12408,6 +12408,27 @@ export type CompleteCheckoutMutation = (
     )>, order?: Maybe<(
       { __typename?: 'Order' }
       & OrderDetailsFragmentFragment
+    )> }
+  )> }
+);
+
+export type SetShippingMethodMutationVariables = Exact<{
+  checkoutId: Scalars['ID'];
+  shippingMethodId: Scalars['ID'];
+  languageCode: LanguageCodeEnum;
+}>;
+
+
+export type SetShippingMethodMutation = (
+  { __typename?: 'Mutation' }
+  & { checkoutShippingMethodUpdate?: Maybe<(
+    { __typename?: 'CheckoutShippingMethodUpdate' }
+    & { checkout?: Maybe<(
+      { __typename?: 'Checkout' }
+      & CheckoutDetailsFragmentFragment
+    )>, checkoutErrors: Array<(
+      { __typename?: 'CheckoutError' }
+      & Pick<CheckoutError, 'field' | 'message'>
     )> }
   )> }
 );
@@ -12766,7 +12787,7 @@ export type CreatePaymentMutation = (
   )> }
 );
 
-export type ProductVariantDetailsFragment = (
+export type ProductVariantDetailsFragmentFragment = (
   { __typename?: 'ProductVariant' }
   & Pick<ProductVariant, 'id' | 'sku' | 'name' | 'quantityAvailable'>
   & { pricing?: Maybe<(
@@ -12823,7 +12844,7 @@ export type ProductDetailsFragmentFragment = (
     & AttributeValuesDetailFragmentFragment
   )>, variants?: Maybe<Array<Maybe<(
     { __typename?: 'ProductVariant' }
-    & ProductVariantDetailsFragment
+    & ProductVariantDetailsFragmentFragment
   )>>>, defaultVariant?: Maybe<(
     { __typename?: 'ProductVariant' }
     & Pick<ProductVariant, 'sku'>
@@ -12871,7 +12892,7 @@ export type GetProductByIdQuery = (
     { __typename?: 'Product' }
     & { variants?: Maybe<Array<Maybe<(
       { __typename?: 'ProductVariant' }
-      & ProductVariantDetailsFragment
+      & ProductVariantDetailsFragmentFragment
     )>>> }
     & ProductDetailsFragmentFragment
   )> }
@@ -12890,7 +12911,7 @@ export type GetProductBySlugQuery = (
     { __typename?: 'Product' }
     & { variants?: Maybe<Array<Maybe<(
       { __typename?: 'ProductVariant' }
-      & ProductVariantDetailsFragment
+      & ProductVariantDetailsFragmentFragment
     )>>> }
     & ProductDetailsFragmentFragment
   )> }
@@ -13276,6 +13297,48 @@ export type GetCurrentAuthUserQuery = (
   )> }
 );
 
+export type ApplyVoucherMutationVariables = Exact<{
+  checkoutId: Scalars['ID'];
+  voucher: Scalars['String'];
+  languageCode: LanguageCodeEnum;
+}>;
+
+
+export type ApplyVoucherMutation = (
+  { __typename?: 'Mutation' }
+  & { checkoutAddPromoCode?: Maybe<(
+    { __typename?: 'CheckoutAddPromoCode' }
+    & { checkout?: Maybe<(
+      { __typename?: 'Checkout' }
+      & CheckoutDetailsFragmentFragment
+    )>, checkoutErrors: Array<(
+      { __typename?: 'CheckoutError' }
+      & Pick<CheckoutError, 'code' | 'field' | 'variants'>
+    )> }
+  )> }
+);
+
+export type RemoveVoucherMutationVariables = Exact<{
+  checkoutId: Scalars['ID'];
+  voucher: Scalars['String'];
+  languageCode: LanguageCodeEnum;
+}>;
+
+
+export type RemoveVoucherMutation = (
+  { __typename?: 'Mutation' }
+  & { checkoutRemovePromoCode?: Maybe<(
+    { __typename?: 'CheckoutRemovePromoCode' }
+    & { checkout?: Maybe<(
+      { __typename?: 'Checkout' }
+      & CheckoutDetailsFragmentFragment
+    )>, checkoutErrors: Array<(
+      { __typename?: 'CheckoutError' }
+      & Pick<CheckoutError, 'code' | 'field' | 'variants'>
+    )> }
+  )> }
+);
+
 export const PageInfoFragmentFragmentDoc = gql`
     fragment pageInfoFragment on PageInfo {
   hasNextPage
@@ -13385,8 +13448,8 @@ export const AttributeValuesDetailFragmentFragmentDoc = gql`
 }
     ${AttributeDetailsFragmentFragmentDoc}
 ${AttributeValuesFragmentFragmentDoc}`;
-export const ProductVariantDetailsFragmentDoc = gql`
-    fragment productVariantDetails on ProductVariant {
+export const ProductVariantDetailsFragmentFragmentDoc = gql`
+    fragment productVariantDetailsFragment on ProductVariant {
   id
   sku
   name
@@ -13441,7 +13504,7 @@ export const ProductDetailsFragmentFragmentDoc = gql`
     ...attributeValuesDetailFragment
   }
   variants {
-    ...productVariantDetails
+    ...productVariantDetailsFragment
   }
   defaultVariant {
     sku
@@ -13481,7 +13544,7 @@ export const ProductDetailsFragmentFragmentDoc = gql`
 }
     ${TaxedMoneyFragmentFragmentDoc}
 ${AttributeValuesDetailFragmentFragmentDoc}
-${ProductVariantDetailsFragmentDoc}
+${ProductVariantDetailsFragmentFragmentDoc}
 ${CategoryDetailFragmentFragmentDoc}`;
 export const CollectionDetailsFragmentFragmentDoc = gql`
     fragment collectionDetailsFragment on Collection {
@@ -13667,6 +13730,7 @@ export const CheckoutDetailsFragmentFragmentDoc = gql`
     price {
       amount
     }
+    type
   }
 }
     ${AddressDetailsFragmentFragmentDoc}
@@ -14164,6 +14228,46 @@ export function useCompleteCheckoutMutation(baseOptions?: Apollo.MutationHookOpt
 export type CompleteCheckoutMutationHookResult = ReturnType<typeof useCompleteCheckoutMutation>;
 export type CompleteCheckoutMutationResult = Apollo.MutationResult<CompleteCheckoutMutation>;
 export type CompleteCheckoutMutationOptions = Apollo.BaseMutationOptions<CompleteCheckoutMutation, CompleteCheckoutMutationVariables>;
+export const SetShippingMethodDocument = gql`
+    mutation setShippingMethod($checkoutId: ID!, $shippingMethodId: ID!, $languageCode: LanguageCodeEnum!) {
+  checkoutShippingMethodUpdate(checkoutId: $checkoutId, shippingMethodId: $shippingMethodId) {
+    checkout {
+      ...checkoutDetailsFragment
+    }
+    checkoutErrors {
+      field
+      message
+    }
+  }
+}
+    ${CheckoutDetailsFragmentFragmentDoc}`;
+export type SetShippingMethodMutationFn = Apollo.MutationFunction<SetShippingMethodMutation, SetShippingMethodMutationVariables>;
+
+/**
+ * __useSetShippingMethodMutation__
+ *
+ * To run a mutation, you first call `useSetShippingMethodMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetShippingMethodMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setShippingMethodMutation, { data, loading, error }] = useSetShippingMethodMutation({
+ *   variables: {
+ *      checkoutId: // value for 'checkoutId'
+ *      shippingMethodId: // value for 'shippingMethodId'
+ *      languageCode: // value for 'languageCode'
+ *   },
+ * });
+ */
+export function useSetShippingMethodMutation(baseOptions?: Apollo.MutationHookOptions<SetShippingMethodMutation, SetShippingMethodMutationVariables>) {
+        return Apollo.useMutation<SetShippingMethodMutation, SetShippingMethodMutationVariables>(SetShippingMethodDocument, baseOptions);
+      }
+export type SetShippingMethodMutationHookResult = ReturnType<typeof useSetShippingMethodMutation>;
+export type SetShippingMethodMutationResult = Apollo.MutationResult<SetShippingMethodMutation>;
+export type SetShippingMethodMutationOptions = Apollo.BaseMutationOptions<SetShippingMethodMutation, SetShippingMethodMutationVariables>;
 export const GetCheckoutByTokenDocument = gql`
     query getCheckoutByToken($token: UUID!, $languageCode: LanguageCodeEnum!) {
   checkout(token: $token) {
@@ -14609,12 +14713,12 @@ export const GetProductByIdDocument = gql`
   product(id: $id, channel: $channel) {
     ...productDetailsFragment
     variants {
-      ...productVariantDetails
+      ...productVariantDetailsFragment
     }
   }
 }
     ${ProductDetailsFragmentFragmentDoc}
-${ProductVariantDetailsFragmentDoc}`;
+${ProductVariantDetailsFragmentFragmentDoc}`;
 
 /**
  * __useGetProductByIdQuery__
@@ -14648,12 +14752,12 @@ export const GetProductBySlugDocument = gql`
   product(slug: $slug, channel: $channel) {
     ...productDetailsFragment
     variants {
-      ...productVariantDetails
+      ...productVariantDetailsFragment
     }
   }
 }
     ${ProductDetailsFragmentFragmentDoc}
-${ProductVariantDetailsFragmentDoc}`;
+${ProductVariantDetailsFragmentFragmentDoc}`;
 
 /**
  * __useGetProductBySlugQuery__
@@ -15124,3 +15228,85 @@ export function useGetCurrentAuthUserLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type GetCurrentAuthUserQueryHookResult = ReturnType<typeof useGetCurrentAuthUserQuery>;
 export type GetCurrentAuthUserLazyQueryHookResult = ReturnType<typeof useGetCurrentAuthUserLazyQuery>;
 export type GetCurrentAuthUserQueryResult = Apollo.QueryResult<GetCurrentAuthUserQuery, GetCurrentAuthUserQueryVariables>;
+export const ApplyVoucherDocument = gql`
+    mutation applyVoucher($checkoutId: ID!, $voucher: String!, $languageCode: LanguageCodeEnum!) {
+  checkoutAddPromoCode(checkoutId: $checkoutId, promoCode: $voucher) {
+    checkout {
+      ...checkoutDetailsFragment
+    }
+    checkoutErrors {
+      code
+      field
+      variants
+    }
+  }
+}
+    ${CheckoutDetailsFragmentFragmentDoc}`;
+export type ApplyVoucherMutationFn = Apollo.MutationFunction<ApplyVoucherMutation, ApplyVoucherMutationVariables>;
+
+/**
+ * __useApplyVoucherMutation__
+ *
+ * To run a mutation, you first call `useApplyVoucherMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApplyVoucherMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [applyVoucherMutation, { data, loading, error }] = useApplyVoucherMutation({
+ *   variables: {
+ *      checkoutId: // value for 'checkoutId'
+ *      voucher: // value for 'voucher'
+ *      languageCode: // value for 'languageCode'
+ *   },
+ * });
+ */
+export function useApplyVoucherMutation(baseOptions?: Apollo.MutationHookOptions<ApplyVoucherMutation, ApplyVoucherMutationVariables>) {
+        return Apollo.useMutation<ApplyVoucherMutation, ApplyVoucherMutationVariables>(ApplyVoucherDocument, baseOptions);
+      }
+export type ApplyVoucherMutationHookResult = ReturnType<typeof useApplyVoucherMutation>;
+export type ApplyVoucherMutationResult = Apollo.MutationResult<ApplyVoucherMutation>;
+export type ApplyVoucherMutationOptions = Apollo.BaseMutationOptions<ApplyVoucherMutation, ApplyVoucherMutationVariables>;
+export const RemoveVoucherDocument = gql`
+    mutation removeVoucher($checkoutId: ID!, $voucher: String!, $languageCode: LanguageCodeEnum!) {
+  checkoutRemovePromoCode(checkoutId: $checkoutId, promoCode: $voucher) {
+    checkout {
+      ...checkoutDetailsFragment
+    }
+    checkoutErrors {
+      code
+      field
+      variants
+    }
+  }
+}
+    ${CheckoutDetailsFragmentFragmentDoc}`;
+export type RemoveVoucherMutationFn = Apollo.MutationFunction<RemoveVoucherMutation, RemoveVoucherMutationVariables>;
+
+/**
+ * __useRemoveVoucherMutation__
+ *
+ * To run a mutation, you first call `useRemoveVoucherMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveVoucherMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeVoucherMutation, { data, loading, error }] = useRemoveVoucherMutation({
+ *   variables: {
+ *      checkoutId: // value for 'checkoutId'
+ *      voucher: // value for 'voucher'
+ *      languageCode: // value for 'languageCode'
+ *   },
+ * });
+ */
+export function useRemoveVoucherMutation(baseOptions?: Apollo.MutationHookOptions<RemoveVoucherMutation, RemoveVoucherMutationVariables>) {
+        return Apollo.useMutation<RemoveVoucherMutation, RemoveVoucherMutationVariables>(RemoveVoucherDocument, baseOptions);
+      }
+export type RemoveVoucherMutationHookResult = ReturnType<typeof useRemoveVoucherMutation>;
+export type RemoveVoucherMutationResult = Apollo.MutationResult<RemoveVoucherMutation>;
+export type RemoveVoucherMutationOptions = Apollo.BaseMutationOptions<RemoveVoucherMutation, RemoveVoucherMutationVariables>;

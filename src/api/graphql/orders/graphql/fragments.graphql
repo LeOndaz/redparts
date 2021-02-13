@@ -8,18 +8,42 @@ fragment orderDetailsFragment on Order {
     }
     isShippingRequired
     paymentStatusDisplay
+    statusDisplay
+    paymentStatus
+    status
+    trackingClientId
+    customerNote
+    redirectUrl
+    totalCaptured {
+        amount
+    }
     total {
-        gross {
-            amount
-        }
+        ...taxedMoneyFragment
     }
     subtotal {
-        net {
-            amount
-        }
+        ...taxedMoneyFragment
     }
-    statusDisplay
     shippingAddress {
         ...addressDetailsFragment
     }
+    billingAddress {
+        ...addressDetailsFragment
+    }
+    lines {
+        productName
+        variantName
+        translatedProductName
+        translatedVariantName
+        unitPrice {
+            ...taxedMoneyFragment
+        }
+        totalPrice {
+            ...taxedMoneyFragment
+        }
+        quantity
+        variant {
+            ...productVariantDetailsFragment
+        }
+    }
+    number
 }

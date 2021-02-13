@@ -34,7 +34,7 @@ function ReviewsList(props: Props) {
                                             <AppImage src={review.avatar && review.avatar.url} alt={review.avatar && review.avatar.alt}/>
                                         </div>
                                         <div className="review__meta">
-                                            <div className="review__author">{review.author.name}</div>
+                                            <div className="review__author" itemProp="author">{review.author.firstName}</div>
                                             <div className="review__date">
                                                 <FormattedMessage
                                                     id="FORMAT_DATE_MEDIUM"
@@ -45,7 +45,7 @@ function ReviewsList(props: Props) {
                                         <div className="review__rating">
                                             <Rating value={review.rating} />
                                         </div>
-                                        <div className="review__content typography">
+                                        <div className="review__content typography" itemProp="reviewBody">
                                             {review.content}
                                         </div>
                                     </div>

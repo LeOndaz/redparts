@@ -1,4 +1,3 @@
-
 /**
  * Those services will be fiderated soon, saleor #6439
  * */
@@ -30,10 +29,11 @@ export enum Badges {
     New = "new"
 }
 
-export enum DefaultAttrSlugs {
+export enum attrSlugsEnum {
     Brand = "brand",
     Badges = "badges",
     Tags = "tags",
+    Background = "background",
 }
 
 export enum Collections {
@@ -46,12 +46,12 @@ export enum Placeholders {
     UserAvatar = "https://placehold.it/200"
 }
 
-export enum MenuSlugs {
+export enum MenuSlugsEnum {
     Navbar = "navbar",
     Footer = "footer",
 }
 
-export enum MetadataKeys {
+export enum MetadataKeysEnum {
     /** Attrs */
     Featured = "featured",
 
@@ -62,6 +62,19 @@ export enum MetadataKeys {
     Categories = "categories"
 }
 
+export enum PaymentGatewayEnum {
+    Braintree = 'mirumee.payments.braintree',
+    Razorpay = 'mirumee.payments.razorpay',
+    Stripe = 'mirumee.payments.stripe',
+    Adyen = 'mirumee.payments.adyen',
+}
+
+export enum PageSlugsEnum {
+    Base = 'base',
+    AboutUs = 'about-us',
+    ContactUs = 'contact-us',
+    PrivacyPolicy = 'privacy-policy',
+}
 
 export const MAX_BADGES = 3
 export const BASE_CURRENCY = "EUR"

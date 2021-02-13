@@ -43,7 +43,6 @@ fragment productDetailsFragment on Product {
         ...productVariantDetailsFragment
     }
     defaultVariant {
-        sku
         attributes {
             ...attributeValuesDetailFragment
         }

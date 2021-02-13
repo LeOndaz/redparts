@@ -1,4 +1,4 @@
-import {Badges, DEFAULT_CHANNEL, DefaultAttrSlugs, getCurrentChannel, MetadataKeys} from "~/api/graphql/consts";
+import {Badges, DEFAULT_CHANNEL, attrSlugsEnum, getCurrentChannel, MetadataKeysEnum} from "~/api/graphql/consts";
 import {ICustomFields} from "~/interfaces/custom-fields";
 import * as util from "util";
 import {AttributeValue, MetadataItem} from "~/api/graphql/types";
@@ -57,12 +57,12 @@ const filterAttribute = (filterable: filterable, slug: string, value?: string, v
 }
 
 
-export const filterHot = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.Hot)
-export const filterSale = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.Sale)
-export const filterNew = (filterable: filterable) => filterAttribute(filterable, DefaultAttrSlugs.Badges, Badges.New)
+export const filterHot = (filterable: filterable) => filterAttribute(filterable, attrSlugsEnum.Badges, Badges.Hot)
+export const filterSale = (filterable: filterable) => filterAttribute(filterable, attrSlugsEnum.Badges, Badges.Sale)
+export const filterNew = (filterable: filterable) => filterAttribute(filterable, attrSlugsEnum.Badges, Badges.New)
 
 /** filter featured */
 export const FilterFeatured = (filterable: filterable) => filterMetadata(filterable, {
-    key: MetadataKeys.Featured,
+    key: MetadataKeysEnum.Featured,
     value: "On"
 })

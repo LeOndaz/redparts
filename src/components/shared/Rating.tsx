@@ -20,7 +20,7 @@ function Rating(props: Props) {
                         'rating__star--active': value >= i,
                     });
 
-                    return <div key={i} className={starClasses} />;
+                    return <div key={i} className={starClasses}/>;
                 })}
             </div>
         </div>

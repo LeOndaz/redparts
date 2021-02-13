@@ -1,34 +1,30 @@
-query getOrderById($id: ID!){
+query getOrderById($id: ID!, $languageCode: LanguageCodeEnum!){
     order (id: $id){
         ...orderDetailsFragment
     }
 }
 
-query getOrderByToken($token: UUID!){
+query getOrderByToken($token: UUID!, $languageCode: LanguageCodeEnum!){
     orderByToken(token: $token) {
         ...orderDetailsFragment
     }
 }
 
-
-query getOrderList (
+query getOrdersList(
     $first: Int
     $last: Int
     $after: String
     $before: String
-    $filter: OrderFilterInput
-    $sortBy: OrderSortingInput
-    $channel: String!
+    $languageCode: LanguageCodeEnum!
 ){
-    orders(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy, channel: $channel){
-        edges {
-            node {
-                ...orderDetailsFragment
+    me{
+        orders(first: $first, last: $last, after: $after, before: $before){
+            edges {
+                node {
+                    ...orderDetailsFragment
+                }
             }
-            cursor
-        }
-        pageInfo {
-            ...pageInfoFragment
+            totalCount
         }
     }
 }

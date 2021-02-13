@@ -7,13 +7,12 @@ import {NextComponentType, NextPageContext} from 'next';
 import {useStore} from 'react-redux';
 
 // application
-import config from '~/config';
 import LanguageProvider, {getLanguageInitialProps, ILanguageProviderProps} from '~/services/i18n/provider';
 import Layout from '~/components/Layout';
 import PageTitle from '~/components/shared/PageTitle';
 import {AppDispatch} from '~/store/types';
 import {CurrentVehicleGarageProvider} from '~/services/current-vehicle';
-import {getLanguageByLocale, getLanguageByPath, getDefaultLanguage, getLanguageServerSide} from '~/services/i18n/utils';
+import {getDefaultLanguage, getLanguageByLocale, getLanguageByPath, getLanguageServerSide} from '~/services/i18n/utils';
 import {load, save, wrapper} from '~/store/store';
 import {optionsSetAll} from '~/store/options/optionsActions';
 import {useApplyClientState} from '~/store/client';
@@ -36,7 +35,10 @@ import {languageSet} from "~/store/language/languageActions";
 import {GoogleTagManager} from "~/components/site/GoogleTagManager";
 import FacebookPixel from "~/components/site/FacebookPixel";
 import {ICurrency} from "~/interfaces/currency";
-import {useCurrencyChange} from "~/store/currency/currencyHooks";
+import {cmsApi} from "~/api";
+import {PageSlugsEnum} from "~/api/graphql/consts";
+import {ILanguage} from "~/interfaces/language";
+import {getAttributeValue} from "~/api/graphql/misc/helpers";
 
 interface Props extends AppProps {
     languageInitialProps: ILanguageProviderProps;
@@ -122,11 +124,6 @@ function App({Component, pageProps, languageInitialProps}: Props) {
 App.getInitialProps = async (context: AppContext) => {
     const dispatch = context.ctx.store.dispatch as AppDispatch;
 
-    await dispatch(optionsSetAll({
-        desktopHeaderVariant: config.desktopHeaderVariant,
-        mobileHeaderVariant: config.mobileHeaderVariant,
-    }));
-
     let language;
 
     if (typeof context.ctx.query.lang === 'string') {
@@ -135,7 +132,18 @@ App.getInitialProps = async (context: AppContext) => {
         language = getLanguageByPath(context.ctx.asPath || context.ctx.pathname);
     }
 
-    dispatch(languageSet(language || getDefaultLanguage()));
+    language = language || getDefaultLanguage();
+
+    const basePage = await cmsApi.getPage(PageSlugsEnum.Base, language as ILanguage)
+    const desktopHeaderVariant = getAttributeValue('desktop-header-variant', basePage.attributes, 'classic-one', 'slug')
+    const mobileHeaderVariant = getAttributeValue('mobile-header-variant', basePage.attributes, "one", 'slug')
+
+    await dispatch(optionsSetAll({
+        desktopHeaderVariant,
+        mobileHeaderVariant,
+    }));
+
+    dispatch(languageSet(language));
 
     return {
         ...(await AppBase.getInitialProps(context)),

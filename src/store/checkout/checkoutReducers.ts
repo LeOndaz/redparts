@@ -12,19 +12,17 @@ const initialState: ICheckoutState = {
 export const CHECKOUT_NAMESPACE = 'checkout';
 
 function checkoutBaseReducer(state = initialState, action: CheckoutAction | PaymentAction): ICheckoutState {
-    if (action.type === CHECKOUT_SET && state.current.checkout?.token !== action.checkout?.token) {
+    if (action.type === CHECKOUT_SET) {
         return {
-            ...state,
             current: {
                 ...state.current,
-                checkout: JSON.parse(JSON.stringify(action?.checkout || null)),
+                checkout: action.checkout,
             }
         };
     }
 
     if (action.type === PAYMENT_SET){
         return {
-            ...state,
             current: {
                 ...state.current,
                 paymentMethod: action.paymentMethod,

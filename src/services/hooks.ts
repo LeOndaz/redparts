@@ -24,13 +24,12 @@ import {useLanguage, useLocale} from "~/services/i18n/hooks";
 import {useCurrency} from "~/store/currency/currencyHooks";
 import {ICollection} from "~/api/graphql/collections/collectionMappers";
 import {getPageBySlug} from "~/api/graphql/pages/pageService";
-import {cmsApi, getPaymentGateways, shopApi} from "~/api";
+import {cmsApi, shopApi} from "~/api";
 import {ILanguage} from "~/interfaces/language";
 import {headerMap} from "~/api/graphql/navigation/navigationMappers";
 import {ICurrency} from "~/interfaces/currency";
-import {PLUGIN_OPEN_EXCHANGE_URL} from "~/api/graphql/consts";
+import {PageSlugsEnum, PLUGIN_OPEN_EXCHANGE_URL} from "~/api/graphql/consts";
 import {getCurrencySymbol} from "~/api/graphql/misc/helpers";
-import {parseSelectionSet} from "@graphql-tools/utils";
 
 export function useGlobalMousedown(callback: (event: MouseEvent) => void, deps?: DependencyList) {
     const memoCallback = useCallback(callback, deps || []);
@@ -352,5 +351,22 @@ export function useAvailableCurrencies() {
         })
 
         return state
-    }, [availableCurrencyNames.isLoading, response.isLoading, language])
+    }, [availableCurrencyNames, response, language])
+}
+
+function usePage(slug: string) {
+    const language = useLanguage();
+    return useDeferredData(() => cmsApi.getPage(slug, language), null, undefined, [language])
+}
+
+export function useAboutUsPage() {
+    return usePage(PageSlugsEnum.AboutUs)
+}
+
+export function useContactUsPage() {
+    return usePage(PageSlugsEnum.ContactUs)
+}
+
+export function usePrivacyPolicyPage() {
+    return usePage(PageSlugsEnum.PrivacyPolicy)
 }

@@ -1,9 +1,8 @@
 import {Product, StockAvailability} from "~/api/graphql/types";
 import {
-    IProduct,
+    IProduct, IProductOption,
     IProductVariant
 } from "~/interfaces/product";
-import {customEditorjsParser} from "~/components/utils";
 import {mapVariantAttrsToOptions} from "~/api/graphql/misc/mappers/utils";
 import {shopCategoryMap} from "~/api/graphql/categories/categoryMappers";
 import {
@@ -13,23 +12,18 @@ import {
     mapTranslatable
 } from "~/api/graphql/misc/helpers";
 import {IBrand} from "~/interfaces/brand";
-import {DefaultAttrSlugs, Placeholders} from "~/api/graphql/consts";
+import {attrSlugsEnum, Placeholders} from "~/api/graphql/consts";
 import {selectedAttributesMapIn} from "~/api/graphql/attributes/attributeMappers";
 import {getAttrsFromVariants} from "~/api/graphql/attributes/utils";
 import {variantMap} from "~/api/graphql/productVariants/variantMappers";
 import {productTypeMap} from "~/api/graphql/productTypes/productTypeMappers";
-
+import {parseEditorjsText} from "~/components/utils";
 
 const productMapIn = (product: Product): IProduct => {
-    if (!product.pricing?.priceRange?.start) {
-        throw Error('Default channel slug is not specified or not correct. ')
-    }
-
     let [name, description] = mapTranslatable(product, ['name', 'description'])
 
     /** Handle markdown description */
-    description = JSON.parse(description)
-    description = customEditorjsParser.parse(description)
+    description = parseEditorjsText(description)
 
     /** Handle pricing & discounts */
     let finalPrice = product.pricing!.priceRange!.start!.gross.amount
@@ -39,17 +33,17 @@ const productMapIn = (product: Product): IProduct => {
     }
 
     /** Handle badges, hack here, classes are lower case, this is why I'm using the slug */
-    let badgeClasses = getAttributeValues(DefaultAttrSlugs.Badges, product.attributes, 'slug').map(s => s.toLowerCase())
+    let badgeClasses = getAttributeValues(attrSlugsEnum.Badges, product.attributes).map(v => v['slug']).map(s => s.toLowerCase())
 
     /** Handle tags */
-    let tags = getAttributeValues(DefaultAttrSlugs.Tags, product.attributes)
+    let tags = getAttributeValues(attrSlugsEnum.Tags, product.attributes).map(t => t['name']);
 
     /** Handle category */
     const categories = product.category ? [shopCategoryMap.inProductsLayout(product.category)] : []
 
     /** Handle brand */
-    const brandName = getAttributeValue(DefaultAttrSlugs.Brand, product.attributes, 'Generic')
-    const brandSlug = getAttributeValue(DefaultAttrSlugs.Brand, product.attributes, brandName.toLowerCase(), 'slug')
+    const brandName = getAttributeValue(attrSlugsEnum.Brand, product.attributes, 'Generic')
+    const brandSlug = getAttributeValue(attrSlugsEnum.Brand, product.attributes, brandName.toLowerCase(), 'slug')
 
     const brand: IBrand = {
         name: brandName,
@@ -73,7 +67,8 @@ const productMapIn = (product: Product): IProduct => {
     }
 
     /** Handle options */
-    const options = mapVariantAttrsToOptions(product)
+    const options = mapVariantAttrsToOptions(product.variants, product.productType)
+    const defaultVariantOptions = product.defaultVariant ? mapVariantAttrsToOptions([product.defaultVariant], product.productType) : [];
 
     /** Handle attributes */
     const attributes = [
@@ -82,7 +77,6 @@ const productMapIn = (product: Product): IProduct => {
     ]
 
     const variants: IProductVariant[] = product.variants ? product.variants.map(variantMap.in) : [];
-    console.log(variants)
 
     /** handle stocks */
     const stock = product.isAvailable ? StockAvailability.InStock : StockAvailability.OutOfStock
@@ -115,6 +109,7 @@ const productMapIn = (product: Product): IProduct => {
             seoDescription: product.seoDescription,
         },
         variants: variants,
+        defaultVariantOptions: defaultVariantOptions,
     }
 }
 

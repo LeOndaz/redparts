@@ -95,7 +95,7 @@ function LanguageProvider(props: PropsWithChildren<ILanguageProviderProps>) {
     return (
         <LanguageLocaleContext.Provider value={locale}>
             <LanguageSetLocaleContext.Provider value={setLocale}>
-                <IntlProvider locale={locale} messages={messages}>
+                <IntlProvider locale={locale} messages={messages} onError={() => {}}>
                     <GlobalIntlProvider>
                         {children}
                     </GlobalIntlProvider>

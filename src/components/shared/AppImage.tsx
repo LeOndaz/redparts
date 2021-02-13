@@ -10,7 +10,7 @@ const AppImage = React.forwardRef((props: Props, ref: React.Ref<HTMLImageElement
 
     const normalizedSrc = useMemo(() => (src ? baseUrl(src) : src), [src]);
 
-    return <img {...otherProps} src={normalizedSrc} ref={ref} alt={alt}/>;
+    return <img {...otherProps} src={normalizedSrc} ref={ref} alt={alt} itemProp='image'/>;
 });
 
 export default AppImage;

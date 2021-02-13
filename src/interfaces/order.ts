@@ -26,6 +26,7 @@ export interface IOrder {
     number: string;
     createdAt: string;
     payment: string;
+    paymentStatus: string;
     status: string;
     items: IOrderItem[];
     quantity: number;

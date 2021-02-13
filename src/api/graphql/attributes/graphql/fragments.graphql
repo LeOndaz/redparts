@@ -2,9 +2,6 @@ fragment attributeDetailsFragment on Attribute {
     id
     slug
     name
-    values{
-        ...attributeValuesFragment
-    }
     metadata {
         key
         value
@@ -18,6 +15,10 @@ fragment attributeValuesFragment on AttributeValue {
     id
     name
     slug
+    file {
+        contentType
+        url
+    }
     translation (languageCode: $languageCode){
         name
     }

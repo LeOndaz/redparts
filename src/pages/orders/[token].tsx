@@ -5,9 +5,14 @@ import ShopPageOrderSuccess from '~/components/shop/ShopPageOrderSuccess';
 import {accountApi} from '~/api';
 import {IOrder} from '~/interfaces/order';
 import {useAppRouter} from '~/services/router';
+import {useLanguage} from "~/services/i18n/hooks";
+import {useUser} from "~/store/user/userHooks";
+import SitePageNotFound from "~/components/site/SitePageNotFound";
 
 function Page() {
     const router = useAppRouter();
+    const language = useLanguage();
+    const user = useUser();
     const [order, setOrder] = useState<IOrder | null>(null);
     const {token} = router.query;
 
@@ -15,7 +20,7 @@ function Page() {
         let canceled = false;
 
         if ((typeof token === 'string')) {
-            accountApi.getOrderByToken(token).then((result) => {
+            accountApi.getOrderByToken(token, language).then((result) => {
                 if (canceled) {
                     return;
                 }
@@ -29,7 +34,7 @@ function Page() {
         return () => {
             canceled = true;
         };
-    }, [token]);
+    }, [token, user]);
 
     if (!order) {
         return null;

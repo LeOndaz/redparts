@@ -9,10 +9,11 @@ import {
     Category,
     Collection,
     MenuItem,
-    MetadataItem, PaymentGateway,
+    MetadataItem, Page, PaymentGateway,
     Product,
     SelectedAttribute
 } from "~/api/graphql/types";
+import {attrSlugsEnum} from "~/api/graphql/consts";
 
 interface IAttr {
     attr: string
@@ -87,24 +88,39 @@ export const getMetadataItem = (metadata: MetadataItem[], key: string, defaultTo
 export const getAttribute = (slug: string, selectedAttrs: SelectedAttribute[]) =>
     selectedAttrs.filter(sa => sa.attribute.slug === slug)
 
-export const getAttributeValues = (slug: string, selectedAttrs: SelectedAttribute[], mapTo = 'name') => {
+export const getAttributeValues = (slug: string, selectedAttrs: SelectedAttribute[]) => {
     let result = getAttribute(slug, selectedAttrs).map(sa => sa.values)
 
     if (result.length === 0) {
         return []
     }
 
-    // @ts-ignore value not indexable
     return result
         .flat(1)
-        .map(value => value ? value.translation ? value.translation[mapTo] : value[mapTo] : null)
         .filter(Boolean)
+        .map(val => {
+            let [name] = mapTranslatable(val, ['name']);
+
+            return {
+                ...val,
+                name,
+            }
+        })
 }
 
 export const getAttributeValue = (slug: string, selectedAttrs: SelectedAttribute[], defaultTo?: string, mapTo?: string) => {
-    const result = getAttributeValues(slug, selectedAttrs, mapTo)
+    const values = getAttributeValues(slug, selectedAttrs)
 
-    return result[0] || defaultTo
+    if (!values[0]) return defaultTo;
+
+    return mapTo ? values[0][mapTo] : values[0];
+}
+
+export const getAttributeFileValue = (slug: string, selectedAttrs: SelectedAttribute[]) => {
+    const attr = getAttributeValue(attrSlugsEnum.Background, selectedAttrs)
+    const fileObj = attr ? attr['file'] : undefined;
+
+    return fileObj ? fileObj.url : undefined
 }
 
 export const handleAccountErrors = (traverse: string) => {
@@ -131,7 +147,7 @@ export const saveLocal = (key: string, value: any) => localStorage.setItem(key, 
 export const clone = (obj: any) => JSON.parse(JSON.stringify(obj))
 export const removeUndefined = clone;
 
-type translatable = Product | Attribute | Category | Collection | MenuItem | AttributeValue | null
+type translatable = Product | Attribute | Category | Collection | MenuItem | AttributeValue | Page | null
 
 export const mapTranslatable = (obj: translatable, attrs: string[]) => {
     if (obj === null) throw Error('NULL object passed as a translatable.')
@@ -170,3 +186,5 @@ export const getCurrencySymbol = (locale: string, code: string) => {
         }
     ).replace(/\d/g, '').trim()
 }
+
+

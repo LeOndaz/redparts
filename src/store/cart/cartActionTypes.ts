@@ -1,11 +1,12 @@
 // application
-import { AppAction } from '~/store/types';
-import { ICartItemOption } from '~/store/cart/cartTypes';
-import { IProduct } from '~/interfaces/product';
+import {AppAction} from '~/store/types';
+import {ICartItemOption, ICartTotal} from '~/store/cart/cartTypes';
+import {IProduct} from '~/interfaces/product';
 
 export const CART_ADD_ITEM = 'CART_ADD_ITEM';
 export const CART_REMOVE_ITEM = 'CART_REMOVE_ITEM';
 export const CART_UPDATE_QUANTITIES = 'CART_UPDATE_QUANTITIES';
+export const CART_UPDATE_TOTALS = 'CART_UPDATE_TOTALS'
 
 export interface CartItemQuantity {
     itemId: number;
@@ -29,9 +30,15 @@ export interface CartUpdateQuantitiesAction {
     quantities: CartItemQuantity[];
 }
 
+export interface CartUpdateTotalsAction {
+    type: typeof CART_UPDATE_TOTALS;
+    totals: ICartTotal[]
+}
+
 export type CartAction =
     CartAddItemAction |
     CartRemoveItemAction |
-    CartUpdateQuantitiesAction;
+    CartUpdateQuantitiesAction |
+    CartUpdateTotalsAction;
 
 export type CartThunkAction<T = void> = AppAction<CartAction, T>;

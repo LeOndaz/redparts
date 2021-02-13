@@ -5,7 +5,7 @@ import {withAuth} from "~/api/graphql/users/authService";
 import {getMetadataItem, handleAccountErrors, throwAuthError} from "~/api/graphql/misc/helpers";
 import {IUser} from "~/interfaces/user";
 import {userMap} from "~/api/graphql/users/userMappers";
-import {MetadataKeys} from "~/api/graphql/consts";
+import {MetadataKeysEnum} from "~/api/graphql/consts";
 
 
 export const getCurrentAuthUser = (): Promise<IUser | null> => withAuth(client.query)({
@@ -29,12 +29,12 @@ export const editProfile = (data: IEditProfileData) => {
             .then(r => r.data.customerUpdate.user)
             .then(userMap.in).then(updatedUser => {
                 return updateMetadata(updatedUser.id, [{
-                    key: MetadataKeys.Phone,
+                    key: MetadataKeysEnum.Phone,
                     value: phone,
                 }]).then(metadata => {
                     return {
                         ...updatedUser,
-                        phone: getMetadataItem(metadata, MetadataKeys.Phone)
+                        phone: getMetadataItem(metadata, MetadataKeysEnum.Phone)
                     }
                 })
             })

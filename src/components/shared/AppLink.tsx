@@ -102,7 +102,7 @@ function AppLink(props: Props) {
 
     return (
         <Link {...data}>
-            <a {...anchorProps}>{children}</a>
+            <a {...anchorProps} itemProp='url'>{children}</a>
         </Link>
     );
 }

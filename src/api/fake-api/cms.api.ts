@@ -1,10 +1,13 @@
-import {getFacebookPixelId, getGoogleTagManagerId, getOpenExchangeAppId, getSiteDetails,} from "~/api";
+import {getFacebookPixelId, getGoogleTagManagerId, getOpenExchangeAppId, getSiteDetails} from "~/api";
 import {IAddress} from "~/interfaces/address";
 import {ILanguage} from "~/interfaces/language";
 import {IMainMenuLink} from "~/interfaces/main-menu-link";
 import {getFooterLinks, getNavbarLinks} from "~/api/graphql/navigation/navigationService";
 import {IFooterLinks} from "~/components/footer/FooterLinks";
 import {PLUGIN_OPEN_EXCHANGE_URL} from "~/api/graphql/consts";
+import {Page} from "~/api/graphql/types";
+import {IPage} from "~/interfaces/page";
+import {getPageBySlug} from "~/api/graphql/pages/pageService";
 
 export class CmsApi {
     getGoogleTagManagerId(): Promise<string | void> {
@@ -34,4 +37,9 @@ export class CmsApi {
     getCurrencyNames() {
         return fetch('https://openexchangerates.org/api/currencies.json').then(r => r.json());
     }
+
+    getPage(slug: string, language: ILanguage): Promise<IPage> {
+        return getPageBySlug(slug, language)
+    }
+
 }

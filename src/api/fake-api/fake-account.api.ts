@@ -31,17 +31,18 @@ import {
     addAddress,
     deleteAddress,
     getAddressById,
-    getAddressList,
+    getAddressList, setDefaultAddress,
     updateAddress
 } from "~/api/graphql/addresses/addressService";
 import {ILanguage} from "~/interfaces/language";
-import {changePassword, signIn, signOut, signUp} from "~/api/graphql/users/authService";
+import {changePassword, signIn, signOut, signUp, verifyEmail} from "~/api/graphql/users/authService";
 import {getOrderById, getOrderByToken, getOrdersList} from "~/api";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 import {sortingMap} from "~/api/graphql/misc/mappers/sorting";
 import {removeUndefined} from "~/api/graphql/misc/helpers";
-import {Checkout} from "~/api/graphql/types";
+import {AddressTypeEnum, Checkout} from "~/api/graphql/types";
 import {getCheckoutByToken} from "~/api/graphql/checkouts/checkoutService";
+import {string} from "prop-types";
 
 export class FakeAccountApi extends AccountApi {
     signIn(email: string, password: string): Promise<IUser> {
@@ -54,6 +55,10 @@ export class FakeAccountApi extends AccountApi {
 
     signOut(): Promise<void> {
         return signOut()
+    }
+
+    verifyEmail(email: string, token: string): Promise<void>{
+        return verifyEmail(email, token)
     }
 
     editProfile(data: IEditProfileData): Promise<IUser> {
@@ -76,8 +81,12 @@ export class FakeAccountApi extends AccountApi {
         return deleteAddress(addressId).then()
     }
 
-    getDefaultAddress(): Promise<IAddress | null> {
-        return getDefaultAddress();
+    getDefaultAddress(user: IUser): Promise<IAddress | null> {
+        return this.getAddresses(user).then(r => r.find(addr => addr.default) || null)
+    }
+
+    setDefaultAddress(addressId: string, userId: string, type: AddressTypeEnum): Promise<IUser | null> {
+        return setDefaultAddress(addressId, userId, type)
     }
 
     getAddress(addressId: string): Promise<IAddress> {
@@ -88,16 +97,15 @@ export class FakeAccountApi extends AccountApi {
         return getAddressList(user.id).then(res => res.dataList)
     }
 
-    getOrdersList(options?: IListOptions): Promise<IOrdersList> {
+    getOrdersList(options: IListOptions, language: ILanguage): Promise<IOrdersList> {
         let variables: IBaseModelProps = {
             first: options?.limit,
             after: options?.after,
             before: options?.before,
-            ...(options?.sort ? {sortBy: sortingMap.out(options?.sort)} : {}),
         }
-        variables = removeUndefined(variables)
 
-        return getOrdersList(variables).then(res => {
+        variables = removeUndefined(variables)
+        return getOrdersList(variables, language).then(res => {
             return {
                 sort: options?.sort || 'default',
                 items: res.dataList,
@@ -106,12 +114,12 @@ export class FakeAccountApi extends AccountApi {
         });
     }
 
-    getOrderById(id: string): Promise<IOrder> {
+    getOrderById(id: string, language: ILanguage): Promise<IOrder> {
         return getOrderById(id);
     }
 
-    getOrderByToken(token: string): Promise<IOrder> {
-        return getOrderByToken(token);
+    getOrderByToken(token: string, language: ILanguage): Promise<IOrder> {
+        return getOrderByToken(token, language);
     }
 
     getCheckoutByToken(token: string, language: ILanguage): Promise<Checkout> {

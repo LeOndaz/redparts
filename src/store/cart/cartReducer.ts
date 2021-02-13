@@ -2,6 +2,7 @@
 import { IProduct } from '~/interfaces/product';
 import { withClientState } from '~/store/client';
 import {
+    ICart,
     ICartItem,
     ICartItemOption,
     ICartState,
@@ -11,6 +12,7 @@ import {
     CART_ADD_ITEM,
     CART_REMOVE_ITEM,
     CART_UPDATE_QUANTITIES,
+    CART_UPDATE_TOTALS,
     CartAction,
     CartItemQuantity,
 } from '~/store/cart/cartActionTypes';
@@ -49,24 +51,24 @@ function calcTotal(subtotal: number, totals: ICartTotal[]): number {
 }
 
 function calcTotals(items: ICartItem[]): ICartTotal[] {
-    if (items.length === 0) {
-        return [];
-    }
+    // if (items.length === 0) {
+    //     return [];
+    // }
 
-    const subtotal = calcSubtotal(items);
-
-    return [
-        {
-            type: 'shipping',
-            title: 'SHIPPING',
-            price: 25,
-        },
-        {
-            type: 'tax',
-            title: 'TAX',
-            price: subtotal * 0.2,
-        },
-    ];
+    // const subtotal = calcSubtotal(items);
+    // return [
+    //     {
+    //         type: 'shipping',
+    //         title: 'SHIPPING',
+    //         price: 25,
+    //     },
+    //     {
+    //         type: 'tax',
+    //         title: 'TAX',
+    //         price: subtotal * 0.2,
+    //     },
+    // ];
+    return [];
 }
 
 function addItem(state: ICartState, product: IProduct, options: ICartItemOption[], quantity: number) {
@@ -169,6 +171,18 @@ function updateQuantities(state: ICartState, quantities: CartItemQuantity[]) {
     return state;
 }
 
+function updateTotals(state: ICartState, totals: ICartTotal[]){
+    // if we're update with [{type: 'voucher'}], we remove all {type: 'voucher'} from totals
+    const newTotals = [...state.totals.filter(total => !totals.find(t => t.type === total.type)), ...totals];
+    const total = calcTotal(state.subtotal, newTotals);
+
+    return {
+        ...state,
+        total,
+        totals: newTotals,
+    }
+}
+
 const initialState: ICartState = {
     lastItemId: 0,
     quantity: 0,
@@ -190,6 +204,9 @@ function cartBaseReducer(state = initialState, action: CartAction): ICartState {
 
     case CART_UPDATE_QUANTITIES:
         return updateQuantities(state, action.quantities);
+
+    case CART_UPDATE_TOTALS:
+        return updateTotals(state, action.totals)
 
     default:
         return state;

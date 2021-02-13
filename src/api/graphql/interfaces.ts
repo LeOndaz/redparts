@@ -39,4 +39,5 @@ export interface IBaseModelProps {
     filter?: FilterInput
     sortBy?: SortingInput
     channel?: string
+    email?: string
 }

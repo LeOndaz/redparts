@@ -1,28 +1,20 @@
 query getPageBySlug($slug: String!, $languageCode: LanguageCodeEnum!){
     page(slug: $slug){
         slug
+        title
+        content
         seoTitle
         seoDescription
-        title
-        seoDescription
+        publicationDate
         translation (languageCode: $languageCode){
+            title
+            content
             seoTitle
             seoDescription
-            content
-            contentJson
         }
+
         attributes {
-            attribute {
-                slug
-                name
-            }
-            values {
-                name
-                slug
-                translation (languageCode: $languageCode){
-                    name
-                }
-            }
+            ...attributeValuesDetailFragment
         }
     }
 }

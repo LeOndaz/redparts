@@ -1,5 +1,5 @@
 // react
-import React, { useRef, useState } from 'react';
+import React, {SyntheticEvent, useRef, useState} from 'react';
 // third-party
 import { FormattedMessage, useIntl } from 'react-intl';
 import classNames from 'classnames';
@@ -26,6 +26,8 @@ import {
     useUserVehicles,
 } from '~/store/garage/garageHooks';
 import {useLanguage} from "~/services/i18n/hooks";
+import {useRouter} from "next/router";
+import {hrefToRouterArgs} from "~/services/router";
 
 export function Search() {
     const intl = useIntl();
@@ -35,18 +37,19 @@ export function Search() {
     const [products, setProducts] = useState<IProduct[]>([]);
     const [categories, setCategories] = useState<IShopCategory[]>([]);
     const [vehiclePickerIsOpen, setVehiclePickerIsOpen] = useState(false);
-    const [vehiclePanel, setVehiclePanel] = useState('list');
-    const [addVehicle, setAddVehicle] = useState<IVehicle | null>(null);
+    // const [vehiclePanel, setVehiclePanel] = useState('list');
+    // const [addVehicle, setAddVehicle] = useState<IVehicle | null>(null);
     const vehicles = useUserVehicles();
-    const garageAddItem = useGarageAddItem();
-    const garageRemoveItem = useGarageRemoveItem();
-    const hasVehicles = vehicles.length > 0;
+    // const garageAddItem = useGarageAddItem();
+    // const garageRemoveItem = useGarageRemoveItem();
+    // const hasVehicles = vehicles.length > 0;
     const selectVehicleButtonRef = useRef<HTMLButtonElement>(null);
     const vehiclePickerDropdownRef = useRef<HTMLDivElement>(null);
     const language = useLanguage()
+    // const router = useRouter();
 
     const currentVehicle = useGarageCurrent();
-    const garageSetCurrent = useGarageSetCurrent();
+    // const garageSetCurrent = useGarageSetCurrent();
 
     const searchCancelFnRef = useRef(() => {});
     const rootRef = useRef<HTMLDivElement>(null);
@@ -93,17 +96,17 @@ export function Search() {
         });
     };
 
-    const toggleVehiclePicker = (force?: boolean): void => {
-        setVehiclePickerIsOpen((prevState) => {
-            const newState = force !== undefined ? force : !prevState;
-
-            if (newState) {
-                setSuggestionsIsOpen(false);
-            }
-
-            return newState;
-        });
-    };
+    // const toggleVehiclePicker = (force?: boolean): void => {
+    //     setVehiclePickerIsOpen((prevState) => {
+    //         const newState = force !== undefined ? force : !prevState;
+    //
+    //         if (newState) {
+    //             setSuggestionsIsOpen(false);
+    //         }
+    //
+    //         return newState;
+    //     });
+    // };
 
     const handleInputFocus = (event: React.FocusEvent<HTMLInputElement>) => {
         const input = event.currentTarget;
@@ -118,19 +121,19 @@ export function Search() {
         search(input.value);
     };
 
-    const handleButtonClick = () => {
-        toggleVehiclePicker();
-    };
+    // const handleButtonClick = () => {
+    //     toggleVehiclePicker();
+    // };
 
-    const handleChangeCurrentVehicle = (event: React.FormEvent<HTMLInputElement>) => {
-        const vehicleId = event.currentTarget.value === '' ? null : event.currentTarget.value;
-
-        garageSetCurrent(vehicleId);
-    };
-
-    const handleVehicleChange = (vehicle: IVehicle | null) => {
-        setAddVehicle(vehicle);
-    };
+    // const handleChangeCurrentVehicle = (event: React.FormEvent<HTMLInputElement>) => {
+    //     const vehicleId = event.currentTarget.value === '' ? null : event.currentTarget.value;
+    //
+    //     garageSetCurrent(vehicleId);
+    // };
+    //
+    // const handleVehicleChange = (vehicle: IVehicle | null) => {
+    //     setAddVehicle(vehicle);
+    // };
 
     const handleRootBlur = () => {
         setTimeout(() => {

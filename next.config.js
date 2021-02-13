@@ -13,6 +13,10 @@ module.exports = {
                 { source: `/${locale}{/}?`, destination: '/' },
                 { source: `/${locale}/:path*`, destination: '/:path*' },
             ]).reduce((acc, cur) => [...acc, ...cur], []),
+            {
+                source: '/admin',
+                destination: 'http://localhost:9000'
+            }
         ];
     },
     async redirects() {

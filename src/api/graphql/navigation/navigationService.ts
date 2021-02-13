@@ -2,7 +2,7 @@ import {ILanguage} from "~/interfaces/language";
 import {client, filterDefaultChannel} from "~/api";
 import {handleSingleResponse} from "~/api/graphql/misc/mappers/utils";
 import {GetMenuDocument} from "~/api/graphql/types";
-import {DEFAULT_CHANNEL, MenuSlugs} from "~/api/graphql/consts";
+import {DEFAULT_CHANNEL, MenuSlugsEnum} from "~/api/graphql/consts";
 import {footerMap, navbarMap} from "~/api/graphql/navigation/navigationMappers";
 
 const handleMenuForNavSingleResponse = (res: any) => handleSingleResponse({
@@ -26,5 +26,5 @@ export const getMenuBySlug = (slug: string, language: ILanguage) => client.query
     }
 })
 
-export const getNavbarLinks = (language: ILanguage) => getMenuBySlug(MenuSlugs.Navbar, language).then(handleMenuForNavSingleResponse)
-export const getFooterLinks = (language: ILanguage) => getMenuBySlug(MenuSlugs.Footer, language).then(handleMenuForFooterSingleResponse)
+export const getNavbarLinks = (language: ILanguage) => getMenuBySlug(MenuSlugsEnum.Navbar, language).then(handleMenuForNavSingleResponse)
+export const getFooterLinks = (language: ILanguage) => getMenuBySlug(MenuSlugsEnum.Footer, language).then(handleMenuForFooterSingleResponse)

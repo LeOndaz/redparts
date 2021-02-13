@@ -49,7 +49,7 @@ import {sortingMap} from "~/api/graphql/misc/mappers/sorting";
 import {IBaseModelProps} from "~/api/graphql/interfaces";
 import {
     Checkout,
-    CheckoutAddPromoCode, CheckoutComplete, CheckoutPaymentCreate, CheckoutRemovePromoCode,
+    CheckoutAddPromoCode, CheckoutComplete, CheckoutCreate, CheckoutPaymentCreate, CheckoutRemovePromoCode,
     CheckoutShippingMethodUpdate,
     Collection,
     PaymentGateway, PaymentInput
@@ -60,7 +60,8 @@ import * as util from "util";
 import {ICurrency} from "~/interfaces/currency";
 import {getPaymentGateways} from "~/api/graphql/payments/paymentService";
 import {applyVoucher, removeVoucher} from "~/api/graphql/vouchers/vouchersService";
-import {checkout, completeCheckout, createPayment} from "~/api/graphql/checkouts/checkoutService";
+import {checkout, completeCheckout, createPayment, getCheckoutByToken} from "~/api/graphql/checkouts/checkoutService";
+import {MappedCheckoutComplete} from "~/api/graphql/checkouts/types";
 
 const emptyProductList: IProductsList = {
     navigation: {
@@ -76,13 +77,6 @@ const emptyProductList: IProductsList = {
     items: [],
     filters: [],
 }
-
-interface PaymentMethod {
-    name: string;
-    label: string;
-    description: string;
-}
-
 
 export const filterProductsByCategory = (slug: string, products: IProduct[]): IProduct[] => products.filter(product => product.categories!.map(cat => cat.slug).includes(slug))
 
@@ -287,7 +281,7 @@ export class FakeShopApi implements ShopApi {
         })) as Promise<IGetSearchSuggestionsResult>
     }
 
-    checkout(data: ICheckoutData, isAnonymous: boolean, language: ILanguage): Promise<Checkout> {
+    checkout(data: ICheckoutData, isAnonymous: boolean, language: ILanguage): Promise<CheckoutCreate> {
         return checkout(data, isAnonymous, language)
     }
 
@@ -295,12 +289,12 @@ export class FakeShopApi implements ShopApi {
         return createPayment(checkoutId, input, language)
     }
 
-    completeCheckout(checkoutId: string, redirectUrl: string, storeSource: boolean, language: ILanguage, paymentData?: string): Promise<CheckoutComplete> {
+    completeCheckout(checkoutId: string, redirectUrl: string, storeSource: boolean, language: ILanguage, paymentData?: string): Promise<MappedCheckoutComplete> {
         return completeCheckout(checkoutId, redirectUrl, storeSource, language, paymentData)
     }
 
-    getPaymentMethods(): Promise<PaymentGateway[]> {
-        return getPaymentGateways()
+    getPaymentMethods(currency: ICurrency): Promise<PaymentGateway[]> {
+        return getPaymentGateways(currency)
     }
 
     setShippingMethod(checkoutId: string, shippingMethodId: string, language: ILanguage): Promise<CheckoutShippingMethodUpdate> {

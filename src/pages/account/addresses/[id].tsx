@@ -1,22 +1,23 @@
 // react
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 // third-party
 import classNames from 'classnames';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { FormProvider, useForm } from 'react-hook-form';
+import {FormattedMessage, useIntl} from 'react-intl';
+import {FormProvider, useForm} from 'react-hook-form';
 // application
 import AccountLayout from '~/components/account/AccountLayout';
-import AddressForm, { getAddressFormDefaultValue, IAddressForm } from '~/components/shared/AddressForm';
+import AddressForm, {getAddressFormDefaultValue, IAddressForm} from '~/components/shared/AddressForm';
 import Checkbox from '~/components/shared/Checkbox';
 import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
-import { accountApi } from '~/api';
-import { IAddress } from '~/interfaces/address';
-import { IEditAddressData } from '~/api/base';
-import { useAppRouter } from '~/services/router';
-import { useAsyncAction } from '~/store/hooks';
+import {accountApi} from '~/api';
+import {IAddress} from '~/interfaces/address';
+import {IEditAddressData} from '~/api/base';
+import {useAppRouter} from '~/services/router';
+import {useAsyncAction} from '~/store/hooks';
 import {useUser} from "~/store/user/userHooks";
 import {useLanguage} from "~/services/i18n/hooks";
+import {AddressTypeEnum} from "~/api/graphql/types";
 
 interface IForm {
     address: IAddressForm;
@@ -39,7 +40,7 @@ function Page() {
             default: false,
         },
     });
-    const { register, handleSubmit, reset } = formMethods;
+    const {register, handleSubmit, reset} = formMethods;
 
     const [firstOrDefaultAddress, setFirstOrDefaultAddress] = useState(false);
     const [submit, submitInProgress] = useAsyncAction((data: IForm) => {
@@ -51,9 +52,30 @@ function Page() {
         let saveMethod: Promise<IAddress>;
 
         if (addressId) {
-            saveMethod = accountApi.editAddress(addressId, addressData, language);
+            saveMethod = accountApi.editAddress(addressId, addressData, language).then(r => {
+                // if trying to set the default address as default, just return
+                if (addressData.default && r.default) return r;
+
+                // if trying to set a non default address as default
+                if (addressData.default && !r.default) {
+                    return accountApi.setDefaultAddress(r.id, user!.id, AddressTypeEnum.Shipping).then(() => r)
+                }
+
+                // if trying to remove default from a default address, can't be done for now.
+                // if (!addressData.default && r.default) {
+                //     return r;
+                // }
+
+                return r;
+            });
         } else {
-            saveMethod = accountApi.addAddress(user!, addressData, language);
+            saveMethod = accountApi.addAddress(user!, addressData, language).then(r => {
+                if (data.default) {
+                    return accountApi.setDefaultAddress(r.id, user!.id, AddressTypeEnum.Shipping).then(() => r)
+                }
+
+                return r;
+            });
         }
 
         return saveMethod.then(() => router.push(url.accountAddresses()));
@@ -65,7 +87,7 @@ function Page() {
         (async () => {
             const [address, defaultAddress] = await Promise.all([
                 addressId ? accountApi.getAddress(addressId) : Promise.resolve(null),
-                accountApi.getDefaultAddress(),
+                accountApi.getDefaultAddress(user),
             ]);
 
             if (canceled) {
@@ -91,18 +113,18 @@ function Page() {
         <div className="card">
             <PageTitle>
                 {addressId
-                    ? intl.formatMessage({ id: 'HEADER_EDIT_ADDRESS' })
-                    : intl.formatMessage({ id: 'HEADER_NEW_ADDRESS' })}
+                    ? intl.formatMessage({id: 'HEADER_EDIT_ADDRESS'})
+                    : intl.formatMessage({id: 'HEADER_NEW_ADDRESS'})}
             </PageTitle>
 
             <div className="card-header">
                 <h5>
                     {addressId
-                        ? <FormattedMessage id="HEADER_EDIT_ADDRESS" />
-                        : <FormattedMessage id="HEADER_NEW_ADDRESS" /> }
+                        ? <FormattedMessage id="HEADER_EDIT_ADDRESS"/>
+                        : <FormattedMessage id="HEADER_NEW_ADDRESS"/>}
                 </h5>
             </div>
-            <div className="card-divider" />
+            <div className="card-divider"/>
             <div className="card-body card-body--padding--2">
                 <div className="row no-gutters">
                     <FormProvider {...formMethods}>
@@ -122,7 +144,7 @@ function Page() {
                                         inputRef={register()}
                                     />
                                     <label htmlFor="address-form-id-default" className="form-check-label">
-                                        <FormattedMessage id="INPUT_SET_AS_MY_DEFAULT_ADDRESS_LABEL" />
+                                        <FormattedMessage id="INPUT_SET_AS_MY_DEFAULT_ADDRESS_LABEL"/>
                                     </label>
                                 </div>
                             </div>
@@ -134,7 +156,7 @@ function Page() {
                                         'btn-loading': submitInProgress,
                                     })}
                                 >
-                                    <FormattedMessage id="BUTTON_SAVE" />
+                                    <FormattedMessage id="BUTTON_SAVE"/>
                                 </button>
                             </div>
                         </form>

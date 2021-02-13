@@ -1,10 +1,10 @@
 import {client} from "~/api";
 import {
-    AccountRegisterDocument,
+    RegisterAccountDocument,
     ChangePasswordDocument,
     CreateUserTokensDocument,
-    TokenRenewDocument,
-    VerifyTokenDocument,
+    RenewTokenDocument,
+    VerifyTokenDocument, VerifyEmailDocument,
 } from "~/api/graphql/types";
 import {FetchResult} from "@apollo/client";
 import {load, save} from "~/store/store";
@@ -40,7 +40,7 @@ const createTokens = (email: string, password: string) => {
 
 export const signUp = (email: string, password: string) => {
     return client.mutate({
-        mutation: AccountRegisterDocument,
+        mutation: RegisterAccountDocument,
         variables: {
             email,
             password,
@@ -84,7 +84,7 @@ export const renewToken = (refreshToken?: string, csrfToken?: string) => {
             refreshToken,
             csrfToken,
         },
-        mutation: TokenRenewDocument,
+        mutation: RenewTokenDocument,
     }).then(handleAccountErrors('tokenRefresh'))
         .then(res => res.data.tokenRefresh.token)
 }
@@ -109,11 +109,13 @@ export const verifyToken = (token: string) => {
 }
 
 export const withAuth = <T>(func: (opts: T) => Promise<FetchResult>): (opts: T) => any => {
-    let accessToken = Cookies.get('jwt')
-
-    if (typeof window === "undefined" || !accessToken) {
+    if (typeof window === "undefined") {
         return func
     }
+
+    let accessToken = Cookies.get('jwt')
+
+    if (!accessToken) return func;
 
     return (opts: T) => func({
         ...opts,
@@ -124,4 +126,14 @@ export const withAuth = <T>(func: (opts: T) => Promise<FetchResult>): (opts: T) 
             }
         }
     })
+}
+
+export const verifyEmail = (email: string, token: string) => {
+    return client.mutate({
+        mutation: VerifyEmailDocument,
+        variables: {
+            email,
+            token,
+        }
+    }).then(handleAccountErrors('confirmAccount'))
 }

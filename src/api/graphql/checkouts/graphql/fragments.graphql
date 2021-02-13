@@ -17,6 +17,22 @@ fragment checkoutDetailsFragment on Checkout {
     totalPrice {
         ...taxedMoneyFragment
     }
+    shippingMethod {
+        name
+        price {
+            amount
+        }
+        translation(languageCode: $languageCode) {
+            name
+        }
+    }
+    discountName
+    translatedDiscountName
+    discount {
+        amount
+    }
+    voucherCode
+    note
     lines {
         id
         quantity
@@ -27,6 +43,7 @@ fragment checkoutDetailsFragment on Checkout {
         variant {
             product {
                 id
+                slug
             }
             attributes {
                 ...attributeValuesDetailFragment

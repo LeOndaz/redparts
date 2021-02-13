@@ -12131,6 +12131,27 @@ export type UpdateAddressMutation = (
   )> }
 );
 
+export type SetDefaultAddressMutationVariables = Exact<{
+  addressId: Scalars['ID'];
+  userId: Scalars['ID'];
+  type: AddressTypeEnum;
+}>;
+
+
+export type SetDefaultAddressMutation = (
+  { __typename?: 'Mutation' }
+  & { addressSetDefault?: Maybe<(
+    { __typename?: 'AddressSetDefault' }
+    & { user?: Maybe<(
+      { __typename?: 'User' }
+      & UserPrivateDetailsFragmentFragment
+    )>, accountErrors: Array<(
+      { __typename?: 'AccountError' }
+      & Pick<AccountError, 'field' | 'code'>
+    )> }
+  )> }
+);
+
 export type GetAddressByIdQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
@@ -12163,10 +12184,7 @@ export type GetAddressListQuery = (
 export type AttributeDetailsFragmentFragment = (
   { __typename?: 'Attribute' }
   & Pick<Attribute, 'id' | 'slug' | 'name'>
-  & { values?: Maybe<Array<Maybe<(
-    { __typename?: 'AttributeValue' }
-    & AttributeValuesFragmentFragment
-  )>>>, metadata: Array<Maybe<(
+  & { metadata: Array<Maybe<(
     { __typename?: 'MetadataItem' }
     & Pick<MetadataItem, 'key' | 'value'>
   )>>, translation?: Maybe<(
@@ -12178,7 +12196,10 @@ export type AttributeDetailsFragmentFragment = (
 export type AttributeValuesFragmentFragment = (
   { __typename?: 'AttributeValue' }
   & Pick<AttributeValue, 'id' | 'name' | 'slug'>
-  & { translation?: Maybe<(
+  & { file?: Maybe<(
+    { __typename?: 'File' }
+    & Pick<File, 'contentType' | 'url'>
+  )>, translation?: Maybe<(
     { __typename?: 'AttributeValueTranslation' }
     & Pick<AttributeValueTranslation, 'name'>
   )> }
@@ -12319,7 +12340,7 @@ export type GetCategoryListQuery = (
 
 export type CheckoutDetailsFragmentFragment = (
   { __typename?: 'Checkout' }
-  & Pick<Checkout, 'id' | 'token' | 'created' | 'email' | 'isShippingRequired'>
+  & Pick<Checkout, 'id' | 'token' | 'created' | 'email' | 'isShippingRequired' | 'discountName' | 'translatedDiscountName' | 'voucherCode' | 'note'>
   & { shippingAddress?: Maybe<(
     { __typename?: 'Address' }
     & AddressDetailsFragmentFragment
@@ -12332,6 +12353,19 @@ export type CheckoutDetailsFragmentFragment = (
   )>, totalPrice?: Maybe<(
     { __typename?: 'TaxedMoney' }
     & TaxedMoneyFragmentFragment
+  )>, shippingMethod?: Maybe<(
+    { __typename?: 'ShippingMethod' }
+    & Pick<ShippingMethod, 'name'>
+    & { price?: Maybe<(
+      { __typename?: 'Money' }
+      & Pick<Money, 'amount'>
+    )>, translation?: Maybe<(
+      { __typename?: 'ShippingMethodTranslation' }
+      & Pick<ShippingMethodTranslation, 'name'>
+    )> }
+  )>, discount?: Maybe<(
+    { __typename?: 'Money' }
+    & Pick<Money, 'amount'>
   )>, lines?: Maybe<Array<Maybe<(
     { __typename?: 'CheckoutLine' }
     & Pick<CheckoutLine, 'id' | 'quantity' | 'requiresShipping'>
@@ -12342,7 +12376,7 @@ export type CheckoutDetailsFragmentFragment = (
       { __typename?: 'ProductVariant' }
       & { product: (
         { __typename?: 'Product' }
-        & Pick<Product, 'id'>
+        & Pick<Product, 'id' | 'slug'>
       ), attributes: Array<(
         { __typename?: 'SelectedAttribute' }
         & AttributeValuesDetailFragmentFragment
@@ -12394,6 +12428,7 @@ export type CompleteCheckoutMutationVariables = Exact<{
   paymentData?: Maybe<Scalars['JSONString']>;
   redirectUrl?: Maybe<Scalars['String']>;
   storeSource?: Maybe<Scalars['Boolean']>;
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12449,7 +12484,7 @@ export type GetCheckoutByTokenQuery = (
 
 export type CollectionDetailsFragmentFragment = (
   { __typename?: 'Collection' }
-  & Pick<Collection, 'id' | 'name' | 'description' | 'seoTitle' | 'seoDescription'>
+  & Pick<Collection, 'id' | 'name' | 'seoDescription' | 'description' | 'seoTitle'>
   & { translation?: Maybe<(
     { __typename?: 'CollectionTranslation' }
     & Pick<CollectionTranslation, 'name'>
@@ -12637,30 +12672,44 @@ export type GetMenuQuery = (
 
 export type OrderDetailsFragmentFragment = (
   { __typename?: 'Order' }
-  & Pick<Order, 'id' | 'token' | 'created' | 'isShippingRequired' | 'paymentStatusDisplay' | 'statusDisplay'>
+  & Pick<Order, 'id' | 'token' | 'created' | 'isShippingRequired' | 'paymentStatusDisplay' | 'statusDisplay' | 'paymentStatus' | 'status' | 'trackingClientId' | 'customerNote' | 'redirectUrl' | 'number'>
   & { voucher?: Maybe<(
     { __typename?: 'Voucher' }
     & Pick<Voucher, 'id' | 'discountValue'>
-  )>, total: (
+  )>, totalCaptured: (
+    { __typename?: 'Money' }
+    & Pick<Money, 'amount'>
+  ), total: (
     { __typename?: 'TaxedMoney' }
-    & { gross: (
-      { __typename?: 'Money' }
-      & Pick<Money, 'amount'>
-    ) }
+    & TaxedMoneyFragmentFragment
   ), subtotal: (
     { __typename?: 'TaxedMoney' }
-    & { net: (
-      { __typename?: 'Money' }
-      & Pick<Money, 'amount'>
-    ) }
+    & TaxedMoneyFragmentFragment
   ), shippingAddress?: Maybe<(
     { __typename?: 'Address' }
     & AddressDetailsFragmentFragment
-  )> }
+  )>, billingAddress?: Maybe<(
+    { __typename?: 'Address' }
+    & AddressDetailsFragmentFragment
+  )>, lines: Array<Maybe<(
+    { __typename?: 'OrderLine' }
+    & Pick<OrderLine, 'productName' | 'variantName' | 'translatedProductName' | 'translatedVariantName' | 'quantity'>
+    & { unitPrice: (
+      { __typename?: 'TaxedMoney' }
+      & TaxedMoneyFragmentFragment
+    ), totalPrice: (
+      { __typename?: 'TaxedMoney' }
+      & TaxedMoneyFragmentFragment
+    ), variant?: Maybe<(
+      { __typename?: 'ProductVariant' }
+      & ProductVariantDetailsFragmentFragment
+    )> }
+  )>> }
 );
 
 export type GetOrderByIdQueryVariables = Exact<{
   id: Scalars['ID'];
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12674,6 +12723,7 @@ export type GetOrderByIdQuery = (
 
 export type GetOrderByTokenQueryVariables = Exact<{
   token: Scalars['UUID'];
+  languageCode: LanguageCodeEnum;
 }>;
 
 
@@ -12685,32 +12735,30 @@ export type GetOrderByTokenQuery = (
   )> }
 );
 
-export type GetOrderListQueryVariables = Exact<{
+export type GetOrdersListQueryVariables = Exact<{
   first?: Maybe<Scalars['Int']>;
   last?: Maybe<Scalars['Int']>;
   after?: Maybe<Scalars['String']>;
   before?: Maybe<Scalars['String']>;
-  filter?: Maybe<OrderFilterInput>;
-  sortBy?: Maybe<OrderSortingInput>;
-  channel: Scalars['String'];
+  languageCode: LanguageCodeEnum;
 }>;
 
 
-export type GetOrderListQuery = (
+export type GetOrdersListQuery = (
   { __typename?: 'Query' }
-  & { orders?: Maybe<(
-    { __typename?: 'OrderCountableConnection' }
-    & { edges: Array<(
-      { __typename?: 'OrderCountableEdge' }
-      & Pick<OrderCountableEdge, 'cursor'>
-      & { node: (
-        { __typename?: 'Order' }
-        & OrderDetailsFragmentFragment
-      ) }
-    )>, pageInfo: (
-      { __typename?: 'PageInfo' }
-      & PageInfoFragmentFragment
-    ) }
+  & { me?: Maybe<(
+    { __typename?: 'User' }
+    & { orders?: Maybe<(
+      { __typename?: 'OrderCountableConnection' }
+      & Pick<OrderCountableConnection, 'totalCount'>
+      & { edges: Array<(
+        { __typename?: 'OrderCountableEdge' }
+        & { node: (
+          { __typename?: 'Order' }
+          & OrderDetailsFragmentFragment
+        ) }
+      )> }
+    )> }
   )> }
 );
 
@@ -12724,23 +12772,13 @@ export type GetPageBySlugQuery = (
   { __typename?: 'Query' }
   & { page?: Maybe<(
     { __typename?: 'Page' }
-    & Pick<Page, 'slug' | 'seoTitle' | 'seoDescription' | 'title'>
+    & Pick<Page, 'slug' | 'title' | 'content' | 'seoTitle' | 'seoDescription' | 'publicationDate'>
     & { translation?: Maybe<(
       { __typename?: 'PageTranslation' }
-      & Pick<PageTranslation, 'seoTitle' | 'seoDescription' | 'content' | 'contentJson'>
+      & Pick<PageTranslation, 'title' | 'content' | 'seoTitle' | 'seoDescription'>
     )>, attributes: Array<(
       { __typename?: 'SelectedAttribute' }
-      & { attribute: (
-        { __typename?: 'Attribute' }
-        & Pick<Attribute, 'slug' | 'name'>
-      ), values: Array<Maybe<(
-        { __typename?: 'AttributeValue' }
-        & Pick<AttributeValue, 'name' | 'slug'>
-        & { translation?: Maybe<(
-          { __typename?: 'AttributeValueTranslation' }
-          & Pick<AttributeValueTranslation, 'name'>
-        )> }
-      )>> }
+      & AttributeValuesDetailFragmentFragment
     )> }
   )> }
 );
@@ -12790,7 +12828,66 @@ export type CreatePaymentMutation = (
 export type ProductVariantDetailsFragmentFragment = (
   { __typename?: 'ProductVariant' }
   & Pick<ProductVariant, 'id' | 'sku' | 'name' | 'quantityAvailable'>
-  & { pricing?: Maybe<(
+  & { product: (
+    { __typename?: 'Product' }
+    & Pick<Product, 'id' | 'name' | 'slug' | 'description' | 'seoTitle' | 'seoDescription' | 'isAvailable' | 'isAvailableForPurchase'>
+    & { pricing?: Maybe<(
+      { __typename?: 'ProductPricingInfo' }
+      & Pick<ProductPricingInfo, 'onSale'>
+      & { priceRange?: Maybe<(
+        { __typename?: 'TaxedMoneyRange' }
+        & { start?: Maybe<(
+          { __typename?: 'TaxedMoney' }
+          & TaxedMoneyFragmentFragment
+        )> }
+      )>, priceRangeUndiscounted?: Maybe<(
+        { __typename?: 'TaxedMoneyRange' }
+        & { start?: Maybe<(
+          { __typename?: 'TaxedMoney' }
+          & TaxedMoneyFragmentFragment
+        )> }
+      )> }
+    )>, images?: Maybe<Array<Maybe<(
+      { __typename?: 'ProductImage' }
+      & Pick<ProductImage, 'id' | 'alt' | 'url'>
+    )>>>, weight?: Maybe<(
+      { __typename?: 'Weight' }
+      & Pick<Weight, 'unit' | 'value'>
+    )>, attributes: Array<(
+      { __typename?: 'SelectedAttribute' }
+      & AttributeValuesDetailFragmentFragment
+    )>, defaultVariant?: Maybe<(
+      { __typename?: 'ProductVariant' }
+      & { attributes: Array<(
+        { __typename?: 'SelectedAttribute' }
+        & AttributeValuesDetailFragmentFragment
+      )> }
+    )>, productType: (
+      { __typename?: 'ProductType' }
+      & Pick<ProductType, 'name' | 'slug'>
+      & { variantAttributes?: Maybe<Array<Maybe<(
+        { __typename?: 'Attribute' }
+        & Pick<Attribute, 'name' | 'slug'>
+        & { translation?: Maybe<(
+          { __typename?: 'AttributeTranslation' }
+          & Pick<AttributeTranslation, 'name'>
+        )> }
+      )>>>, productAttributes?: Maybe<Array<Maybe<(
+        { __typename?: 'Attribute' }
+        & Pick<Attribute, 'name' | 'slug'>
+      )>>> }
+    ), category?: Maybe<(
+      { __typename?: 'Category' }
+      & CategoryDetailFragmentFragment
+    )>, translation?: Maybe<(
+      { __typename?: 'ProductTranslation' }
+      & Pick<ProductTranslation, 'seoTitle' | 'seoDescription' | 'name' | 'description'>
+      & { language: (
+        { __typename?: 'LanguageDisplay' }
+        & Pick<LanguageDisplay, 'code' | 'language'>
+      ) }
+    )> }
+  ), pricing?: Maybe<(
     { __typename?: 'VariantPricingInfo' }
     & { price?: Maybe<(
       { __typename?: 'TaxedMoney' }
@@ -12847,7 +12944,6 @@ export type ProductDetailsFragmentFragment = (
     & ProductVariantDetailsFragmentFragment
   )>>>, defaultVariant?: Maybe<(
     { __typename?: 'ProductVariant' }
-    & Pick<ProductVariant, 'sku'>
     & { attributes: Array<(
       { __typename?: 'SelectedAttribute' }
       & AttributeValuesDetailFragmentFragment
@@ -13046,14 +13142,14 @@ export type CreateUserTokensMutation = (
   )> }
 );
 
-export type AccountRegisterMutationVariables = Exact<{
+export type RegisterAccountMutationVariables = Exact<{
   email: Scalars['String'];
   password: Scalars['String'];
   redirectUrl: Scalars['String'];
 }>;
 
 
-export type AccountRegisterMutation = (
+export type RegisterAccountMutation = (
   { __typename?: 'Mutation' }
   & { accountRegister?: Maybe<(
     { __typename?: 'AccountRegister' }
@@ -13102,13 +13198,13 @@ export type VerifyTokenMutation = (
   )> }
 );
 
-export type TokenRenewMutationVariables = Exact<{
+export type RenewTokenMutationVariables = Exact<{
   csrfToken?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
 }>;
 
 
-export type TokenRenewMutation = (
+export type RenewTokenMutation = (
   { __typename?: 'Mutation' }
   & { tokenRefresh?: Maybe<(
     { __typename?: 'RefreshToken' }
@@ -13286,6 +13382,26 @@ export type UpdateMetadataMutation = (
   )> }
 );
 
+export type VerifyEmailMutationVariables = Exact<{
+  email: Scalars['String'];
+  token: Scalars['String'];
+}>;
+
+
+export type VerifyEmailMutation = (
+  { __typename?: 'Mutation' }
+  & { confirmAccount?: Maybe<(
+    { __typename?: 'ConfirmAccount' }
+    & { accountErrors: Array<(
+      { __typename?: 'AccountError' }
+      & Pick<AccountError, 'code' | 'field'>
+    )>, user?: Maybe<(
+      { __typename?: 'User' }
+      & UserPrivateDetailsFragmentFragment
+    )> }
+  )> }
+);
+
 export type GetCurrentAuthUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -13372,7 +13488,6 @@ export const CategoryDetailFragmentFragmentDoc = gql`
   translation(languageCode: $languageCode) {
     name
     description
-    description
     seoTitle
     seoDescription
   }
@@ -13410,24 +13525,11 @@ export const TaxedMoneyFragmentFragmentDoc = gql`
   }
 }
     `;
-export const AttributeValuesFragmentFragmentDoc = gql`
-    fragment attributeValuesFragment on AttributeValue {
-  id
-  name
-  slug
-  translation(languageCode: $languageCode) {
-    name
-  }
-}
-    `;
 export const AttributeDetailsFragmentFragmentDoc = gql`
     fragment attributeDetailsFragment on Attribute {
   id
   slug
   name
-  values {
-    ...attributeValuesFragment
-  }
   metadata {
     key
     value
@@ -13436,7 +13538,21 @@ export const AttributeDetailsFragmentFragmentDoc = gql`
     name
   }
 }
-    ${AttributeValuesFragmentFragmentDoc}`;
+    `;
+export const AttributeValuesFragmentFragmentDoc = gql`
+    fragment attributeValuesFragment on AttributeValue {
+  id
+  name
+  slug
+  file {
+    contentType
+    url
+  }
+  translation(languageCode: $languageCode) {
+    name
+  }
+}
+    `;
 export const AttributeValuesDetailFragmentFragmentDoc = gql`
     fragment attributeValuesDetailFragment on SelectedAttribute {
   attribute {
@@ -13453,6 +13569,75 @@ export const ProductVariantDetailsFragmentFragmentDoc = gql`
   id
   sku
   name
+  product {
+    id
+    name
+    slug
+    description
+    seoTitle
+    seoDescription
+    pricing {
+      onSale
+      priceRange {
+        start {
+          ...taxedMoneyFragment
+        }
+      }
+      priceRangeUndiscounted {
+        start {
+          ...taxedMoneyFragment
+        }
+      }
+    }
+    images {
+      id
+      alt
+      url
+    }
+    isAvailable
+    isAvailableForPurchase
+    weight {
+      unit
+      value
+    }
+    attributes {
+      ...attributeValuesDetailFragment
+    }
+    defaultVariant {
+      attributes {
+        ...attributeValuesDetailFragment
+      }
+    }
+    productType {
+      name
+      slug
+      variantAttributes {
+        name
+        slug
+        translation(languageCode: $languageCode) {
+          name
+        }
+      }
+      productAttributes {
+        name
+        slug
+      }
+    }
+    category {
+      ...categoryDetailFragment
+    }
+    translation(languageCode: $languageCode) {
+      seoTitle
+      seoDescription
+      name
+      description
+      description
+      language {
+        code
+        language
+      }
+    }
+  }
   pricing {
     price {
       ...taxedMoneyFragment
@@ -13467,7 +13652,8 @@ export const ProductVariantDetailsFragmentFragmentDoc = gql`
   quantityAvailable
 }
     ${TaxedMoneyFragmentFragmentDoc}
-${AttributeValuesDetailFragmentFragmentDoc}`;
+${AttributeValuesDetailFragmentFragmentDoc}
+${CategoryDetailFragmentFragmentDoc}`;
 export const ProductDetailsFragmentFragmentDoc = gql`
     fragment productDetailsFragment on Product {
   id
@@ -13507,7 +13693,6 @@ export const ProductDetailsFragmentFragmentDoc = gql`
     ...productVariantDetailsFragment
   }
   defaultVariant {
-    sku
     attributes {
       ...attributeValuesDetailFragment
     }
@@ -13550,13 +13735,12 @@ export const CollectionDetailsFragmentFragmentDoc = gql`
     fragment collectionDetailsFragment on Collection {
   id
   name
-  description
+  seoDescription
   description
   translation(languageCode: $languageCode) {
     name
   }
   seoTitle
-  seoDescription
   backgroundImage {
     url
     alt
@@ -13659,22 +13843,48 @@ export const OrderDetailsFragmentFragmentDoc = gql`
   }
   isShippingRequired
   paymentStatusDisplay
+  statusDisplay
+  paymentStatus
+  status
+  trackingClientId
+  customerNote
+  redirectUrl
+  totalCaptured {
+    amount
+  }
   total {
-    gross {
-      amount
-    }
+    ...taxedMoneyFragment
   }
   subtotal {
-    net {
-      amount
-    }
+    ...taxedMoneyFragment
   }
-  statusDisplay
   shippingAddress {
     ...addressDetailsFragment
   }
+  billingAddress {
+    ...addressDetailsFragment
+  }
+  lines {
+    productName
+    variantName
+    translatedProductName
+    translatedVariantName
+    unitPrice {
+      ...taxedMoneyFragment
+    }
+    totalPrice {
+      ...taxedMoneyFragment
+    }
+    quantity
+    variant {
+      ...productVariantDetailsFragment
+    }
+  }
+  number
 }
-    ${AddressDetailsFragmentFragmentDoc}`;
+    ${TaxedMoneyFragmentFragmentDoc}
+${AddressDetailsFragmentFragmentDoc}
+${ProductVariantDetailsFragmentFragmentDoc}`;
 export const CheckoutDetailsFragmentFragmentDoc = gql`
     fragment checkoutDetailsFragment on Checkout {
   id
@@ -13695,6 +13905,22 @@ export const CheckoutDetailsFragmentFragmentDoc = gql`
   totalPrice {
     ...taxedMoneyFragment
   }
+  shippingMethod {
+    name
+    price {
+      amount
+    }
+    translation(languageCode: $languageCode) {
+      name
+    }
+  }
+  discountName
+  translatedDiscountName
+  discount {
+    amount
+  }
+  voucherCode
+  note
   lines {
     id
     quantity
@@ -13705,6 +13931,7 @@ export const CheckoutDetailsFragmentFragmentDoc = gql`
     variant {
       product {
         id
+        slug
       }
       attributes {
         ...attributeValuesDetailFragment
@@ -13919,6 +14146,46 @@ export function useUpdateAddressMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateAddressMutationHookResult = ReturnType<typeof useUpdateAddressMutation>;
 export type UpdateAddressMutationResult = Apollo.MutationResult<UpdateAddressMutation>;
 export type UpdateAddressMutationOptions = Apollo.BaseMutationOptions<UpdateAddressMutation, UpdateAddressMutationVariables>;
+export const SetDefaultAddressDocument = gql`
+    mutation setDefaultAddress($addressId: ID!, $userId: ID!, $type: AddressTypeEnum!) {
+  addressSetDefault(addressId: $addressId, userId: $userId, type: $type) {
+    user {
+      ...userPrivateDetailsFragment
+    }
+    accountErrors {
+      field
+      code
+    }
+  }
+}
+    ${UserPrivateDetailsFragmentFragmentDoc}`;
+export type SetDefaultAddressMutationFn = Apollo.MutationFunction<SetDefaultAddressMutation, SetDefaultAddressMutationVariables>;
+
+/**
+ * __useSetDefaultAddressMutation__
+ *
+ * To run a mutation, you first call `useSetDefaultAddressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetDefaultAddressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setDefaultAddressMutation, { data, loading, error }] = useSetDefaultAddressMutation({
+ *   variables: {
+ *      addressId: // value for 'addressId'
+ *      userId: // value for 'userId'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useSetDefaultAddressMutation(baseOptions?: Apollo.MutationHookOptions<SetDefaultAddressMutation, SetDefaultAddressMutationVariables>) {
+        return Apollo.useMutation<SetDefaultAddressMutation, SetDefaultAddressMutationVariables>(SetDefaultAddressDocument, baseOptions);
+      }
+export type SetDefaultAddressMutationHookResult = ReturnType<typeof useSetDefaultAddressMutation>;
+export type SetDefaultAddressMutationResult = Apollo.MutationResult<SetDefaultAddressMutation>;
+export type SetDefaultAddressMutationOptions = Apollo.BaseMutationOptions<SetDefaultAddressMutation, SetDefaultAddressMutationVariables>;
 export const GetAddressByIdDocument = gql`
     query getAddressById($id: ID!) {
   address(id: $id) {
@@ -14186,7 +14453,7 @@ export type CreateCheckoutMutationHookResult = ReturnType<typeof useCreateChecko
 export type CreateCheckoutMutationResult = Apollo.MutationResult<CreateCheckoutMutation>;
 export type CreateCheckoutMutationOptions = Apollo.BaseMutationOptions<CreateCheckoutMutation, CreateCheckoutMutationVariables>;
 export const CompleteCheckoutDocument = gql`
-    mutation completeCheckout($checkoutId: ID!, $paymentData: JSONString, $redirectUrl: String, $storeSource: Boolean) {
+    mutation completeCheckout($checkoutId: ID!, $paymentData: JSONString, $redirectUrl: String, $storeSource: Boolean, $languageCode: LanguageCodeEnum!) {
   checkoutComplete(checkoutId: $checkoutId, paymentData: $paymentData, redirectUrl: $redirectUrl, storeSource: $storeSource) {
     checkoutErrors {
       field
@@ -14219,6 +14486,7 @@ export type CompleteCheckoutMutationFn = Apollo.MutationFunction<CompleteCheckou
  *      paymentData: // value for 'paymentData'
  *      redirectUrl: // value for 'redirectUrl'
  *      storeSource: // value for 'storeSource'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
@@ -14494,7 +14762,7 @@ export type GetMenuQueryHookResult = ReturnType<typeof useGetMenuQuery>;
 export type GetMenuLazyQueryHookResult = ReturnType<typeof useGetMenuLazyQuery>;
 export type GetMenuQueryResult = Apollo.QueryResult<GetMenuQuery, GetMenuQueryVariables>;
 export const GetOrderByIdDocument = gql`
-    query getOrderById($id: ID!) {
+    query getOrderById($id: ID!, $languageCode: LanguageCodeEnum!) {
   order(id: $id) {
     ...orderDetailsFragment
   }
@@ -14514,6 +14782,7 @@ export const GetOrderByIdDocument = gql`
  * const { data, loading, error } = useGetOrderByIdQuery({
  *   variables: {
  *      id: // value for 'id'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
@@ -14527,7 +14796,7 @@ export type GetOrderByIdQueryHookResult = ReturnType<typeof useGetOrderByIdQuery
 export type GetOrderByIdLazyQueryHookResult = ReturnType<typeof useGetOrderByIdLazyQuery>;
 export type GetOrderByIdQueryResult = Apollo.QueryResult<GetOrderByIdQuery, GetOrderByIdQueryVariables>;
 export const GetOrderByTokenDocument = gql`
-    query getOrderByToken($token: UUID!) {
+    query getOrderByToken($token: UUID!, $languageCode: LanguageCodeEnum!) {
   orderByToken(token: $token) {
     ...orderDetailsFragment
   }
@@ -14547,6 +14816,7 @@ export const GetOrderByTokenDocument = gql`
  * const { data, loading, error } = useGetOrderByTokenQuery({
  *   variables: {
  *      token: // value for 'token'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
@@ -14559,84 +14829,71 @@ export function useGetOrderByTokenLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
 export type GetOrderByTokenQueryHookResult = ReturnType<typeof useGetOrderByTokenQuery>;
 export type GetOrderByTokenLazyQueryHookResult = ReturnType<typeof useGetOrderByTokenLazyQuery>;
 export type GetOrderByTokenQueryResult = Apollo.QueryResult<GetOrderByTokenQuery, GetOrderByTokenQueryVariables>;
-export const GetOrderListDocument = gql`
-    query getOrderList($first: Int, $last: Int, $after: String, $before: String, $filter: OrderFilterInput, $sortBy: OrderSortingInput, $channel: String!) {
-  orders(first: $first, last: $last, after: $after, before: $before, filter: $filter, sortBy: $sortBy, channel: $channel) {
-    edges {
-      node {
-        ...orderDetailsFragment
+export const GetOrdersListDocument = gql`
+    query getOrdersList($first: Int, $last: Int, $after: String, $before: String, $languageCode: LanguageCodeEnum!) {
+  me {
+    orders(first: $first, last: $last, after: $after, before: $before) {
+      edges {
+        node {
+          ...orderDetailsFragment
+        }
       }
-      cursor
-    }
-    pageInfo {
-      ...pageInfoFragment
+      totalCount
     }
   }
 }
-    ${OrderDetailsFragmentFragmentDoc}
-${PageInfoFragmentFragmentDoc}`;
+    ${OrderDetailsFragmentFragmentDoc}`;
 
 /**
- * __useGetOrderListQuery__
+ * __useGetOrdersListQuery__
  *
- * To run a query within a React component, call `useGetOrderListQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrderListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetOrdersListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrdersListQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetOrderListQuery({
+ * const { data, loading, error } = useGetOrdersListQuery({
  *   variables: {
  *      first: // value for 'first'
  *      last: // value for 'last'
  *      after: // value for 'after'
  *      before: // value for 'before'
- *      filter: // value for 'filter'
- *      sortBy: // value for 'sortBy'
- *      channel: // value for 'channel'
+ *      languageCode: // value for 'languageCode'
  *   },
  * });
  */
-export function useGetOrderListQuery(baseOptions?: Apollo.QueryHookOptions<GetOrderListQuery, GetOrderListQueryVariables>) {
-        return Apollo.useQuery<GetOrderListQuery, GetOrderListQueryVariables>(GetOrderListDocument, baseOptions);
+export function useGetOrdersListQuery(baseOptions?: Apollo.QueryHookOptions<GetOrdersListQuery, GetOrdersListQueryVariables>) {
+        return Apollo.useQuery<GetOrdersListQuery, GetOrdersListQueryVariables>(GetOrdersListDocument, baseOptions);
       }
-export function useGetOrderListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderListQuery, GetOrderListQueryVariables>) {
-          return Apollo.useLazyQuery<GetOrderListQuery, GetOrderListQueryVariables>(GetOrderListDocument, baseOptions);
+export function useGetOrdersListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrdersListQuery, GetOrdersListQueryVariables>) {
+          return Apollo.useLazyQuery<GetOrdersListQuery, GetOrdersListQueryVariables>(GetOrdersListDocument, baseOptions);
         }
-export type GetOrderListQueryHookResult = ReturnType<typeof useGetOrderListQuery>;
-export type GetOrderListLazyQueryHookResult = ReturnType<typeof useGetOrderListLazyQuery>;
-export type GetOrderListQueryResult = Apollo.QueryResult<GetOrderListQuery, GetOrderListQueryVariables>;
+export type GetOrdersListQueryHookResult = ReturnType<typeof useGetOrdersListQuery>;
+export type GetOrdersListLazyQueryHookResult = ReturnType<typeof useGetOrdersListLazyQuery>;
+export type GetOrdersListQueryResult = Apollo.QueryResult<GetOrdersListQuery, GetOrdersListQueryVariables>;
 export const GetPageBySlugDocument = gql`
     query getPageBySlug($slug: String!, $languageCode: LanguageCodeEnum!) {
   page(slug: $slug) {
     slug
+    title
+    content
     seoTitle
     seoDescription
-    title
-    seoDescription
+    publicationDate
     translation(languageCode: $languageCode) {
+      title
+      content
       seoTitle
       seoDescription
-      content
-      contentJson
     }
     attributes {
-      attribute {
-        slug
-        name
-      }
-      values {
-        name
-        slug
-        translation(languageCode: $languageCode) {
-          name
-        }
-      }
+      ...attributeValuesDetailFragment
     }
   }
 }
-    `;
+    ${AttributeValuesDetailFragmentFragmentDoc}`;
 
 /**
  * __useGetPageBySlugQuery__
@@ -14961,8 +15218,8 @@ export function useCreateUserTokensMutation(baseOptions?: Apollo.MutationHookOpt
 export type CreateUserTokensMutationHookResult = ReturnType<typeof useCreateUserTokensMutation>;
 export type CreateUserTokensMutationResult = Apollo.MutationResult<CreateUserTokensMutation>;
 export type CreateUserTokensMutationOptions = Apollo.BaseMutationOptions<CreateUserTokensMutation, CreateUserTokensMutationVariables>;
-export const AccountRegisterDocument = gql`
-    mutation accountRegister($email: String!, $password: String!, $redirectUrl: String!) {
+export const RegisterAccountDocument = gql`
+    mutation registerAccount($email: String!, $password: String!, $redirectUrl: String!) {
   accountRegister(input: {email: $email, password: $password, redirectUrl: $redirectUrl}) {
     requiresConfirmation
     accountErrors {
@@ -14975,20 +15232,20 @@ export const AccountRegisterDocument = gql`
   }
 }
     ${UserPrivateDetailsFragmentFragmentDoc}`;
-export type AccountRegisterMutationFn = Apollo.MutationFunction<AccountRegisterMutation, AccountRegisterMutationVariables>;
+export type RegisterAccountMutationFn = Apollo.MutationFunction<RegisterAccountMutation, RegisterAccountMutationVariables>;
 
 /**
- * __useAccountRegisterMutation__
+ * __useRegisterAccountMutation__
  *
- * To run a mutation, you first call `useAccountRegisterMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAccountRegisterMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRegisterAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterAccountMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [accountRegisterMutation, { data, loading, error }] = useAccountRegisterMutation({
+ * const [registerAccountMutation, { data, loading, error }] = useRegisterAccountMutation({
  *   variables: {
  *      email: // value for 'email'
  *      password: // value for 'password'
@@ -14996,12 +15253,12 @@ export type AccountRegisterMutationFn = Apollo.MutationFunction<AccountRegisterM
  *   },
  * });
  */
-export function useAccountRegisterMutation(baseOptions?: Apollo.MutationHookOptions<AccountRegisterMutation, AccountRegisterMutationVariables>) {
-        return Apollo.useMutation<AccountRegisterMutation, AccountRegisterMutationVariables>(AccountRegisterDocument, baseOptions);
+export function useRegisterAccountMutation(baseOptions?: Apollo.MutationHookOptions<RegisterAccountMutation, RegisterAccountMutationVariables>) {
+        return Apollo.useMutation<RegisterAccountMutation, RegisterAccountMutationVariables>(RegisterAccountDocument, baseOptions);
       }
-export type AccountRegisterMutationHookResult = ReturnType<typeof useAccountRegisterMutation>;
-export type AccountRegisterMutationResult = Apollo.MutationResult<AccountRegisterMutation>;
-export type AccountRegisterMutationOptions = Apollo.BaseMutationOptions<AccountRegisterMutation, AccountRegisterMutationVariables>;
+export type RegisterAccountMutationHookResult = ReturnType<typeof useRegisterAccountMutation>;
+export type RegisterAccountMutationResult = Apollo.MutationResult<RegisterAccountMutation>;
+export type RegisterAccountMutationOptions = Apollo.BaseMutationOptions<RegisterAccountMutation, RegisterAccountMutationVariables>;
 export const ChangePasswordDocument = gql`
     mutation changePassword($oldPassword: String!, $newPassword: String!) {
   passwordChange(oldPassword: $oldPassword, newPassword: $newPassword) {
@@ -15075,8 +15332,8 @@ export function useVerifyTokenMutation(baseOptions?: Apollo.MutationHookOptions<
 export type VerifyTokenMutationHookResult = ReturnType<typeof useVerifyTokenMutation>;
 export type VerifyTokenMutationResult = Apollo.MutationResult<VerifyTokenMutation>;
 export type VerifyTokenMutationOptions = Apollo.BaseMutationOptions<VerifyTokenMutation, VerifyTokenMutationVariables>;
-export const TokenRenewDocument = gql`
-    mutation tokenRenew($csrfToken: String, $refreshToken: String) {
+export const RenewTokenDocument = gql`
+    mutation renewToken($csrfToken: String, $refreshToken: String) {
   tokenRefresh(csrfToken: $csrfToken, refreshToken: $refreshToken) {
     accountErrors {
       code
@@ -15089,32 +15346,32 @@ export const TokenRenewDocument = gql`
   }
 }
     ${UserPrivateDetailsFragmentFragmentDoc}`;
-export type TokenRenewMutationFn = Apollo.MutationFunction<TokenRenewMutation, TokenRenewMutationVariables>;
+export type RenewTokenMutationFn = Apollo.MutationFunction<RenewTokenMutation, RenewTokenMutationVariables>;
 
 /**
- * __useTokenRenewMutation__
+ * __useRenewTokenMutation__
  *
- * To run a mutation, you first call `useTokenRenewMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTokenRenewMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRenewTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRenewTokenMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [tokenRenewMutation, { data, loading, error }] = useTokenRenewMutation({
+ * const [renewTokenMutation, { data, loading, error }] = useRenewTokenMutation({
  *   variables: {
  *      csrfToken: // value for 'csrfToken'
  *      refreshToken: // value for 'refreshToken'
  *   },
  * });
  */
-export function useTokenRenewMutation(baseOptions?: Apollo.MutationHookOptions<TokenRenewMutation, TokenRenewMutationVariables>) {
-        return Apollo.useMutation<TokenRenewMutation, TokenRenewMutationVariables>(TokenRenewDocument, baseOptions);
+export function useRenewTokenMutation(baseOptions?: Apollo.MutationHookOptions<RenewTokenMutation, RenewTokenMutationVariables>) {
+        return Apollo.useMutation<RenewTokenMutation, RenewTokenMutationVariables>(RenewTokenDocument, baseOptions);
       }
-export type TokenRenewMutationHookResult = ReturnType<typeof useTokenRenewMutation>;
-export type TokenRenewMutationResult = Apollo.MutationResult<TokenRenewMutation>;
-export type TokenRenewMutationOptions = Apollo.BaseMutationOptions<TokenRenewMutation, TokenRenewMutationVariables>;
+export type RenewTokenMutationHookResult = ReturnType<typeof useRenewTokenMutation>;
+export type RenewTokenMutationResult = Apollo.MutationResult<RenewTokenMutation>;
+export type RenewTokenMutationOptions = Apollo.BaseMutationOptions<RenewTokenMutation, RenewTokenMutationVariables>;
 export const UpdateCustomerDocument = gql`
     mutation updateCustomer($id: ID!, $input: CustomerInput!) {
   customerUpdate(id: $id, input: $input) {
@@ -15196,6 +15453,45 @@ export function useUpdateMetadataMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateMetadataMutationHookResult = ReturnType<typeof useUpdateMetadataMutation>;
 export type UpdateMetadataMutationResult = Apollo.MutationResult<UpdateMetadataMutation>;
 export type UpdateMetadataMutationOptions = Apollo.BaseMutationOptions<UpdateMetadataMutation, UpdateMetadataMutationVariables>;
+export const VerifyEmailDocument = gql`
+    mutation verifyEmail($email: String!, $token: String!) {
+  confirmAccount(email: $email, token: $token) {
+    accountErrors {
+      code
+      field
+    }
+    user {
+      ...userPrivateDetailsFragment
+    }
+  }
+}
+    ${UserPrivateDetailsFragmentFragmentDoc}`;
+export type VerifyEmailMutationFn = Apollo.MutationFunction<VerifyEmailMutation, VerifyEmailMutationVariables>;
+
+/**
+ * __useVerifyEmailMutation__
+ *
+ * To run a mutation, you first call `useVerifyEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyEmailMutation, { data, loading, error }] = useVerifyEmailMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useVerifyEmailMutation(baseOptions?: Apollo.MutationHookOptions<VerifyEmailMutation, VerifyEmailMutationVariables>) {
+        return Apollo.useMutation<VerifyEmailMutation, VerifyEmailMutationVariables>(VerifyEmailDocument, baseOptions);
+      }
+export type VerifyEmailMutationHookResult = ReturnType<typeof useVerifyEmailMutation>;
+export type VerifyEmailMutationResult = Apollo.MutationResult<VerifyEmailMutation>;
+export type VerifyEmailMutationOptions = Apollo.BaseMutationOptions<VerifyEmailMutation, VerifyEmailMutationVariables>;
 export const GetCurrentAuthUserDocument = gql`
     query getCurrentAuthUser {
   me {

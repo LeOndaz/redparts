@@ -22,7 +22,6 @@ fragment categoryDetailFragment on Category {
     translation (languageCode: $languageCode){
         name
         description
-        description
         seoTitle
         seoDescription
     }

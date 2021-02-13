@@ -1,14 +1,12 @@
 import {CategoryType, ICategory, IShopCategoryLayout} from "~/interfaces/category";
 import {Category} from "~/api/graphql/types";
-import {customEditorjsParser} from "~/components/utils";
+import {parseEditorjsText} from "~/components/utils";
 import {mapTranslatable} from "~/api/graphql/misc/helpers";
 
 
 const categoryMapIn = (category: Category, type: CategoryType, layout?: IShopCategoryLayout): ICategory => {
     let [name, description] = mapTranslatable(category, ['name', 'description'])
-
-    description = JSON.parse(description)
-    description = customEditorjsParser.parse(description)
+    description = parseEditorjsText(description);
 
     return {
         id: category.id,

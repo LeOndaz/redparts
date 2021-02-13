@@ -4,7 +4,7 @@ import {handleProductRelayedResponse} from "~/api";
 import {RelayedResponse} from "~/api/graphql/misc/mappers/utils";
 import {IProduct} from "~/interfaces/product";
 import {ICustomFields} from "~/interfaces/custom-fields";
-import {customEditorjsParser} from "~/components/utils";
+import {parseEditorjsText} from "~/components/utils";
 
 
 export interface ICollection {
@@ -26,8 +26,7 @@ const collectionMapIn = (collection: Collection): ICollection => {
     )
 
     let [name, description] = mapTranslatable(collection, ['name', 'description'])
-    description = JSON.parse(description)
-    description = customEditorjsParser.parse(description)
+    description = parseEditorjsText(description)
 
     return {
         name,

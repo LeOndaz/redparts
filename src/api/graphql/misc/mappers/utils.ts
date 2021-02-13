@@ -1,4 +1,4 @@
-import {AttributeValue, PageInfo, Product, SelectedAttribute} from "~/api/graphql/types";
+import {AttributeValue, PageInfo, Product, ProductType, ProductVariant, SelectedAttribute} from "~/api/graphql/types";
 import {
     IProductAttribute,
     IProductOption,
@@ -52,9 +52,8 @@ export let getProductAttrs = (product: Product) => {
     }
 }
 
-export let mapVariantAttrsToOptions = (product: Product): IProductOption[] => {
-    const variants = product.variants || [];
-    const variantAttrs = product.productType.variantAttributes || [];
+export let mapVariantAttrsToOptions = (variants: ProductVariant[] = [], productType: ProductType): IProductOption[] => {
+    const variantAttrs = productType.variantAttributes || [];
     const options: IProductOption[] = [];
 
     variantAttrs.forEach(variantAttr => {

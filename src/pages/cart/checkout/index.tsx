@@ -1,11 +1,11 @@
 /* eslint-disable no-alert */
 
 // react
-import React, { useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 // third-party
 import classNames from 'classnames';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { FormProvider, useForm } from 'react-hook-form';
+import {FormattedMessage, useIntl} from 'react-intl';
+import {FormProvider, useForm} from 'react-hook-form';
 // application
 import AppLink from '~/components/shared/AppLink';
 import BlockHeader from '~/components/blocks/BlockHeader';
@@ -16,20 +16,19 @@ import CheckoutForm from '~/components/shop/CheckoutForm';
 import CheckoutPayments from '~/components/shop/CheckoutPayments';
 import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
-import { getAddressFormDefaultValue, IAddressForm } from '~/components/shared/AddressForm';
-import { getRegisterFormDefaultValue, IRegisterForm } from '~/components/shared/RegisterForm';
-import { hrefToRouterArgs, useAppRouter } from '~/services/router';
-import { ICheckoutData } from '~/api/base';
-import { shopApi } from '~/api';
-import {useAppAction, useAsyncAction} from '~/store/hooks';
-import { useCart } from '~/store/cart/cartHooks';
-import { useUser, useUserSignUp } from '~/store/user/userHooks';
-import {checkout} from "~/fake-server/endpoints";
+import {getAddressFormDefaultValue, IAddressForm} from '~/components/shared/AddressForm';
+import {getRegisterFormDefaultValue, IRegisterForm} from '~/components/shared/RegisterForm';
+import {hrefToRouterArgs, useAppRouter} from '~/services/router';
+import {ICheckoutData} from '~/api/base';
+import {shopApi} from '~/api';
+import {useAsyncAction} from '~/store/hooks';
+import {useCart} from '~/store/cart/cartHooks';
+import {useUser, useUserSignUp} from '~/store/user/userHooks';
 import {useLanguage} from "~/services/i18n/hooks";
-import {saveLocal} from "~/api/graphql/misc/helpers";
-import {useStore} from "react-redux";
-import {checkoutSet} from "~/store/checkout/checkoutActions";
 import {useSetCheckout, useSetPayment} from "~/store/checkout/checkoutHooks";
+import {CheckoutError} from "~/api/graphql/types";
+import ErrorAlert from "~/components/shop/ErrorAlert";
+import VoucherForm from "~/components/shop/gateways/VoucherForm";
 
 interface IForm {
     billingAddress: IAddressForm;
@@ -51,6 +50,7 @@ function Page() {
     const language = useLanguage();
     const setCheckout = useSetCheckout();
     const setPayment = useSetPayment();
+    const [checkoutErrors, setCheckoutErrors] = useState<CheckoutError[]>([]);
 
     const formMethods = useForm<IForm>({
         defaultValues: {
@@ -63,9 +63,9 @@ function Page() {
             payment: 'bank',
         },
     });
-    const { handleSubmit, register, errors } = formMethods;
+    const {handleSubmit, register, errors} = formMethods;
     const [checkout, checkoutInProgress] = useAsyncAction(async (data: IForm) => {
-        const { billingAddress } = data;
+        const {billingAddress} = data;
         const shippingAddress = data.shipToDifferentAddress ? data.shippingAddress : data.billingAddress;
         const checkoutData: ICheckoutData = {
             payment: data.payment,
@@ -86,22 +86,28 @@ function Page() {
             try {
                 await userSignUp(data.account.email, data.account.password);
             } catch (error) {
-                alert(intl.formatMessage({ id: `ERROR_API_${error.message}` }));
+                alert(intl.formatMessage({id: `ERROR_API_${error.message}`}));
 
                 return;
             }
         }
 
         const isAnonymous = !user
-        // const order = await shopApi.checkout(checkoutData, isAnonymous);
+        const {checkout, checkoutErrors} = await shopApi.checkout(checkoutData, isAnonymous, language)
 
-        const checkout = await shopApi.checkout(checkoutData, isAnonymous, language)
-        setCheckout(checkout);
-        setPayment(data.payment);
+        if (checkoutErrors.length > 0) setCheckoutErrors(checkoutErrors);
 
-        await router.push(...hrefToRouterArgs(url.shipping(checkout, data.payment)))
+        if (checkout) {
+            setCheckout(checkout)
+            setPayment(data.payment);
 
-        // await router.push(...hrefToRouterArgs(url.checkoutSuccess(order)));
+            if (checkout.isShippingRequired) {
+                await router.push(...hrefToRouterArgs(url.shipping(checkout, data.payment)))
+            } else {
+                await router.push(...hrefToRouterArgs(url.pay(checkout, data.payment)))
+            }
+        }
+
     }, [intl, cart, userSignUp, router, setCheckout]);
 
     useEffect(() => {
@@ -116,14 +122,14 @@ function Page() {
 
     return (
         <React.Fragment>
-            <PageTitle>{intl.formatMessage({ id: 'HEADER_CHECKOUT' })}</PageTitle>
+            <PageTitle>{intl.formatMessage({id: 'HEADER_CHECKOUT'})}</PageTitle>
 
             <BlockHeader
-                pageTitle={<FormattedMessage id="HEADER_CHECKOUT" />}
+                pageTitle={<FormattedMessage id="HEADER_CHECKOUT"/>}
                 breadcrumb={[
-                    { title: (<FormattedMessage id="LINK_HOME" />), url: url.home() },
-                    { title: (<FormattedMessage id="LINK_CART" />), url: url.cart() },
-                    { title: (<FormattedMessage id="LINK_CHECKOUT" />), url: url.checkout() },
+                    {title: (<FormattedMessage id="LINK_HOME"/>), url: url.home()},
+                    {title: (<FormattedMessage id="LINK_CART"/>), url: url.cart()},
+                    {title: (<FormattedMessage id="LINK_CHECKOUT"/>), url: url.checkout()},
                 ]}
             />
 
@@ -131,7 +137,7 @@ function Page() {
                 <form className="checkout block" onSubmit={handleSubmit(checkout)}>
                     <div className="container container--max--xl">
                         <div className="row">
-                            {!user && (
+                            {!user && checkoutErrors.length === 0 && (
                                 <div className="col-12 mb-3">
                                     <div className="alert alert-lg alert-primary">
                                         <FormattedMessage
@@ -139,7 +145,7 @@ function Page() {
                                             values={{
                                                 link: (
                                                     <AppLink href={url.signIn()}>
-                                                        <FormattedMessage id="TEXT_ALERT_RETURNING_CUSTOMER_LINK" />
+                                                        <FormattedMessage id="TEXT_ALERT_RETURNING_CUSTOMER_LINK"/>
                                                     </AppLink>
                                                 ),
                                             }}
@@ -148,10 +154,14 @@ function Page() {
                                 </div>
                             )}
 
+                            {checkoutErrors.length > 0 && checkoutErrors.map(err => {
+                                return <ErrorAlert error={err}/>
+                            })}
+
                             <div className="col-12 col-lg-6 col-xl-7">
                                 <div className="card mb-lg-0">
                                     <div className="card-body card-body--padding--2">
-                                        <CheckoutForm />
+                                        <CheckoutForm/>
                                     </div>
                                 </div>
                             </div>
@@ -160,12 +170,12 @@ function Page() {
                                 <div className="card mb-0">
                                     <div className="card-body card-body--padding--2">
                                         <h3 className="card-title">
-                                            <FormattedMessage id="HEADER_YOUR_ORDER" />
+                                            <FormattedMessage id="HEADER_YOUR_ORDER"/>
                                         </h3>
 
-                                        <CheckoutCart />
+                                        <CheckoutCart/>
 
-                                        <CheckoutPayments />
+                                        <CheckoutPayments/>
 
                                         <div className="checkout__agree form-group">
                                             <div className="form-check">
@@ -175,7 +185,7 @@ function Page() {
                                                     className={classNames('form-check-input', {
                                                         'is-invalid': errors.agree,
                                                     })}
-                                                    inputRef={register({ required: true })}
+                                                    inputRef={register({required: true})}
                                                 />
                                                 <label className="form-check-label" htmlFor="checkout-form-agree">
                                                     <FormattedMessage
@@ -205,8 +215,8 @@ function Page() {
                                                     'btn-loading': checkoutInProgress,
                                                 },
                                             )}
-                                        >
-                                            <FormattedMessage id="BUTTON_PLACE_ORDER" />
+                                            disabled={checkoutErrors.length > 0}>
+                                            <FormattedMessage id="BUTTON_CONTINUE"/>
                                         </button>
                                     </div>
                                 </div>
@@ -216,7 +226,7 @@ function Page() {
                 </form>
             </FormProvider>
 
-            <BlockSpace layout="before-footer" />
+            <BlockSpace layout="before-footer"/>
         </React.Fragment>
     );
 }

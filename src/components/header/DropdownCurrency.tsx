@@ -28,7 +28,7 @@ function DropdownCurrency() {
             title: `${eachCurrency.name}`,
             currency: eachCurrency,
         })))
-    ), [currencies.isLoading]);
+    ), [currencies]);
 
     const label = (
         <React.Fragment>

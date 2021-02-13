@@ -1,13 +1,12 @@
 fragment collectionDetailsFragment on Collection {
     id
     name
-    description
+    seoDescription
     description
     translation (languageCode: $languageCode){
         name
     }
     seoTitle
-    seoDescription
     backgroundImage {
         url
         alt

@@ -2,6 +2,76 @@ fragment productVariantDetailsFragment on ProductVariant {
     id
     sku
     name
+    product {
+        id
+        name
+        slug
+        description
+        seoTitle
+        seoDescription
+        pricing {
+            onSale
+            priceRange {
+                start {
+                    ...taxedMoneyFragment
+                }
+            }
+            priceRangeUndiscounted {
+                start {
+                    ...taxedMoneyFragment
+                }
+            }
+        }
+        images {
+            id
+            alt
+            url
+        }
+        isAvailable
+        isAvailableForPurchase
+        weight {
+            unit
+            value
+        }
+        attributes {
+            ...attributeValuesDetailFragment
+        }
+        defaultVariant {
+            attributes {
+                ...attributeValuesDetailFragment
+            }
+        }
+        productType {
+            name
+            slug
+            variantAttributes {
+                name
+                slug
+                translation(languageCode: $languageCode){
+                    name
+                }
+
+            }
+            productAttributes {
+                name
+                slug
+            }
+        }
+        category {
+            ...categoryDetailFragment
+        }
+        translation(languageCode: $languageCode){
+            seoTitle
+            seoDescription
+            name
+            description
+            description
+            language {
+                code
+                language
+            }
+        }
+    }
     pricing {
         price {
             ...taxedMoneyFragment

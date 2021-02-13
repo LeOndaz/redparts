@@ -15,7 +15,7 @@ export interface ICartItem {
     total: number;
 }
 
-export type ICartTotalType = 'shipping' | 'tax';
+export type ICartTotalType = 'shipping' | 'tax' | 'voucher';
 
 export interface ICartTotal {
     type: ICartTotalType;

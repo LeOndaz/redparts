@@ -1,18 +1,18 @@
 /* eslint-disable no-underscore-dangle */
 
-import {ApolloQueryResult} from '@apollo/client';
+import { ApolloQueryResult } from '@apollo/client';
 import {
     GetProductByIdDocument,
     GetProductBySlugDocument,
     GetProductListDocument,
 } from '~/api/graphql/types';
-import {filterDefaultChannel, filterPublished} from '~/api/graphql/misc/FilterService';
-import {IBaseModelProps} from '~/api/graphql/interfaces';
-import {handleRelayedResponse, handleSingleResponse} from '~/api/graphql/misc/mappers/utils';
-import {productMap} from '~/api/graphql/products/productMappers';
-import {ILanguage} from "~/interfaces/language";
-import {client} from "~/api";
-import {getCurrentChannel} from "~/api/graphql/consts";
+import { filterDefaultChannel, filterPublished } from '~/api/graphql/misc/FilterService';
+import { IBaseModelProps } from '~/api/graphql/interfaces';
+import { handleRelayedResponse, handleSingleResponse } from '~/api/graphql/misc/mappers/utils';
+import { productMap } from '~/api/graphql/products/productMappers';
+import { ILanguage } from '~/interfaces/language';
+import { client } from '~/api';
+import { getCurrentChannel } from '~/api/graphql/consts';
 
 export const handleProductSingleResponse = (res: ApolloQueryResult<any> | any) => handleSingleResponse({
     res,
@@ -32,8 +32,9 @@ export const getProductById = (id: string, language: ILanguage) => client.query(
         id,
         channel: getCurrentChannel(),
         languageCode: language.code,
-    }
+    },
 }).then(handleProductSingleResponse);
+
 
 export const getProductBySlug = (slug: string, language: ILanguage) => client.query({
     query: GetProductBySlugDocument,
@@ -41,7 +42,7 @@ export const getProductBySlug = (slug: string, language: ILanguage) => client.qu
         slug,
         channel: getCurrentChannel(),
         languageCode: language.code,
-    }
+    },
 }).then(handleProductSingleResponse);
 
 export const getProductList = (variables: IBaseModelProps, language: ILanguage) => client.query({
@@ -52,9 +53,9 @@ export const getProductList = (variables: IBaseModelProps, language: ILanguage) 
                 {
                     ...variables,
                     languageCode: language.code,
-                }
-            )
-        )
+                },
+            ),
+        ),
 }).then(handleProductRelayedResponse);
 
 /** exports */

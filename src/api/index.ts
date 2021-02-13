@@ -5,7 +5,7 @@ import {FakeBlogApi} from './fake-api/fake-blog.api';
 import {FakeCountriesApi} from './fake-api/fake-countries.api';
 import {FakeShopApi} from './fake-api/fake-shop.api';
 import {FakeVehicleApi} from './fake-api/fake-vehicle.api';
-
+import Cookies from "js-cookie"
 // this will be federated
 import {API_URL} from '~/api/graphql/consts';
 import {loadLocal} from "~/api/graphql/misc/helpers";
@@ -21,20 +21,23 @@ const httpLink = new HttpLink({
 const errorLink = onError(({graphQLErrors, networkError, operation, forward}) => {
     if (graphQLErrors) {
         for (let err of graphQLErrors) {
-            switch (err.extensions?.code) {
+            switch (err.extensions?.exception.code) {
                 case 'PermissionDenied':
                     // error code is set to UNAUTHENTICATED
                     // when AuthenticationError thrown in resolver
-                    const tokens = loadLocal('token')
-                    if (!tokens || !tokens.token) {
+                    if (typeof window === "undefined") {
                         return forward(operation)
                     }
+
+                    const jwt = Cookies.get('jwt')
+                    if (!jwt) return forward(operation);
+
                     // modify the operation context with a new token
                     const oldHeaders = operation.getContext().headers;
                     operation.setContext({
                         headers: {
                             ...oldHeaders,
-                            authorization: loadLocal('tokens').token,
+                            Authorization: `JWT ${jwt}`,
                         },
                     });
                     // retry the request, returning the new observable

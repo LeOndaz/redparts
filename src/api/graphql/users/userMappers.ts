@@ -2,7 +2,7 @@ import {MetadataItem, User} from "~/api/graphql/types";
 import {IUser} from "~/interfaces/user";
 import {IImage} from "~/interfaces/product";
 import {getMetadataItem} from "~/api/graphql/misc/helpers";
-import {MetadataKeys, Placeholders} from "~/api/graphql/consts";
+import {MetadataKeysEnum, Placeholders} from "~/api/graphql/consts";
 
 const userMapIn = (user: User): IUser  => {
     let avatar = user.avatar as IImage;
@@ -13,7 +13,7 @@ const userMapIn = (user: User): IUser  => {
         }
     }
 
-    const phone = getMetadataItem(user.metadata as MetadataItem[], MetadataKeys.Phone)
+    const phone = getMetadataItem(user.metadata as MetadataItem[], MetadataKeysEnum.Phone)
 
     return {
         id: user.id,

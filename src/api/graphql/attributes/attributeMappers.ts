@@ -1,7 +1,7 @@
 import {AttributeValue, SelectedAttribute} from "~/api/graphql/types";
 import {IProductAttribute, IProductAttributeValue} from "~/interfaces/product";
 import {getMetadataItem, mapTranslatable} from "~/api/graphql/misc/helpers";
-import {MetadataKeys} from "~/api/graphql/consts";
+import {MetadataKeysEnum} from "~/api/graphql/consts";
 
 export const selectedAttributeValuesMapIn = (values: AttributeValue[]): IProductAttributeValue[] => {
     return values.map(value => {
@@ -20,7 +20,7 @@ export const selectedAttrMapIn = (selectedAttr: SelectedAttribute): IProductAttr
     return {
         name: name,
         slug: selectedAttr.attribute.slug as string,
-        featured: !!getMetadataItem(selectedAttr.attribute.metadata, MetadataKeys.Featured, false),
+        featured: !!getMetadataItem(selectedAttr.attribute.metadata, MetadataKeysEnum.Featured, false),
         values: selectedAttributeValuesMapIn(selectedAttr.values),
     }
 }

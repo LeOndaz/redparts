@@ -413,6 +413,8 @@ type AssignNavigation {
 type Attribute implements Node & ObjectWithMetadata {
     "Whether the attribute can be displayed in the admin product list."
     availableInGrid: Boolean!
+    "The entity type which can be used as a reference."
+    entityType: AttributeEntityTypeEnum
     "Whether the attribute can be filtered in dashboard."
     filterableInDashboard: Boolean!
     "Whether the attribute can be filtered in storefront."
@@ -553,6 +555,8 @@ type AttributeValue implements Node {
     inputType: AttributeInputTypeEnum
     "Name of a value displayed in the interface."
     name: String
+    "The ID of the attribute reference."
+    reference: ID
     "Internal representation of a value (unique per attribute)."
     slug: String
     "Returns translated attribute value fields for the given language code."
@@ -560,8 +564,6 @@ type AttributeValue implements Node {
         "A language code to return the translation for attribute value."
         languageCode: LanguageCodeEnum!
     ): AttributeValueTranslation
-    "Type of value (used only when `value` field is set)."
-    type: AttributeValueType @deprecated(reason : "Use the `inputType` field to determine the type of attribute's value. This field will be removed after 2020-07-31.")
 }
 
 "Deletes values of attributes."
@@ -632,35 +634,6 @@ type AttributeValueUpdate {
     errors: [Error!]! @deprecated(reason : "Use typed errors with error codes. This field will be removed after 2020-07-31.")
 }
 
-type AuthorizationKey {
-    "Authorization key (client ID)."
-    key: String!
-    "Name of the authorization backend."
-    name: AuthorizationKeyType!
-}
-
-"Adds an authorization key."
-type AuthorizationKeyAdd {
-    "Newly added authorization key."
-    authorizationKey: AuthorizationKey
-    "List of errors that occurred executing the mutation."
-    errors: [Error!]! @deprecated(reason : "Use typed errors with error codes. This field will be removed after 2020-07-31.")
-    "Updated shop."
-    shop: Shop
-    shopErrors: [ShopError!]!
-}
-
-"Deletes an authorization key."
-type AuthorizationKeyDelete {
-    "Authorization key that was deleted."
-    authorizationKey: AuthorizationKey
-    "List of errors that occurred executing the mutation."
-    errors: [Error!]! @deprecated(reason : "Use typed errors with error codes. This field will be removed after 2020-07-31.")
-    "Updated shop."
-    shop: Shop
-    shopErrors: [ShopError!]!
-}
-
 type BulkProductError {
     "List of attributes IDs which causes the error."
     attributes: [ID!]
@@ -674,6 +647,8 @@ type BulkProductError {
     index: Int
     "The error message."
     message: String
+    "List of attribute values IDs which causes the error."
+    values: [ID!]
     "List of warehouse IDs which causes the error."
     warehouses: [ID!]
 }
@@ -689,6 +664,8 @@ type BulkStockError {
     index: Int
     "The error message."
     message: String
+    "List of attribute values IDs which causes the error."
+    values: [ID!]
 }
 
 "Represents a single category of products. Categories allow to organize products in a tree-hierarchies which can be used for navigation in the storefront."
@@ -719,8 +696,9 @@ type Category implements Node & ObjectWithMetadata {
         "Return the last n elements from the list."
         last: Int
     ): CategoryCountableConnection
-    description: String!
-    descriptionJson: JSONString!
+    description: JSONString!
+    "Description of the category (JSON)."
+    descriptionJson: JSONString @deprecated(reason : "Will be removed in Saleor 4.0. Use the `description` field instead.")
     "The ID of the object."
     id: ID!
     level: Int!
@@ -798,8 +776,9 @@ type CategoryDelete {
 type CategoryTranslatableContent implements Node {
     "Represents a single category of products."
     category: Category
-    description: String!
-    descriptionJson: JSONString!
+    description: JSONString!
+    "Description of the category (JSON)."
+    descriptionJson: JSONString @deprecated(reason : "Will be removed in Saleor 4.0. Use the `description` field instead.")
     "The ID of the object."
     id: ID!
     name: String!
@@ -821,8 +800,9 @@ type CategoryTranslate {
 }
 
 type CategoryTranslation implements Node {
-    description: String!
-    descriptionJson: JSONString!
+    description: JSONString!
+    "Translated description of the product (JSON)."
+    descriptionJson: JSONString @deprecated(reason : "Will be removed in Saleor 4.0. Use the `description` field instead.")
     "The ID of the object."
     id: ID!
     "Translation language."
@@ -1146,8 +1126,9 @@ type Collection implements Node & ObjectWithMetadata {
     ): Image
     "List of channels in which the collection is available."
     channelListings: [CollectionChannelListing!]
-    description: String!
-    descriptionJson: JSONString!
+    description: JSONString!
+    "Description of the collection (JSON)."
+    descriptionJson: JSONString @deprecated(reason : "Will be removed in Saleor 4.0. Use the `description` field instead.")
     "The ID of the object."
     id: ID!
     "List of public metadata items. Can be accessed without permissions."
@@ -1218,6 +1199,8 @@ type CollectionChannelListingError {
     field: String
     "The error message."
     message: String
+    "List of attribute values IDs which causes the error."
+    values: [ID!]
 }
 
 "Manage collection's availability in channels."
@@ -1292,8 +1275,9 @@ type CollectionReorderProducts {
 type CollectionTranslatableContent implements Node {
     "Represents a collection of products."
     collection: Collection
-    description: String!
-    descriptionJson: JSONString!
+    description: JSONString!
+    "Description of the collection (JSON)."
+    descriptionJson: JSONString @deprecated(reason : "Will be removed in Saleor 4.0. Use the `description` field instead.")
     "The ID of the object."
     id: ID!
     name: String!
@@ -1315,8 +1299,9 @@ type CollectionTranslate {
 }
 
 type CollectionTranslation implements Node {
-    description: String!
-    descriptionJson: JSONString!
+    description: JSONString!
+    "Translated description of the product (JSON)."
+    descriptionJson: JSONString @deprecated(reason : "Will be removed in Saleor 4.0. Use the `description` field instead.")
     "The ID of the object."
     id: ID!
     "Translation language."
@@ -1805,6 +1790,21 @@ type FulfillmentRefundProducts {
     orderErrors: [OrderError!]!
 }
 
+"Return products."
+type FulfillmentReturnProducts {
+    "List of errors that occurred executing the mutation."
+    errors: [Error!]! @deprecated(reason : "Use typed errors with error codes. This field will be removed after 2020-07-31.")
+    "Order which fulfillment was returned."
+    order: Order
+    orderErrors: [OrderError!]!
+    "A replace fulfillment."
+    replaceFulfillment: Fulfillment
+    "A draft order which was created for products with replace flag."
+    replaceOrder: Order
+    "A return fulfillment."
+    returnFulfillment: Fulfillment
+}
+
 "Updates a fulfillment for an order."
 type FulfillmentUpdateTracking {
     "List of errors that occurred executing the mutation."
@@ -2053,11 +2053,15 @@ type Margin {
 }
 
 "Represents a single menu - an object that is used to help navigate through the store."
-type Menu implements Node {
+type Menu implements Node & ObjectWithMetadata {
     "The ID of the object."
     id: ID!
     items: [MenuItem]
+    "List of public metadata items. Can be accessed without permissions."
+    metadata: [MetadataItem]!
     name: String!
+    "List of private metadata items.Requires proper staff permissions to access."
+    privateMetadata: [MetadataItem]!
     slug: String!
 }
 
@@ -2111,7 +2115,7 @@ type MenuError {
 }
 
 "Represents a single item of the related menu. Can store categories, collection or pages."
-type MenuItem implements Node {
+type MenuItem implements Node & ObjectWithMetadata {
     category: Category
     children: [MenuItem]
     collection: Collection
@@ -2119,9 +2123,13 @@ type MenuItem implements Node {
     id: ID!
     level: Int!
     menu: Menu!
+    "List of public metadata items. Can be accessed without permissions."
+    metadata: [MetadataItem]!
     name: String!
     page: Page
     parent: MenuItem
+    "List of private metadata items.Requires proper staff permissions to access."
+    privateMetadata: [MetadataItem]!
     "Returns translated menu item fields for the given language code."
     translation(
         "A language code to return the translation for menu item."
@@ -2478,18 +2486,6 @@ type Mutation {
         "Fields required to update an AttributeValue."
         input: AttributeValueCreateInput!
     ): AttributeValueUpdate
-    "Adds an authorization key."
-    authorizationKeyAdd(
-        "Fields required to create an authorization key."
-        input: AuthorizationKeyInput!,
-        "Type of an authorization key to add."
-        keyType: AuthorizationKeyType!
-    ): AuthorizationKeyAdd
-    "Deletes an authorization key."
-    authorizationKeyDelete(
-        "Type of a key to delete."
-        keyType: AuthorizationKeyType!
-    ): AuthorizationKeyDelete
     "Deletes categories."
     categoryBulkDelete(
         "List of category IDs to delete."
@@ -3017,6 +3013,13 @@ type Mutation {
         "ID of the order to be refunded."
         order: ID!
     ): FulfillmentRefundProducts
+    "Return products."
+    orderFulfillmentReturnProducts(
+        "Fields required to return products."
+        input: OrderReturnProductsInput!,
+        "ID of the order to be returned."
+        order: ID!
+    ): FulfillmentReturnProducts
     "Updates a fulfillment for an order."
     orderFulfillmentUpdateTracking(
         "ID of an fulfillment to update."
@@ -3098,6 +3101,15 @@ type Mutation {
         "ID of a page to delete."
         id: ID!
     ): PageDelete
+    "Reorder page attribute values."
+    pageReorderAttributeValues(
+        "ID of an attribute."
+        attributeId: ID!,
+        "The list of reordering operations for given attribute values."
+        moves: [ReorderInput]!,
+        "ID of a page."
+        pageId: ID!
+    ): PageReorderAttributeValues
     "Creates/Updates translations for Page."
     pageTranslate(
         "Page ID."
@@ -3264,6 +3276,15 @@ type Mutation {
         "Fields required to update a product image."
         input: ProductImageUpdateInput!
     ): ProductImageUpdate
+    "Reorder product attribute values."
+    productReorderAttributeValues(
+        "ID of an attribute."
+        attributeId: ID!,
+        "The list of reordering operations for given attribute values."
+        moves: [ReorderInput]!,
+        "ID of a product."
+        productId: ID!
+    ): ProductReorderAttributeValues
     "Creates/Updates translations for Product."
     productTranslate(
         "Product ID."
@@ -3346,6 +3367,15 @@ type Mutation {
         "Id of product that variants order will be altered."
         productId: ID!
     ): ProductVariantReorder
+    "Reorder product variant attribute values."
+    productVariantReorderAttributeValues(
+        "ID of an attribute."
+        attributeId: ID!,
+        "The list of reordering operations for given attribute values."
+        moves: [ReorderInput]!,
+        "ID of a product variant."
+        variantId: ID!
+    ): ProductVariantReorderAttributeValues
     "Set default variant for a product. Mutation triggers PRODUCT_UPDATED webhook."
     productVariantSetDefault(
         "Id of a product that will have the default variant set."
@@ -3793,7 +3823,7 @@ type Order implements Node & ObjectWithMetadata {
     "List of order invoices."
     invoices: [Invoice]
     "Informs if an order is fully paid."
-    isPaid: Boolean
+    isPaid: Boolean!
     "Returns True, if order requires shipping."
     isShippingRequired: Boolean!
     languageCode: String!
@@ -3804,9 +3834,9 @@ type Order implements Node & ObjectWithMetadata {
     "User-friendly number of an order."
     number: String
     "Internal payment status."
-    paymentStatus: PaymentChargeStatusEnum
+    paymentStatus: PaymentChargeStatusEnum!
     "User-friendly payment status."
-    paymentStatusDisplay: String
+    paymentStatusDisplay: String!
     "List of payments for the order."
     payments: [Payment]
     "List of private metadata items.Requires proper staff permissions to access."
@@ -3816,21 +3846,22 @@ type Order implements Node & ObjectWithMetadata {
     shippingMethod: ShippingMethod
     shippingMethodName: String
     "Total price of shipping."
-    shippingPrice: TaxedMoney
+    shippingPrice: TaxedMoney!
+    shippingTaxRate: Float!
     status: OrderStatus!
     "User-friendly order status."
     statusDisplay: String
     "The sum of line prices not including shipping."
-    subtotal: TaxedMoney
+    subtotal: TaxedMoney!
     token: String!
     "Total amount of the order."
-    total: TaxedMoney
+    total: TaxedMoney!
     "Amount authorized for the order."
-    totalAuthorized: Money
+    totalAuthorized: Money!
     "The difference between the paid and the order total amount."
     totalBalance: Money!
     "Amount captured by payment."
-    totalCaptured: Money
+    totalCaptured: Money!
     trackingClientId: String!
     translatedDiscountName: String
     user: User
@@ -3948,6 +3979,8 @@ type OrderEvent implements Node {
     paymentId: String
     "Number of items."
     quantity: Int
+    "The order which is related to this order."
+    relatedOrder: Order
     "Define if shipping costs were included to the refund."
     shippingCostsIncluded: Boolean
     "The transaction reference of captured payment."
@@ -4014,13 +4047,13 @@ type OrderLine implements Node {
         size: Int
     ): Image
     "Price of the order line."
-    totalPrice: TaxedMoney
+    totalPrice: TaxedMoney!
     "Product name in the customer's language"
     translatedProductName: String!
     "Variant name in the customer's language"
     translatedVariantName: String!
     "Price of the single item in the order line."
-    unitPrice: TaxedMoney
+    unitPrice: TaxedMoney!
     "A purchased product variant. Note: this field may be null if the variant has been removed from stock at all."
     variant: ProductVariant
     variantName: String!
@@ -4097,8 +4130,9 @@ type OrderVoid {
 type Page implements Node & ObjectWithMetadata {
     "List of attributes assigned to this product."
     attributes: [SelectedAttribute!]!
-    content: String!
-    contentJson: JSONString!
+    content: JSONString!
+    "Content of the page (JSON)."
+    contentJson: String! @deprecated(reason : "Will be removed in Saleor 4.0. Use the `content` field instead.")
     created: DateTime!
     "The ID of the object."
     id: ID!
@@ -4196,6 +4230,8 @@ type PageError {
     field: String
     "The error message."
     message: String
+    "List of attribute values IDs which causes the error."
+    values: [ID!]
 }
 
 "The Relay compliant `PageInfo` type, containing data necessary to paginate this connection."
@@ -4210,9 +4246,19 @@ type PageInfo {
     startCursor: String
 }
 
+"Reorder page attribute values."
+type PageReorderAttributeValues {
+    "List of errors that occurred executing the mutation."
+    errors: [Error!]! @deprecated(reason : "Use typed errors with error codes. This field will be removed after 2020-07-31.")
+    "Page from which attribute values are reordered."
+    page: Page
+    pageErrors: [PageError!]!
+}
+
 type PageTranslatableContent implements Node {
-    content: String!
-    contentJson: JSONString!
+    content: JSONString!
+    "Content of the page (JSON)."
+    contentJson: String @deprecated(reason : "Will be removed in Saleor 4.0. Use the `content` field instead.")
     "The ID of the object."
     id: ID!
     "('A static page that can be manually added by a shop operator ', 'through the dashboard.')"
@@ -4236,8 +4282,9 @@ type PageTranslate {
 }
 
 type PageTranslation implements Node {
-    content: String!
-    contentJson: JSONString!
+    content: JSONString!
+    "Translated description of the page (JSON)."
+    contentJson: String @deprecated(reason : "Will be removed in Saleor 4.0. Use the `content` field instead.")
     "The ID of the object."
     id: ID!
     "Translation language."
@@ -4567,8 +4614,9 @@ type Product implements Node & ObjectWithMetadata {
     "List of collections for the product."
     collections: [Collection]
     defaultVariant: ProductVariant
-    description: String!
-    descriptionJson: JSONString!
+    description: JSONString!
+    "Description of the product (JSON)."
+    descriptionJson: JSONString @deprecated(reason : "Will be removed in Saleor 4.0. Use the `description` field instead.")
     "The ID of the object."
     id: ID!
     "Get a single product image by ID."
@@ -4673,6 +4721,8 @@ type ProductChannelListingError {
     field: String
     "The error message."
     message: String
+    "List of attribute values IDs which causes the error."
+    values: [ID!]
 }
 
 "Manage product's availability in channels."
@@ -4724,6 +4774,8 @@ type ProductError {
     field: String
     "The error message."
     message: String
+    "List of attribute values IDs which causes the error."
+    values: [ID!]
 }
 
 "Represents a product image."
@@ -4800,9 +4852,19 @@ type ProductPricingInfo {
     priceRangeUndiscounted: TaxedMoneyRange
 }
 
+"Reorder product attribute values."
+type ProductReorderAttributeValues {
+    "List of errors that occurred executing the mutation."
+    errors: [Error!]! @deprecated(reason : "Use typed errors with error codes. This field will be removed after 2020-07-31.")
+    "Product from which attribute values are reordered."
+    product: Product
+    productErrors: [ProductError!]!
+}
+
 type ProductTranslatableContent implements Node {
-    description: String!
-    descriptionJson: JSONString!
+    description: JSONString!
+    "Description of the product (JSON)."
+    descriptionJson: JSONString @deprecated(reason : "Will be removed in Saleor 4.0. Use the `description` field instead.")
     "The ID of the object."
     id: ID!
     name: String!
@@ -4826,8 +4888,9 @@ type ProductTranslate {
 }
 
 type ProductTranslation implements Node {
-    description: String!
-    descriptionJson: JSONString!
+    description: JSONString!
+    "Translated description of the product (JSON)."
+    descriptionJson: JSONString @deprecated(reason : "Will be removed in Saleor 4.0. Use the `description` field instead.")
     "The ID of the object."
     id: ID!
     "Translation language."
@@ -4970,8 +5033,6 @@ type ProductVariant implements Node & ObjectWithMetadata {
     id: ID!
     "List of images for the product variant."
     images: [ProductImage]
-    "Whether the variant is in stock and visible or not."
-    isAvailable: Boolean @deprecated(reason : "Use the stock field instead. This field will be removed after 2020-07-31.")
     "Gross margin percentage value."
     margin: Int
     "List of public metadata items. Can be accessed without permissions."
@@ -4982,10 +5043,6 @@ type ProductVariant implements Node & ObjectWithMetadata {
     "List of private metadata items.Requires proper staff permissions to access."
     privateMetadata: [MetadataItem]!
     product: Product!
-    "Quantity of a product available for sale."
-    quantity: Int! @deprecated(reason : "Use the stock field instead. This field will be removed after 2020-07-31.")
-    "Quantity allocated for orders."
-    quantityAllocated: Int @deprecated(reason : "Use the stock field instead. This field will be removed after 2020-07-31.")
     "Quantity of a product available for sale in one checkout."
     quantityAvailable(
         "Two-letter ISO 3166-1 country code. When provided, the exact quantity from a warehouse operating in shipping zones that contain this country will be returned. Otherwise, it will return the maximum quantity from all shipping zones."
@@ -4996,8 +5053,6 @@ type ProductVariant implements Node & ObjectWithMetadata {
     "Total revenue generated by a variant in given period of time. Note: this field should be queried using `reportProductSales` query as it uses optimizations suitable for such calculations."
     revenue(period: ReportingPeriod): TaxedMoney
     sku: String!
-    "Quantity of a product available for sale."
-    stockQuantity: Int! @deprecated(reason : "Use the quantityAvailable field instead. This field will be removed after 2020-07-31.")
     "Stocks for the product variant."
     stocks(
         "Two-letter ISO 3166-1 country code."
@@ -5090,6 +5145,15 @@ type ProductVariantReorder {
     errors: [Error!]! @deprecated(reason : "Use typed errors with error codes. This field will be removed after 2020-07-31.")
     product: Product
     productErrors: [ProductError!]!
+}
+
+"Reorder product variant attribute values."
+type ProductVariantReorderAttributeValues {
+    "List of errors that occurred executing the mutation."
+    errors: [Error!]! @deprecated(reason : "Use typed errors with error codes. This field will be removed after 2020-07-31.")
+    productErrors: [ProductError!]!
+    "Product variant from which attribute values are reordered."
+    productVariant: ProductVariant
 }
 
 "Set default variant for a product. Mutation triggers PRODUCT_UPDATED webhook."
@@ -5795,10 +5859,12 @@ type Query {
         "Return the last n elements from the list."
         last: Int
     ): TranslatableItemConnection
-    "Look up a user by ID."
+    "Look up a user by ID or email address."
     user(
+        "Email address of the user."
+        email: String,
         "ID of the user."
-        id: ID!
+        id: ID
     ): User
     "Look up a voucher by ID."
     voucher(
@@ -6281,6 +6347,8 @@ type ShippingZone implements Node & ObjectWithMetadata {
     "List of countries available for the method."
     countries: [CountryDisplay]
     default: Boolean!
+    "Description of a shipping zone."
+    description: String
     "The ID of the object."
     id: ID!
     "List of public metadata items. Can be accessed without permissions."
@@ -6346,8 +6414,6 @@ type ShippingZoneUpdate {
 
 "Represents a shop resource containing general shop data and configuration."
 type Shop {
-    "List of configured authorization keys. Authorization keys are used to enable third-party OAuth authorization (currently Facebook or Google)."
-    authorizationKeys: [AuthorizationKey]!
     "Enable automatic fulfillment for all digital products."
     automaticFulfillmentDigitalProducts: Boolean
     "List of available payment gateways."
@@ -7053,13 +7119,17 @@ type VoucherUpdate {
 }
 
 "Represents warehouse."
-type Warehouse implements Node {
+type Warehouse implements Node & ObjectWithMetadata {
     address: Address!
     companyName: String!
     email: String!
     "The ID of the object."
     id: ID!
+    "List of public metadata items. Can be accessed without permissions."
+    metadata: [MetadataItem]!
     name: String!
+    "List of private metadata items.Requires proper staff permissions to access."
+    privateMetadata: [MetadataItem]!
     shippingZones(after: String, before: String, first: Int, last: Int): ShippingZoneCountableConnection!
     slug: String!
 }
@@ -7265,6 +7335,12 @@ enum AppTypeEnum {
 }
 
 "An enumeration."
+enum AttributeEntityTypeEnum {
+    PAGE
+    PRODUCT
+}
+
+"An enumeration."
 enum AttributeErrorCode {
     ALREADY_EXISTS
     GRAPHQL_ERROR
@@ -7279,6 +7355,7 @@ enum AttributeInputTypeEnum {
     DROPDOWN
     FILE
     MULTISELECT
+    REFERENCE
 }
 
 enum AttributeSortField {
@@ -7306,19 +7383,6 @@ enum AttributeSortField {
 enum AttributeTypeEnum {
     PAGE_TYPE
     PRODUCT_TYPE
-}
-
-enum AttributeValueType {
-    COLOR
-    GRADIENT
-    STRING
-    URL
-}
-
-"An enumeration."
-enum AuthorizationKeyType {
-    FACEBOOK
-    GOOGLE_OAUTH2
 }
 
 enum CategorySortField {
@@ -7748,6 +7812,12 @@ enum FulfillmentStatus {
     FULFILLED
     "Refunded"
     REFUNDED
+    "Refunded and returned"
+    REFUNDED_AND_RETURNED
+    "Replaced"
+    REPLACED
+    "Returned"
+    RETURNED
 }
 
 "An enumeration."
@@ -7897,7 +7967,6 @@ enum OrderErrorCode {
     CANNOT_CANCEL_ORDER
     CANNOT_DELETE
     CANNOT_REFUND
-    CANNOT_REFUND_FULFILLMENT_LINE
     CAPTURE_INACTIVE_PAYMENT
     CHANNEL_INACTIVE
     DUPLICATED_INPUT_ITEM
@@ -7905,7 +7974,7 @@ enum OrderErrorCode {
     GRAPHQL_ERROR
     INSUFFICIENT_STOCK
     INVALID
-    INVALID_REFUND_QUANTITY
+    INVALID_QUANTITY
     NOT_AVAILABLE_IN_CHANNEL
     NOT_EDITABLE
     NOT_FOUND
@@ -7942,13 +8011,16 @@ enum OrderEventsEnum {
     CONFIRMED
     DRAFT_ADDED_PRODUCTS
     DRAFT_CREATED
+    DRAFT_CREATED_FROM_REPLACE
     DRAFT_REMOVED_PRODUCTS
     EMAIL_SENT
     EXTERNAL_SERVICE_NOTIFICATION
     FULFILLMENT_CANCELED
     FULFILLMENT_FULFILLED_ITEMS
     FULFILLMENT_REFUNDED
+    FULFILLMENT_REPLACED
     FULFILLMENT_RESTOCKED_ITEMS
+    FULFILLMENT_RETURNED
     INVOICE_GENERATED
     INVOICE_REQUESTED
     INVOICE_SENT
@@ -7956,6 +8028,7 @@ enum OrderEventsEnum {
     NOTE_ADDED
     ORDER_FULLY_PAID
     ORDER_MARKED_AS_PAID
+    ORDER_REPLACEMENT_CREATED
     OTHER
     OVERSOLD_ITEMS
     PAYMENT_AUTHORIZED
@@ -7997,6 +8070,10 @@ enum OrderStatus {
     FULFILLED
     "Partially fulfilled"
     PARTIALLY_FULFILLED
+    "Partially returned"
+    PARTIALLY_RETURNED
+    "Returned"
+    RETURNED
     "Unconfirmed"
     UNCONFIRMED
     "Unfulfilled"
@@ -8590,6 +8667,8 @@ input AppTokenInput {
 input AttributeCreateInput {
     "Whether the attribute can be displayed in the admin product list."
     availableInGrid: Boolean
+    "The entity type which can be used as a reference."
+    entityType: AttributeEntityTypeEnum
     "Whether the attribute can be filtered in dashboard."
     filterableInDashboard: Boolean
     "Whether the attribute can be filtered in storefront."
@@ -8683,15 +8762,10 @@ input AttributeValueInput {
     file: String
     "ID of the selected attribute."
     id: ID
+    "List of entity IDs that will be used as references."
+    references: [ID!]
     "The value or slug of an attribute to resolve. If the passed value is non-existent, it will be created."
     values: [String]
-}
-
-input AuthorizationKeyInput {
-    "Client authorization key (client ID)."
-    key: String!
-    "Client secret."
-    password: String!
 }
 
 input BulkAttributeValueInput {
@@ -8720,10 +8794,8 @@ input CategoryInput {
     backgroundImage: Upload
     "Alt text for an image."
     backgroundImageAlt: String
-    "Category description (HTML/text)."
-    description: String
     "Category description (JSON)."
-    descriptionJson: JSONString
+    description: JSONString
     "Category name."
     name: String
     "Search engine optimization fields."
@@ -8798,10 +8870,8 @@ input CollectionCreateInput {
     backgroundImage: Upload
     "Alt text for an image."
     backgroundImageAlt: String
-    "Description of the collection (HTML/text)."
-    description: String
     "Description of the collection (JSON)."
-    descriptionJson: JSONString
+    description: JSONString
     "Informs whether a collection is published."
     isPublished: Boolean
     "Name of the collection."
@@ -8829,10 +8899,8 @@ input CollectionInput {
     backgroundImage: Upload
     "Alt text for an image."
     backgroundImageAlt: String
-    "Description of the collection (HTML/text)."
-    description: String
     "Description of the collection (JSON)."
-    descriptionJson: JSONString
+    description: JSONString
     "Informs whether a collection is published."
     isPublished: Boolean
     "Name of the collection."
@@ -9165,12 +9233,14 @@ input OrderAddNoteInput {
 }
 
 input OrderDraftFilterInput {
+    channels: [ID]
     created: DateRangeInput
     customer: String
     search: String
 }
 
 input OrderFilterInput {
+    channels: [ID]
     created: DateRangeInput
     customer: String
     paymentStatus: [PaymentChargeStatusEnum]
@@ -9236,6 +9306,37 @@ input OrderRefundProductsInput {
     orderLines: [OrderRefundLineInput!]
 }
 
+input OrderReturnFulfillmentLineInput {
+    "The ID of the fulfillment line to return."
+    fulfillmentLineId: ID!
+    "The number of items to be returned."
+    quantity: Int!
+    "Determines, if the line should be added to replace order."
+    replace: Boolean = false
+}
+
+input OrderReturnLineInput {
+    "The ID of the order line to return."
+    orderLineId: ID!
+    "The number of items to be returned."
+    quantity: Int!
+    "Determines, if the line should be added to replace order."
+    replace: Boolean = false
+}
+
+input OrderReturnProductsInput {
+    "The total amount of refund when the value is provided manually."
+    amountToRefund: PositiveDecimal
+    "List of fulfilled lines to return."
+    fulfillmentLines: [OrderReturnFulfillmentLineInput!]
+    "If true, Saleor will refund shipping costs. If amountToRefund is providedincludeShippingCosts will be ignored."
+    includeShippingCosts: Boolean = false
+    "List of unfulfilled lines to return."
+    orderLines: [OrderReturnLineInput!]
+    "If true, Saleor will call refund action for all lines."
+    refund: Boolean = false
+}
+
 input OrderSettingsUpdateInput {
     "When disabled, all new orders from checkout will be marked as unconfirmed. When enabled orders from checkout will become unfulfilled immediately."
     automaticallyConfirmAllNewOrders: Boolean!
@@ -9265,10 +9366,8 @@ input OrderUpdateShippingInput {
 input PageCreateInput {
     "List of attributes."
     attributes: [AttributeValueInput!]
-    "Page content. May consist of ordinary text, HTML and images."
-    content: String
     "Page content in JSON format."
-    contentJson: JSONString
+    content: JSONString
     "Determines if page is visible in the storefront."
     isPublished: Boolean
     "ID of the page type that page belongs to."
@@ -9290,10 +9389,8 @@ input PageFilterInput {
 input PageInput {
     "List of attributes."
     attributes: [AttributeValueInput!]
-    "Page content. May consist of ordinary text, HTML and images."
-    content: String
     "Page content in JSON format."
-    contentJson: JSONString
+    content: JSONString
     "Determines if page is visible in the storefront."
     isPublished: Boolean
     "Publication date. ISO 8601 standard."
@@ -9314,8 +9411,7 @@ input PageSortingInput {
 }
 
 input PageTranslationInput {
-    content: String
-    contentJson: JSONString
+    content: JSONString
     seoDescription: String
     seoTitle: String
     title: String
@@ -9462,10 +9558,8 @@ input ProductCreateInput {
     chargeTaxes: Boolean
     "List of IDs of collections that the product belongs to."
     collections: [ID]
-    "Product description (HTML/text)."
-    description: String
     "Product description (JSON)."
-    descriptionJson: JSONString
+    description: JSONString
     "Product name."
     name: String
     "ID of the type that product belongs to."
@@ -9523,10 +9617,8 @@ input ProductInput {
     chargeTaxes: Boolean
     "List of IDs of collections that the product belongs to."
     collections: [ID]
-    "Product description (HTML/text)."
-    description: String
     "Product description (JSON)."
-    descriptionJson: JSONString
+    description: JSONString
     "Product name."
     name: String
     "Defines the product rating value."
@@ -9782,6 +9874,8 @@ input ShippingZoneCreateInput {
     countries: [String]
     "Default shipping zone will be used for countries not covered by other zones."
     default: Boolean
+    "Description of the shipping zone."
+    description: String
     "Shipping zone's name. Visible only to the staff."
     name: String
 }
@@ -9793,6 +9887,8 @@ input ShippingZoneUpdateInput {
     countries: [String]
     "Default shipping zone will be used for countries not covered by other zones."
     default: Boolean
+    "Description of the shipping zone."
+    description: String
     "Shipping zone's name. Visible only to the staff."
     name: String
     "List of warehouses to unassign from a shipping zone"
@@ -9901,8 +9997,7 @@ input StockInput {
 }
 
 input TranslationInput {
-    description: String
-    descriptionJson: JSONString
+    description: JSONString
     name: String
     seoDescription: String
     seoTitle: String

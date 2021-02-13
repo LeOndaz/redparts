@@ -12,7 +12,7 @@ function optionsSetAll(state: IOptionsState, options: IOptionsData): IOptionsSta
     const [
         desktopHeaderLayout,
         desktopHeaderScheme,
-    ] = desktopHeaderVariant.split('/') as [IDesktopHeaderLayout, IDesktopHeaderScheme];
+    ] = desktopHeaderVariant.split('-') as [IDesktopHeaderLayout, IDesktopHeaderScheme];
 
     return {
         desktopHeaderLayout,

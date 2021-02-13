@@ -1,8 +1,8 @@
 // react
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 // third-party
 import classNames from 'classnames';
-import { FormattedMessage, useIntl } from 'react-intl';
+import {FormattedMessage, useIntl} from 'react-intl';
 // application
 import AppImage from '~/components/shared/AppImage';
 import AppLink from '~/components/shared/AppLink';
@@ -13,9 +13,11 @@ import CurrencyFormat from '~/components/shared/CurrencyFormat';
 import InputNumber from '~/components/shared/InputNumber';
 import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
-import { Cross12Svg } from '~/svg';
-import { ICartItem } from '~/store/cart/cartTypes';
-import { useCart, useCartRemoveItem, useCartUpdateQuantities } from '~/store/cart/cartHooks';
+import {Cross12Svg} from '~/svg';
+import {ICartItem} from '~/store/cart/cartTypes';
+import {useCart, useCartRemoveItem, useCartUpdateQuantities} from '~/store/cart/cartHooks';
+import VoucherForm from "~/components/shop/gateways/VoucherForm";
+import {useAsyncAction} from "~/store/hooks";
 
 interface Quantity {
     itemId: number;
@@ -29,7 +31,7 @@ function Page() {
     const cartUpdateQuantities = useCartUpdateQuantities();
     const [quantities, setQuantities] = useState<Quantity[]>([]);
 
-    const { items } = cart;
+    const {items} = cart;
 
     const updateQuantities = () => (
         cartUpdateQuantities(quantities.map((x) => ({
@@ -80,12 +82,12 @@ function Page() {
     if (items.length === 0) {
         return (
             <React.Fragment>
-                <PageTitle>{intl.formatMessage({ id: 'HEADER_SHOPPING_CART' })}</PageTitle>
+                <PageTitle>{intl.formatMessage({id: 'HEADER_SHOPPING_CART'})}</PageTitle>
 
                 <BlockHeader
                     breadcrumb={[
-                        { title: intl.formatMessage({ id: 'LINK_HOME' }), url: url.home() },
-                        { title: intl.formatMessage({ id: 'LINK_CART' }), url: url.cart() },
+                        {title: intl.formatMessage({id: 'LINK_HOME'}), url: url.home()},
+                        {title: intl.formatMessage({id: 'LINK_CART'}), url: url.cart()},
                     ]}
                 />
 
@@ -93,23 +95,23 @@ function Page() {
                     <div className="container">
                         <div className="block-empty__body">
                             <h1 className="block-empty__title">
-                                <FormattedMessage id="HEADER_SHOPPING_CART_EMPTY_TITLE" />
+                                <FormattedMessage id="HEADER_SHOPPING_CART_EMPTY_TITLE"/>
                             </h1>
                             <div
                                 dangerouslySetInnerHTML={{
-                                    __html: intl.formatMessage({ id: 'HEADER_SHOPPING_CART_EMPTY_SUBTITLE' }),
+                                    __html: intl.formatMessage({id: 'HEADER_SHOPPING_CART_EMPTY_SUBTITLE'}),
                                 }}
                             />
                             <div className="block-empty__action">
                                 <AppLink href={url.home()} className="btn btn-primary btn-sm">
-                                    <FormattedMessage id="BUTTON_GO_TO_HOMEPAGE" />
+                                    <FormattedMessage id="BUTTON_GO_TO_HOMEPAGE"/>
                                 </AppLink>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <BlockSpace layout="before-footer" />
+                <BlockSpace layout="before-footer"/>
             </React.Fragment>
         );
     }
@@ -117,149 +119,131 @@ function Page() {
     const table = (
         <table className="cart-table__table">
             <thead className="cart-table__head">
-                <tr className="cart-table__row">
-                    <th className="cart-table__column cart-table__column--image">
-                        <FormattedMessage id="TABLE_IMAGE" />
-                    </th>
-                    <th className="cart-table__column cart-table__column--product">
-                        <FormattedMessage id="TABLE_PRODUCT" />
-                    </th>
-                    <th className="cart-table__column cart-table__column--price">
-                        <FormattedMessage id="TABLE_PRICE" />
-                    </th>
-                    <th className="cart-table__column cart-table__column--quantity">
-                        <FormattedMessage id="TABLE_QUANTITY" />
-                    </th>
-                    <th className="cart-table__column cart-table__column--total">
-                        <FormattedMessage id="TABLE_TOTAL" />
-                    </th>
-                    <th className="cart-table__column cart-table__column--remove">
+            <tr className="cart-table__row">
+                <th className="cart-table__column cart-table__column--image">
+                    <FormattedMessage id="TABLE_IMAGE"/>
+                </th>
+                <th className="cart-table__column cart-table__column--product">
+                    <FormattedMessage id="TABLE_PRODUCT"/>
+                </th>
+                <th className="cart-table__column cart-table__column--price">
+                    <FormattedMessage id="TABLE_PRICE"/>
+                </th>
+                <th className="cart-table__column cart-table__column--quantity">
+                    <FormattedMessage id="TABLE_QUANTITY"/>
+                </th>
+                <th className="cart-table__column cart-table__column--total">
+                    <FormattedMessage id="TABLE_TOTAL"/>
+                </th>
+                <th className="cart-table__column cart-table__column--remove">
                         <span className="sr-only">
-                            <FormattedMessage id="TABLE_REMOVE" />
+                            <FormattedMessage id="TABLE_REMOVE"/>
                         </span>
-                    </th>
-                </tr>
+                </th>
+            </tr>
             </thead>
             <tbody className="cart-table__body">
-                {items.map((item) => (
-                    <tr key={item.id} className="cart-table__row">
-                        <td className="cart-table__column cart-table__column--image">
-                            <div className="image image--type--product">
-                                <AppLink href={url.product(item.product)} className="image__body">
-                                    <AppImage
-                                        className="image__tag"
-                                        src={item.product.images?.[0] && item.product.images[0].url}
-                                        alt={item.product.images?.[0] && item.product.images[0].alt}
-                                    />
-                                </AppLink>
-                            </div>
-                        </td>
-                        <td className="cart-table__column cart-table__column--product">
-                            <AppLink href={url.product(item.product)} className="cart-table__product-name">
-                                {item.product.name}
+            {items.map((item) => (
+                <tr key={item.id} className="cart-table__row">
+                    <td className="cart-table__column cart-table__column--image">
+                        <div className="image image--type--product">
+                            <AppLink href={url.product(item.product)} className="image__body">
+                                <AppImage
+                                    className="image__tag"
+                                    src={item.product.images?.[0] && item.product.images[0].url}
+                                    alt={item.product.images?.[0] && item.product.images[0].alt}
+                                />
                             </AppLink>
-                            {item.options.length > 0 && (
-                                <ul className="cart-table__options">
-                                    {item.options.map((option, optionIndex) => (
-                                        <li key={optionIndex}>
-                                            {`${option.name}: ${option.value}`}
-                                        </li>
-                                    ))}
-                                </ul>
+                        </div>
+                    </td>
+                    <td className="cart-table__column cart-table__column--product">
+                        <AppLink href={url.product(item.product)} className="cart-table__product-name">
+                            {item.product.name}
+                        </AppLink>
+                        {item.options.length > 0 && (
+                            <ul className="cart-table__options">
+                                {item.options.map((option, optionIndex) => (
+                                    <li key={optionIndex}>
+                                        {`${option.name}: ${option.value}`}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </td>
+                    <td
+                        className="cart-table__column cart-table__column--price"
+                        data-title={intl.formatMessage({id: 'TABLE_PRICE'})}
+                    >
+                        <CurrencyFormat value={item.price}/>
+                    </td>
+                    <td
+                        className="cart-table__column cart-table__column--quantity"
+                        data-title={intl.formatMessage({id: 'TABLE_QUANTITY'})}
+                    >
+                        <InputNumber
+                            min={1}
+                            className="cart-table__quantity"
+                            value={getItemQuantity(item)}
+                            onChange={(quantity) => handleChangeQuantity(item, quantity)}
+                        />
+                    </td>
+                    <td
+                        className="cart-table__column cart-table__column--total"
+                        data-title={intl.formatMessage({id: 'TABLE_TOTAL'})}
+                    >
+                        <CurrencyFormat value={item.total}/>
+                    </td>
+                    <td className="cart-table__column cart-table__column--remove">
+                        <AsyncAction
+                            action={() => cartRemoveItem(item.id)}
+                            render={({run, loading}) => (
+                                <button
+                                    type="button"
+                                    className={classNames(
+                                        'cart-table__remove',
+                                        'btn',
+                                        'btn-sm',
+                                        'btn-icon',
+                                        'btn-muted',
+                                        {
+                                            'btn-loading': loading,
+                                        },
+                                    )}
+                                    onClick={run}
+                                >
+
+                                    <Cross12Svg/>
+                                </button>
                             )}
-                        </td>
-                        <td
-                            className="cart-table__column cart-table__column--price"
-                            data-title={intl.formatMessage({ id: 'TABLE_PRICE' })}
-                        >
-                            <CurrencyFormat value={item.price} />
-                        </td>
-                        <td
-                            className="cart-table__column cart-table__column--quantity"
-                            data-title={intl.formatMessage({ id: 'TABLE_QUANTITY' })}
-                        >
-                            <InputNumber
-                                min={1}
-                                className="cart-table__quantity"
-                                value={getItemQuantity(item)}
-                                onChange={(quantity) => handleChangeQuantity(item, quantity)}
-                            />
-                        </td>
-                        <td
-                            className="cart-table__column cart-table__column--total"
-                            data-title={intl.formatMessage({ id: 'TABLE_TOTAL' })}
-                        >
-                            <CurrencyFormat value={item.total} />
-                        </td>
-                        <td className="cart-table__column cart-table__column--remove">
+                        />
+                    </td>
+                </tr>
+            ))}
+            </tbody>
+            <tfoot className="cart-table__foot">
+            <tr>
+                <td colSpan={6}>
+                    <div className="cart-table__actions">
+                        <div className="cart-table__update-button">
                             <AsyncAction
-                                action={() => cartRemoveItem(item.id)}
-                                render={({ run, loading }) => (
+                                action={updateQuantities}
+                                render={({run, loading}) => (
                                     <button
                                         type="button"
-                                        className={classNames(
-                                            'cart-table__remove',
-                                            'btn',
-                                            'btn-sm',
-                                            'btn-icon',
-                                            'btn-muted',
-                                            {
-                                                'btn-loading': loading,
-                                            },
-                                        )}
+                                        className={classNames('btn', 'btn-sm', 'btn-primary', {
+                                            'btn-loading': loading,
+                                        })}
+                                        disabled={!cartNeedUpdate()}
                                         onClick={run}
                                     >
-
-                                        <Cross12Svg />
+                                        <FormattedMessage id="BUTTON_UPDATE_CART"/>
                                     </button>
                                 )}
                             />
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-            <tfoot className="cart-table__foot">
-                <tr>
-                    <td colSpan={6}>
-                        <div className="cart-table__actions">
-                            <form className="cart-table__coupon-form form-row">
-                                <div className="form-group mb-0 col flex-grow-1">
-                                    <label htmlFor="coupon-code" className="sr-only">
-                                        <FormattedMessage id="INPUT_COUPON_CODE_LABEL" />
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="form-control form-control-sm"
-                                        id="coupon-code"
-                                        placeholder={intl.formatMessage({ id: 'INPUT_COUPON_CODE_PLACEHOLDER' })}
-                                    />
-                                </div>
-                                <div className="form-group mb-0 col-auto">
-                                    <button type="button" className="btn btn-sm btn-primary">
-                                        <FormattedMessage id="BUTTON_APPLY_COUPON" />
-                                    </button>
-                                </div>
-                            </form>
-                            <div className="cart-table__update-button">
-                                <AsyncAction
-                                    action={updateQuantities}
-                                    render={({ run, loading }) => (
-                                        <button
-                                            type="button"
-                                            className={classNames('btn', 'btn-sm', 'btn-primary', {
-                                                'btn-loading': loading,
-                                            })}
-                                            disabled={!cartNeedUpdate()}
-                                            onClick={run}
-                                        >
-                                            <FormattedMessage id="BUTTON_UPDATE_CART" />
-                                        </button>
-                                    )}
-                                />
-                            </div>
                         </div>
-                    </td>
-                </tr>
+                    </div>
+                </td>
+            </tr>
             </tfoot>
         </table>
     );
@@ -268,59 +252,59 @@ function Page() {
         <div className="card">
             <div className="card-body card-body--padding--2">
                 <h3 className="card-title">
-                    <FormattedMessage id="HEADER_CART_TOTALS" />
+                    <FormattedMessage id="HEADER_CART_TOTALS"/>
                 </h3>
 
                 <table className="cart__totals-table">
                     {cart.totals.length > 0 && (
                         <React.Fragment>
                             <thead>
-                                <tr>
-                                    <th>
-                                        <FormattedMessage id="TABLE_SUBTOTAL" />
-                                    </th>
-                                    <td>
-                                        <CurrencyFormat value={cart.subtotal} />
-                                    </td>
-                                </tr>
+                            <tr>
+                                <th>
+                                    <FormattedMessage id="TABLE_SUBTOTAL"/>
+                                </th>
+                                <td>
+                                    <CurrencyFormat value={cart.subtotal}/>
+                                </td>
+                            </tr>
                             </thead>
                             <tbody>
-                                {cart.totals.map((total, index) => (
-                                    <tr key={index}>
-                                        <th>
-                                            <FormattedMessage id={`TABLE_TOTAL_${total.title}`} />
-                                        </th>
-                                        <td>
-                                            <CurrencyFormat value={total.price} />
+                            {cart.totals.map((total, index) => (
+                                <tr key={index}>
+                                    <th>
+                                        <FormattedMessage id={`TABLE_TOTAL_${total.title}`}/>
+                                    </th>
+                                    <td>
+                                        <CurrencyFormat value={total.price}/>
 
-                                            {total.type === 'shipping' && (
-                                                <div>
-                                                    <AppLink anchor onClick={(event) => event.preventDefault()}>
-                                                        <FormattedMessage id="LINK_CALCULATE_SHIPPING" />
-                                                    </AppLink>
-                                                </div>
-                                            )}
+                                        {total.type === 'shipping' && (
+                                            <div>
+                                                <AppLink anchor onClick={(event) => event.preventDefault()}>
+                                                    <FormattedMessage id="LINK_CALCULATE_SHIPPING"/>
+                                                </AppLink>
+                                            </div>
+                                        )}
 
-                                        </td>
-                                    </tr>
-                                ))}
+                                    </td>
+                                </tr>
+                            ))}
                             </tbody>
                         </React.Fragment>
                     )}
                     <tfoot>
-                        <tr>
-                            <th>
-                                <FormattedMessage id="TABLE_TOTAL" />
-                            </th>
-                            <td>
-                                <CurrencyFormat value={cart.total} />
-                            </td>
-                        </tr>
+                    <tr>
+                        <th>
+                            <FormattedMessage id="TABLE_TOTAL"/>
+                        </th>
+                        <td>
+                            <CurrencyFormat value={cart.total}/>
+                        </td>
+                    </tr>
                     </tfoot>
                 </table>
 
                 <AppLink href={url.checkout()} className="btn btn-primary btn-xl btn-block">
-                    <FormattedMessage id="BUTTON_PROCEED_TO_CHECKOUT" />
+                    <FormattedMessage id="BUTTON_PROCEED_TO_CHECKOUT"/>
                 </AppLink>
             </div>
         </div>
@@ -328,13 +312,13 @@ function Page() {
 
     return (
         <React.Fragment>
-            <PageTitle>{intl.formatMessage({ id: 'HEADER_SHOPPING_CART' })}</PageTitle>
+            <PageTitle>{intl.formatMessage({id: 'HEADER_SHOPPING_CART'})}</PageTitle>
 
             <BlockHeader
-                pageTitle={<FormattedMessage id="HEADER_SHOPPING_CART" />}
+                pageTitle={<FormattedMessage id="HEADER_SHOPPING_CART"/>}
                 breadcrumb={[
-                    { title: intl.formatMessage({ id: 'LINK_HOME' }), url: url.home() },
-                    { title: intl.formatMessage({ id: 'LINK_CART' }), url: url.cart() },
+                    {title: intl.formatMessage({id: 'LINK_HOME'}), url: url.home()},
+                    {title: intl.formatMessage({id: 'LINK_CART'}), url: url.cart()},
                 ]}
             />
 
@@ -351,7 +335,7 @@ function Page() {
                 </div>
             </div>
 
-            <BlockSpace layout="before-footer" />
+            <BlockSpace layout="before-footer"/>
         </React.Fragment>
     );
 }

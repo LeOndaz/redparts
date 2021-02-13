@@ -12,7 +12,7 @@ import {IStripeResponse} from "~/components/shop/gateways/stripe/StripeGateway";
 
 interface Props {
     onSubmit: (data: IStripeResponse) => void;
-    isLoading: boolean
+    paymentIsLoading: boolean
 }
 
 const style = {
@@ -31,7 +31,7 @@ const style = {
     }
 };
 
-function StripeForm({onSubmit, isLoading}: Props) {
+function StripeForm({onSubmit, paymentIsLoading}: Props) {
     const stripe = useStripe()
     const elements = useElements()
 
@@ -46,7 +46,11 @@ function StripeForm({onSubmit, isLoading}: Props) {
         if(!cardElement) return;
 
         const result = await stripe.createToken(cardElement)
-        onSubmit(result)
+
+        onSubmit({
+            ...result,
+            token: result.token?.id,
+        })
     }
 
 
@@ -101,7 +105,7 @@ function StripeForm({onSubmit, isLoading}: Props) {
                     </div>
                 </Row>
                 <button className={classNames('btn', 'btn-primary', {
-                    'btn-loading': isLoading
+                    'btn-loading': paymentIsLoading,
                 })} role="link" disabled={!stripe}>
                     Pay
                 </button>

@@ -18,7 +18,7 @@ export function checkout(data: ICheckoutData): Promise<IOrder> {
         const product = products.find((p) => p.id === x.product.id);
 
         if (!product) {
-            throw new Error('Product not found');
+            throw new Error('Product not found', );
         }
 
         return {

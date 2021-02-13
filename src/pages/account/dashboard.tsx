@@ -14,17 +14,19 @@ import { accountApi } from '~/api';
 import { IAddress } from '~/interfaces/address';
 import { IOrder } from '~/interfaces/order';
 import { useUser } from '~/store/user/userHooks';
+import {useLanguage} from "~/services/i18n/hooks";
 
 function Page() {
     const intl = useIntl();
     const user = useUser();
+    const language = useLanguage();
     const [address, setAddress] = useState<IAddress | null>(null);
     const [orders, setOrders] = useState<IOrder[]>([]);
 
     useEffect(() => {
         if (user) {
-            accountApi.getDefaultAddress().then(setAddress);
-            accountApi.getOrdersList({ limit: 3 }).then((list) => {
+            accountApi.getDefaultAddress(user).then(setAddress);
+            accountApi.getOrdersList({ limit: 3 }, language).then((list) => {
                 setOrders(list.items);
             });
         } else {

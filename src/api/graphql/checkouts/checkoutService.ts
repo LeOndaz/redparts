@@ -2,7 +2,7 @@ import {
     Checkout, CheckoutComplete, CheckoutCreate,
     CheckoutCreateInput,
     CheckoutLineInput, CheckoutPaymentCreate, CompleteCheckoutDocument,
-    CreateCheckoutDocument, CreatePaymentDocument, GetCheckoutByTokenDocument, Payment,
+    CreateCheckoutDocument, CreatePaymentDocument, GetCheckoutByTokenDocument, Order, Payment,
     PaymentInput
 } from "~/api/graphql/types";
 import {client} from "~/api";
@@ -15,23 +15,32 @@ import {handleSingleResponse} from "~/api/graphql/misc/mappers/utils";
 import * as util from "util";
 import {withAuth} from "~/api/graphql/users/authService";
 import {ICustomFields} from "~/interfaces/custom-fields";
+import {orderMap} from "~/api/graphql/orders/orderMappers";
+import {IOrder} from "~/interfaces/order";
+import {MappedCheckoutComplete} from "~/api/graphql/checkouts/types";
 
 
-const handleCreateCheckoutResponse = (res: any): Checkout => handleSingleResponse({
-    inMapper: (checkoutCreate: CheckoutCreate) => checkoutCreate.checkout,
+const handleCreateCheckoutResponse = (res: any): CheckoutCreate => handleSingleResponse({
     dataField: 'checkoutCreate',
     res,
 })
 
-// const handleCreatePaymentResponse = (res: any): Payment => handleSingleResponse({
-//     inMapper: (paymentCreate: CheckoutPaymentCreate) => paymentCreate.payment,
-//     dataField: 'checkoutPaymentCreate',
-//     res,
-// })
-
 const handleCheckoutSingleResponse = (res: any): Checkout => handleSingleResponse({
     dataField: 'checkout',
     res,
+})
+
+export const handleCheckoutCompleteResponse = (res: any): MappedCheckoutComplete => handleSingleResponse({
+    inMapper: (checkoutComplete: CheckoutComplete) => {
+        const order = orderMap.in(checkoutComplete.order!)
+
+        return {
+            ...checkoutComplete,
+            order,
+        }
+    },
+    dataField: 'checkoutComplete',
+    res
 })
 
 export const getCheckoutByToken = (token: string, language: ILanguage, context?: ICustomFields): Promise<Checkout> => withAuth(client.query)({
@@ -43,15 +52,8 @@ export const getCheckoutByToken = (token: string, language: ILanguage, context?:
     context,
 }).then(handleCheckoutSingleResponse)
 
-// export const getCheckoutById = (id: string, language: ILanguage): Promise<Checkout> => client.query({
-//     query: GetCheckoutByIdDocment,
-//     variables: {
-//         id,
-//         languageCode: language.code,
-//     }
-// }).then(handleCheckoutSingleResponse)
 
-export const checkout = (data: ICheckoutData, isAnonymous: boolean, language: ILanguage): Promise<Checkout> => {
+export const checkout = (data: ICheckoutData, isAnonymous: boolean, language: ILanguage): Promise<CheckoutCreate> => {
     const billingAddress = addressMap.out(data.billingAddress);
     const shippingAddress = data.shippingAddress ? addressMap.out(data.shippingAddress) : billingAddress;
 
@@ -101,7 +103,7 @@ export const createPayment = (checkoutId: string, input: PaymentInput, language:
     }
 }).then(r => r.data.checkoutPaymentCreate)
 
-export const completeCheckout = (checkoutId: string, redirectUrl: string, storeSource: boolean, language: ILanguage, paymentData?: string,): Promise<CheckoutComplete> => client.mutate({
+export const completeCheckout = (checkoutId: string, redirectUrl: string, storeSource: boolean, language: ILanguage, paymentData?: string,): Promise<MappedCheckoutComplete> => client.mutate({
     mutation: CompleteCheckoutDocument,
     variables: {
         checkoutId,
@@ -110,4 +112,4 @@ export const completeCheckout = (checkoutId: string, redirectUrl: string, storeS
         languageCode: language.code,
         ...(paymentData ? {paymentData} : {}),
     }
-}).then(r => r.data.checkoutComplete)
+}).then(handleCheckoutCompleteResponse)

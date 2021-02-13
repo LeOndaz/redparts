@@ -10,7 +10,6 @@ import ReviewsView from '~/components/shop/ReviewsView';
 import Specification from '~/components/shop/Specification';
 import { IProduct, IProductAttributeGroup } from '~/interfaces/product';
 import { IProductPageLayout } from '~/interfaces/pages';
-import {customEditorjsParser} from "~/components/utils"
 
 
 export interface ITab {

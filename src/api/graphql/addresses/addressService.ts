@@ -6,13 +6,14 @@ import {
     DeleteAddressDocument,
     GetAddressByIdDocument,
     UpdateAddressDocument,
-    GetAddressListDocument,
+    GetAddressListDocument, AddressTypeEnum, SetDefaultAddressDocument,
 } from '~/api/graphql/types';
 import {handleRelayedResponse, handleSingleResponse} from '~/api/graphql/misc/mappers/utils';
 import {addressMap} from '~/api/graphql/addresses/addressMappers';
 import {IEditAddressData} from '~/api/base';
 import {client} from "~/api";
 import {withAuth} from "~/api/graphql/users/authService";
+import {userMap} from "~/api/graphql/users/userMappers";
 
 const handleSingleAddressResponse = (res: ApolloQueryResult<any>) => handleSingleResponse({
     res,
@@ -67,6 +68,17 @@ export const addAddress = (userId: string, input: IEditAddressData) => _mutateAd
     .then(handleAccountErrors('addressCreate'))
     .then(res => res.data.addressCreate.address)
     .then(addressMap.in)
+
+export const setDefaultAddress = (addressId: string, userId: string, type: AddressTypeEnum) => client.mutate({
+    mutation: SetDefaultAddressDocument,
+    variables: {
+        addressId,
+        userId,
+        type,
+    }})
+    .then(handleAccountErrors('setDefaultAddress'))
+    .then(res => res.data.setDefaultAddress.user)
+    .then(userMap.in)
 
 export const deleteAddress = (id: string) => mutateById(id, DeleteAddressDocument);
 

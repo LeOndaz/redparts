@@ -30,3 +30,16 @@ mutation updateAddress($id: ID!, $input: AddressInput!) {
     }
   }
 }
+
+
+mutation setDefaultAddress($addressId: ID!, $userId: ID!, $type: AddressTypeEnum!) {
+  addressSetDefault(addressId: $addressId, userId: $userId, type: $type) {
+    user {
+      ...userPrivateDetailsFragment
+    }
+    accountErrors {
+      field
+      code
+    }
+  }
+}

@@ -1,9 +1,9 @@
 import {
     AddressInput,
     Channel, CheckoutAddPromoCode, CheckoutShippingMethodUpdate,
-    GetCountriesDocument,
+    GetCountriesDocument, GetPageBySlugDocument,
     GetPaymentGatewaysDocument, GetSiteDetailsDocument,
-    MetadataItem, PaymentGateway, SetShippingMethodDocument, ShippingMethod,
+    MetadataItem, Page, PaymentGateway, SetShippingMethodDocument, ShippingMethod,
     UpdateMetadataDocument
 } from "~/api/graphql/types";
 import {client, getAttributeBySlug} from "~/api";
@@ -12,7 +12,7 @@ import {ICountry} from "~/interfaces/country";
 import {withAuth} from "~/api/graphql/users/authService";
 import {getMetadataItem, handleMetadataErrors} from "~/api/graphql/misc/helpers";
 import {
-    DefaultAttrSlugs,
+    attrSlugsEnum,
     PLUGIN_FACEBOOK_PIXEL_URL,
     PLUGIN_GTAG_URL,
     PLUGIN_OPEN_EXCHANGE_URL
@@ -21,6 +21,8 @@ import {ILanguage} from "~/interfaces/language";
 import {IAddress} from "~/interfaces/address";
 import {addressMap} from "~/api/graphql/addresses/addressMappers";
 import {ICurrency} from "~/interfaces/currency";
+import {parseEditorjsText} from "~/components/utils";
+import {IPage} from "~/interfaces/page";
 
 export const getCountries = (language: ILanguage): Promise<ICountry[]> => {
     return client.query({
@@ -35,7 +37,7 @@ export const getBrands = (language: ILanguage): Promise<IBrand[]> => {
     /**
      * IBrands require an image: string and not IImage.
      * */
-    return getAttributeBySlug(DefaultAttrSlugs.Brand, language).then(r => {
+    return getAttributeBySlug(attrSlugsEnum.Brand, language).then(r => {
         const {attribute} = r.data;
 
         if (!attribute) return [];

@@ -47,11 +47,11 @@ const url = {
     brand: (brand: IBrand) => '/',
     cart: () => '/cart',
     checkout: () => '/cart/checkout',
-    shipping: (checkout: Checkout, method: string) => `/cart/checkout/${checkout.id}/shipping?with=${method}`,
-    pay: (checkout: Checkout, method: string) => `/cart/checkout/${checkout.id}/pay?with=${method}`,
+    shipping: (checkout: Checkout, method: string) => `/cart/checkout/${checkout.token}/shipping?with=${method}`,
+    pay: (checkout: Checkout, method: string) => `/cart/checkout/${checkout.token}/pay?with=${method}`,
     checkoutSuccess: (order: IOrder): IAppLinkHref => ({
-        href: `/cart/checkout/[id]?token=${order.token}`,
-        as: `/cart/checkout/${order.token}`,
+        href: `/orders/[id]?token=${order.token}`,
+        as: `/orders/${order.token}`,
     }),
     wishlist: () => '/wishlist',
     compare: () => '/compare',
@@ -63,8 +63,8 @@ const url = {
 
     // auth pages
     signIn: () => '/account/login',
-    signUp: () => '/',
-    passwordRecovery: () => '/',
+    signUp: () => '/account/login',
+    passwordRecovery: () => '/account/password-reset',
 
     // account pages
     accountDashboard: (): IAppLinkHref => '/account/dashboard',
@@ -92,5 +92,6 @@ const url = {
     pageStoreLocation: () => '/',
     pageTerms: () => '/terms',
 };
+
 
 export default url;

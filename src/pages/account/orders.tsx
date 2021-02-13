@@ -12,10 +12,13 @@ import url from '~/services/url';
 import { accountApi } from '~/api';
 import { useList } from '~/services/hooks';
 import {isEmpty} from "~/api/graphql/misc/helpers";
+import {useLanguage} from "~/services/i18n/hooks";
+import {useUser} from "~/store/user/userHooks";
 
 function Page() {
     const intl = useIntl();
-    const { list, options, onNavigate } = useList((options) => accountApi.getOrdersList({ limit: 5, ...options }));
+    const language = useLanguage();
+    const { list, options, onNavigate } = useList((options) => accountApi.getOrdersList({ limit: 5, ...options }, language));
 
     return (
         <div className="card">

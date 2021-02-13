@@ -40,9 +40,15 @@
 
 import parser from "editorjs-html";
 
-export const customEditorjsParser = parser({
+const customEditorjsParser = parser({
     quote: ({data}) => {
-        return `<blockquote style="text-align: ${data.alignment}"> ${data.text} </blockquote> - ${data.caption}`;
+        return data.text ? `<blockquote style="text-align: ${data.alignment}">${data.text}</blockquote> - ${data.caption}` : '';
     },
+    paragraph: ({data}) => {
+        return data.text ? `<p>${data.text}</p>` : ''
+    }
 })
 
+export const parseEditorjsText = (text: string) => {
+    return customEditorjsParser.parse(JSON.parse(text));
+}

@@ -116,6 +116,7 @@ export interface IProduct {
     attributes: IProductAttribute[];
     options: IProductOption[];
     variants: IProductVariant[];
+    defaultVariantOptions: IProductOption[];
     customFields?: ICustomFields;
 }
 
